@@ -1,0 +1,8 @@
+{
+  "name": "Gestión Inmobiliaria",
+  "description": "Prototipo interactivo de una app de gestión inmobiliaria con Dashboard, Portfolio, CRM, Contratos y Analítica.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
