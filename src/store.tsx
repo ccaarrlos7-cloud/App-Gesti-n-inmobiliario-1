@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, ReactNode } from 'react';
+import React, { createContext, useState, useEffect, useContext, ReactNode } from 'react';
 import { Property, Tenant, Contract, Transaction, Issue } from './types';
 import { mockProperties, mockTenants, mockContracts, mockTransactions, mockIssues } from './data';
 
@@ -35,40 +35,68 @@ interface AppContextType {
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 
-function useLocalStorage<T>(key: string, initialValue: T) {
-  const [storedValue, setStoredValue] = useState<T>(() => {
-    try {
-      const item = window.localStorage.getItem(key);
-      return item ? JSON.parse(item) : initialValue;
-    } catch (error) {
-      console.warn(`Error reading localStorage for ${key}`, error);
-      return initialValue;
-    }
-  });
+
+function useCloudStorage<T>(key: string, initialValue: T) {
+  const [storedValue, setStoredValue] = useState<T>(initialValue);
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    fetch(`/api/store/${key}`)
+      .then(res => res.ok ? res.json() : initialValue)
+      .then(data => {
+        setStoredValue(data);
+        setIsLoaded(true);
+      })
+      .catch(e => {
+        console.error('Fetch error for', key, e);
+        setStoredValue(initialValue);
+        setIsLoaded(true);
+      });
+  }, [key]);
 
   const setValue = (value: T | ((val: T) => T)) => {
     try {
       const valueToStore = value instanceof Function ? value(storedValue) : value;
       setStoredValue(valueToStore);
-      window.localStorage.setItem(key, JSON.stringify(valueToStore));
+      if (isLoaded) {
+        console.log(`[App] Guardando '${key}' en la nube...`);
+        fetch(`/api/store/${key}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(valueToStore)
+        })
+        .then(res => {
+          if (!res.ok) {
+            console.error(`[App] Error HTTP al guardar '${key}':`, res.status, res.statusText);
+            alert(`Hubo un error al guardar los datos (${key}). Revisa la consola.`);
+          } else {
+            console.log(`[App] ¡'${key}' guardado con éxito!`);
+          }
+        })
+        .catch(err => {
+          console.error(`[App] Error de red al intentar guardar '${key}':`, err);
+          alert(`Fallo de conexión al guardar los datos (${key}). Revisa tu red.`);
+        });
+      }
     } catch (error) {
-      console.warn(`Error setting localStorage for ${key}`, error);
+      console.warn(`Error setting cloud storage for ${key}`, error);
     }
   };
 
-  return [storedValue, setValue] as const;
+  return [storedValue, setValue, isLoaded] as const;
 }
 
+
 export function AppProvider({ children }: { children: ReactNode }) {
-  const [properties, setProperties] = useLocalStorage('ai_crm_properties', mockProperties);
-  const [tenants, setTenants] = useLocalStorage('ai_crm_tenants', mockTenants);
-  const [contracts, setContracts] = useLocalStorage('ai_crm_contracts', mockContracts);
-  const [transactions, setTransactions] = useLocalStorage('ai_crm_transactions', mockTransactions);
-  const [issues, setIssues] = useLocalStorage('ai_crm_issues', mockIssues);
-  const [userName, setUserName] = useLocalStorage("ai_crm_userName", "Carlos Hill Balsera");
-  const [avatarUrl, setAvatarUrl] = useLocalStorage("ai_crm_avatarUrl", "");
-  const [theme, setTheme] = useLocalStorage("ai_crm_theme", "Claro");
-  const [language, setLanguage] = useLocalStorage("ai_crm_language", "Español");
+  const [properties, setProperties, propsLoaded] = useCloudStorage('ai_crm_properties', mockProperties);
+  const [tenants, setTenants, tenantsLoaded] = useCloudStorage('ai_crm_tenants', mockTenants);
+  const [contracts, setContracts, contractsLoaded] = useCloudStorage('ai_crm_contracts', mockContracts);
+  const [transactions, setTransactions, txsLoaded] = useCloudStorage('ai_crm_transactions', mockTransactions);
+  const [issues, setIssues, issuesLoaded] = useCloudStorage('ai_crm_issues', mockIssues);
+  const [userName, setUserName, userLoaded] = useCloudStorage("ai_crm_userName", "Carlos Hill Balsera");
+  const [avatarUrl, setAvatarUrl, avatarLoaded] = useCloudStorage("ai_crm_avatarUrl", "");
+  const [theme, setTheme, themeLoaded] = useCloudStorage("ai_crm_theme", "Claro");
+  const [language, setLanguage, langLoaded] = useCloudStorage("ai_crm_language", "Español");
 
   const updateProperty = (updatedProp: Property) => {
     setProperties(prev => prev.map(p => p.id === updatedProp.id ? updatedProp : p));
@@ -180,6 +208,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const deleteIssue = (id: string) => {
     setIssues(prev => prev.filter(i => i.id !== id));
   };
+
+  const isAppReady = propsLoaded && tenantsLoaded && contractsLoaded && txsLoaded && issuesLoaded && userLoaded && avatarLoaded && themeLoaded && langLoaded;
+
+  if (!isAppReady) {
+    return (
+      <div className="h-screen w-screen flex flex-col items-center justify-center bg-slate-50 text-slate-500">
+        <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4"></div>
+        <p className="font-semibold animate-pulse">Conectando a Supabase...</p>
+      </div>
+    );
+  }
 
   return (
     <AppContext.Provider value={{ 
