@@ -9,8 +9,11 @@ import DashboardView from './components/DashboardView';
 import PortfolioView from './components/PortfolioView';
 import CRMView from './components/CRMView';
 import CalculatorView from './components/CalculatorView';
+import Login from './components/Login';
 import { PropertyStatus } from './types';
 import { useAppContext } from './store';
+import { supabase } from './lib/supabase';
+import { LogOut } from 'lucide-react';
 
 export type ViewType = 'dashboard' | 'portfolio' | 'crm' | 'calculator';
 
@@ -19,6 +22,21 @@ export default function App() {
   const [portfolioFilter, setPortfolioFilter] = useState<PropertyStatus | 'Todos'>('Todos');
   const [resetKey, setResetKey] = useState(0);
   const { theme, language } = useAppContext();
+  const [session, setSession] = useState<any>(null);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   useEffect(() => {
     const root = window.document.documentElement;
@@ -50,10 +68,25 @@ export default function App() {
     { name: isEs ? 'Calculadora' : 'Calculator', id: 'calculator', icon: Calculator },
   ];
 
+  if (!session) {
+    return <Login />;
+  }
+
   return (
     <div className="h-screen w-full bg-slate-50 dark:bg-slate-900 flex flex-col text-slate-900 dark:text-white font-sans overflow-hidden transition-colors">
+      {/* Logout button header for simplicity */}
+      <div className="absolute top-4 right-4 z-50">
+        <button
+          onClick={() => supabase.auth.signOut()}
+          className="bg-white dark:bg-slate-800 p-2 rounded-full shadow-md text-slate-500 hover:text-red-500 transition-colors"
+          title="Cerrar sesión"
+        >
+          <LogOut size={20} />
+        </button>
+      </div>
+
       {/* Main Content */}
-      <main className="flex-1 w-full relative overflow-hidden flex flex-col">
+      <main className="flex-1 w-full relative overflow-hidden flex flex-col mt-2">
         <div className="animate-in fade-in duration-300 h-full flex flex-col w-full">
           {currentView === 'dashboard' && <div key={`dashboard-${resetKey}`} className="h-full"><DashboardView onNavigate={navigateTo} /></div>}
           {currentView === 'portfolio' && <div key={`portfolio-${resetKey}`} className="h-full"><PortfolioView initialTab={portfolioFilter} /></div>}

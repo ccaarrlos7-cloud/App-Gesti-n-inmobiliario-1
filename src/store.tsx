@@ -1,6 +1,6 @@
 import React, { createContext, useState, useEffect, useContext, ReactNode } from 'react';
 import { Property, Tenant, Contract, Transaction, Issue } from './types';
-import { mockProperties, mockTenants, mockContracts, mockTransactions, mockIssues } from './data';
+import { supabase } from './lib/supabase';
 
 interface AppContextType {
   properties: Property[];
@@ -34,88 +34,102 @@ interface AppContextType {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
+// Helper to convert snake_case to camelCase
+const toCamel = (obj: any): any => {
+  if (Array.isArray(obj)) {
+    return obj.map(v => toCamel(v));
+  } else if (obj !== null && obj.constructor === Object) {
+    return Object.keys(obj).reduce((result, key) => {
+      const camelKey = key.replace(/_([a-z])/g, (g) => g[1].toUpperCase());
+      result[camelKey] = toCamel(obj[key]);
+      return result;
+    }, {} as any);
+  }
+  return obj;
+};
 
-
-function useCloudStorage<T>(key: string, initialValue: T) {
-  const [storedValue, setStoredValue] = useState<T>(initialValue);
-  const [isLoaded, setIsLoaded] = useState(false);
-
-  useEffect(() => {
-    fetch(`/api/store/${key}`)
-      .then(res => res.ok ? res.json() : initialValue)
-      .then(data => {
-        setStoredValue(data);
-        setIsLoaded(true);
-      })
-      .catch(e => {
-        console.error('Fetch error for', key, e);
-        setStoredValue(initialValue);
-        setIsLoaded(true);
-      });
-  }, [key]);
-
-  const setValue = (value: T | ((val: T) => T)) => {
-    try {
-      const valueToStore = value instanceof Function ? value(storedValue) : value;
-      setStoredValue(valueToStore);
-      if (isLoaded) {
-        console.log(`[App] Guardando '${key}' en la nube...`);
-        fetch(`/api/store/${key}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(valueToStore)
-        })
-        .then(res => {
-          if (!res.ok) {
-            console.error(`[App] Error HTTP al guardar '${key}':`, res.status, res.statusText);
-            alert(`Hubo un error al guardar los datos (${key}). Revisa la consola.`);
-          } else {
-            console.log(`[App] ¡'${key}' guardado con éxito!`);
-          }
-        })
-        .catch(err => {
-          console.error(`[App] Error de red al intentar guardar '${key}':`, err);
-          alert(`Fallo de conexión al guardar los datos (${key}). Revisa tu red.`);
-        });
-      }
-    } catch (error) {
-      console.warn(`Error setting cloud storage for ${key}`, error);
-    }
-  };
-
-  return [storedValue, setValue, isLoaded] as const;
-}
-
+// Helper to convert camelCase to snake_case
+const toSnake = (obj: any): any => {
+  if (Array.isArray(obj)) {
+    return obj.map(v => toSnake(v));
+  } else if (obj !== null && obj.constructor === Object) {
+    return Object.keys(obj).reduce((result, key) => {
+      const snakeKey = key.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
+      result[snakeKey] = toSnake(obj[key]);
+      return result;
+    }, {} as any);
+  }
+  return obj;
+};
 
 export function AppProvider({ children }: { children: ReactNode }) {
-  const [properties, setProperties, propsLoaded] = useCloudStorage('ai_crm_properties', mockProperties);
-  const [tenants, setTenants, tenantsLoaded] = useCloudStorage('ai_crm_tenants', mockTenants);
-  const [contracts, setContracts, contractsLoaded] = useCloudStorage('ai_crm_contracts', mockContracts);
-  const [transactions, setTransactions, txsLoaded] = useCloudStorage('ai_crm_transactions', mockTransactions);
-  const [issues, setIssues, issuesLoaded] = useCloudStorage('ai_crm_issues', mockIssues);
-  const [userName, setUserName, userLoaded] = useCloudStorage("ai_crm_userName", "Carlos Hill Balsera");
-  const [avatarUrl, setAvatarUrl, avatarLoaded] = useCloudStorage("ai_crm_avatarUrl", "");
-  const [theme, setTheme, themeLoaded] = useCloudStorage("ai_crm_theme", "Claro");
-  const [language, setLanguage, langLoaded] = useCloudStorage("ai_crm_language", "Español");
+  const [properties, setProperties] = useState<Property[]>([]);
+  const [tenants, setTenants] = useState<Tenant[]>([]);
+  const [contracts, setContracts] = useState<Contract[]>([]);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [issues, setIssues] = useState<Issue[]>([]);
+  const [userName, setUserName] = useState("Carlos Hill Balsera");
+  const [avatarUrl, setAvatarUrl] = useState("");
+  const [theme, setTheme] = useState("Claro");
+  const [language, setLanguage] = useState("Español");
+  
+  const [isAppReady, setIsAppReady] = useState(false);
 
-  const updateProperty = (updatedProp: Property) => {
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const [propsRes, tenantsRes, contractsRes, txsRes, issuesRes] = await Promise.all([
+          supabase.from('properties').select('*'),
+          supabase.from('tenants').select('*'),
+          supabase.from('contracts').select('*'),
+          supabase.from('transactions').select('*'),
+          supabase.from('issues').select('*')
+        ]);
+
+        if (propsRes.data) setProperties(toCamel(propsRes.data));
+        if (tenantsRes.data) setTenants(toCamel(tenantsRes.data));
+        if (contractsRes.data) setContracts(toCamel(contractsRes.data));
+        if (txsRes.data) setTransactions(toCamel(txsRes.data));
+        if (issuesRes.data) setIssues(toCamel(issuesRes.data));
+        
+      } catch (e) {
+        console.error("Error loading data from Supabase", e);
+      } finally {
+        setIsAppReady(true);
+      }
+    }
+    loadData();
+  }, []);
+
+  const updateProperty = async (updatedProp: Property) => {
+    // Optimistic update
     setProperties(prev => prev.map(p => p.id === updatedProp.id ? updatedProp : p));
+    const data = toSnake(updatedProp);
+    await supabase.from('properties').update(data).eq('id', data.id);
   };
 
-  const addTenant = (tenant: Tenant) => {
+  const addTenant = async (tenant: Tenant) => {
     setTenants(prev => [tenant, ...prev]);
+    const data = toSnake(tenant);
+    await supabase.from('tenants').insert(data);
   };
 
-  const addContract = (contract: Contract) => {
+  const addContract = async (contract: Contract) => {
     setContracts(prev => [contract, ...prev]);
+    const data = toSnake(contract);
+    await supabase.from('contracts').insert(data);
   };
 
-  const updateContract = (updatedContract: Contract) => {
+  const updateContract = async (updatedContract: Contract) => {
     setContracts(prev => prev.map(c => c.id === updatedContract.id ? updatedContract : c));
+    const data = toSnake(updatedContract);
+    await supabase.from('contracts').update(data).eq('id', data.id);
   };
 
-  const addTransaction = (tx: Transaction) => {
+  const addTransaction = async (tx: Transaction) => {
     setTransactions(prev => [tx, ...prev]);
+    const data = toSnake(tx);
+    await supabase.from('transactions').insert(data);
   };
 
   const getDynamicTransactions = () => {
@@ -165,18 +179,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
       }
     });
 
-    // For each contract, if Al día for that month, generate Rent for all months up to current (or all 12 if active?)
-    // The prompt says "que los ingresos de alquileres solamente cuando pongamos que el inquilino esta al día en el pago"
+    // For each contract, if Al día for that month, generate Rent
     contracts.forEach(c => {
       if (c.status === 'Activo') {
         for (let m = 1; m <= 12; m++) {
           const datePrefix = `${currentYear}-${m.toString().padStart(2, '0')}`;
-          
-          // Check if the specific month is 'Al día'
           const currentStatus = c.monthlyPayments?.[datePrefix] || c.paymentStatus;
           
           if (currentStatus === 'Al día') {
-            // We don't want to double count manual 'Alquiler' transactions for the same month/property.
             const existingManualRent = transactions.find(t => t.propertyId === c.propertyId && t.category === 'Alquiler' && t.date.startsWith(datePrefix));
             if (!existingManualRent) {
               dynamicTxs.push({
@@ -197,19 +207,22 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return dynamicTxs.sort((a, b) => b.date.localeCompare(a.date));
   };
 
-  const addIssue = (issue: Issue) => {
+  const addIssue = async (issue: Issue) => {
     setIssues(prev => [issue, ...prev]);
+    const data = toSnake(issue);
+    await supabase.from('issues').insert(data);
   };
 
-  const updateIssue = (updatedIssue: Issue) => {
+  const updateIssue = async (updatedIssue: Issue) => {
     setIssues(prev => prev.map(i => i.id === updatedIssue.id ? updatedIssue : i));
+    const data = toSnake(updatedIssue);
+    await supabase.from('issues').update(data).eq('id', data.id);
   };
 
-  const deleteIssue = (id: string) => {
+  const deleteIssue = async (id: string) => {
     setIssues(prev => prev.filter(i => i.id !== id));
+    await supabase.from('issues').delete().eq('id', id);
   };
-
-  const isAppReady = propsLoaded && tenantsLoaded && contractsLoaded && txsLoaded && issuesLoaded && userLoaded && avatarLoaded && themeLoaded && langLoaded;
 
   if (!isAppReady) {
     return (
