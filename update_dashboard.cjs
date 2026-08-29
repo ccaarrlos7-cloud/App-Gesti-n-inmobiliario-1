@@ -1,32 +1,57 @@
 const fs = require('fs');
 
-const file = 'src/components/DashboardView.tsx';
-let content = fs.readFileSync(file, 'utf8');
+let content = fs.readFileSync('src/components/DashboardView.tsx', 'utf8');
 
-const newHeader = `
-      <header className="min-h-[64px] py-3 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 flex flex-wrap gap-3 items-center justify-between px-4 sm:px-8 shrink-0">
-        <h1 className="text-[20px] font-bold text-slate-900 dark:text-white hidden sm:block">{userName}</h1>
-        
-        <div className="relative flex-1 min-w-[150px] sm:min-w-[200px] sm:mx-4">
-          <h1 className="text-[20px] font-bold text-slate-900 dark:text-white sm:hidden">{userName}</h1>
-        </div>
-        
-        <div className="flex items-center gap-3">
-          {/* Placeholder invisible para igualar el espaciado si los otros tienen botón */}
-          <div className="w-[40px] sm:w-[150px] invisible hidden md:block"></div>
-          
-          <button onClick={() => setShowSettings(true)} className="w-10 h-10 rounded-full flex items-center justify-center bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors overflow-hidden shrink-0">
-            {avatarUrl ? (
-              <img src={avatarUrl} alt={userName} className="w-full h-full object-cover" />
-            ) : (
-              <User size={20} className="text-slate-500 dark:text-slate-300" />
-            )}
-          </button>
-        </div>
-      </header>
-`;
+const oldAlerts = `  const expirationAlerts = contracts.filter(c => c.status === 'Activo').map(c => {
+    const end = new Date(c.endDate);
+    const now = new Date();
+    const diffDays = Math.ceil((end.getTime() - now.getTime()) / (1000 * 3600 * 24));
+    if (diffDays >= 0 && diffDays <= 60) {
+      const property = properties.find(p => p.id === c.propertyId);
+      return {
+        id: \`exp-\${c.id}\`,
+        type: 'warning',
+        title: \`Contrato próximo a vencer - \${property?.title || 'Inmueble'}\`,
+        description: \`Vence el \${new Date(c.endDate).toLocaleDateString('es-ES')} (\${diffDays} días)\`,
+        icon: 'calendar'
+      };
+    }
+    return null;
+  }).filter(Boolean);
 
-content = content.replace(/<header[\s\S]*?<\/header>/, newHeader.trim());
+  const notifications = [...paymentAlerts, ...expirationAlerts] as { id: string, type: 'error' | 'warning', title: string, description: string, icon: 'money' | 'calendar' }[];`;
 
-fs.writeFileSync(file, content);
-console.log('Dashboard updated');
+const newAlerts = `  const expirationAlerts = contracts.filter(c => c.status === 'Activo').map(c => {
+    const end = new Date(c.endDate);
+    const now = new Date();
+    const diffDays = Math.ceil((end.getTime() - now.getTime()) / (1000 * 3600 * 24));
+    if (diffDays >= 0 && diffDays <= 60) {
+      const property = properties.find(p => p.id === c.propertyId);
+      return {
+        id: \`exp-\${c.id}\`,
+        type: 'warning',
+        title: \`Contrato próximo a vencer - \${property?.title || 'Inmueble'}\`,
+        description: \`Vence el \${new Date(c.endDate).toLocaleDateString('es-ES')} (\${diffDays} días)\`,
+        icon: 'calendar'
+      };
+    }
+    return null;
+  }).filter(Boolean);
+
+  const issueAlerts = issues.filter(i => i.status !== 'Resuelta').map(i => {
+    const property = properties.find(p => p.id === i.propertyId);
+    return {
+      id: \`iss-\${i.id}\`,
+      type: i.status === 'Abierta' ? 'error' : 'warning',
+      title: \`Incidencia \${i.status.toLowerCase()} - \${property?.title || 'Inmueble'}\`,
+      description: i.title,
+      icon: 'alert'
+    };
+  });
+
+  const notifications = [...paymentAlerts, ...expirationAlerts, ...issueAlerts] as { id: string, type: 'error' | 'warning', title: string, description: string, icon: 'money' | 'calendar' | 'alert' }[];`;
+
+content = content.replace(oldAlerts, newAlerts);
+
+fs.writeFileSync('src/components/DashboardView.tsx', content);
+console.log('Dashboard alerts updated');

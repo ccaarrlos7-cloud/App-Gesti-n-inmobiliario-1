@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { PropertyStatus, Property, Transaction } from '../types';
-import { Search, ChevronLeft, FileText, X, Edit, Plus, TrendingUp, TrendingDown, DollarSign, AlertCircle, Trash2, Paperclip } from 'lucide-react';
+import { Search, AlertTriangle, CheckCircle, ChevronLeft, FileText, X, Edit, Plus, TrendingUp, TrendingDown, DollarSign, AlertCircle, Trash2, Paperclip } from 'lucide-react';
 import { useAppContext } from '../store';
 import PropertyFields from './PropertyFields';
 import { formatDate, formatNumber } from '../utils';
@@ -20,7 +20,7 @@ export default function PortfolioView({ initialTab = 'Todos' }: { initialTab?: P
   }, [initialTab]);
   
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
-  const [viewMode, setViewMode] = useState<'info' | 'contract' | 'edit' | 'finanzas'>('info');
+  const [viewMode, setViewMode] = useState<'info' | 'contract' | 'edit' | 'finanzas' | 'mantenimiento'>('info');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newProp, setNewProp] = useState<Partial<Property>>({
     title: '', address: '', price: 0, status: 'Vacío', type: 'Piso', notes: ''
@@ -103,7 +103,7 @@ export default function PortfolioView({ initialTab = 'Todos' }: { initialTab?: P
   const propertyIssues = selectedProperty ? issues.filter(i => i.propertyId === selectedProperty.id) : [];
 
   const [editingIssueId, setEditingIssueId] = useState<string | null>(null);
-  const [issueForm, setIssueForm] = useState({ title: '', description: '', status: 'Abierta' as const, propertyId: '' });
+  const [issueForm, setIssueForm] = useState({ title: '', description: '', status: 'Abierta' as const, propertyId: '', cost: 0, generateTransaction: false });
   const [showIssueForm, setShowIssueForm] = useState(false);
 
   const handleSaveIssue = () => {
@@ -129,14 +129,27 @@ export default function PortfolioView({ initialTab = 'Todos' }: { initialTab?: P
       });
     }
     
+    // Auto-generate transaction if requested
+    if (issueForm.status === 'Resuelta' && issueForm.generateTransaction && issueForm.cost > 0) {
+      addTransaction({
+        id: `tr${Date.now()}`,
+        propertyId: issueForm.propertyId,
+        type: 'gasto',
+        category: 'Mantenimiento / Reparación',
+        amount: Number(issueForm.cost) || 0,
+        date: new Date().toISOString().split('T')[0],
+        description: `[Resolución Incidencia] ${issueForm.title}`
+      });
+    }
+    
     setShowIssueForm(false);
     setEditingIssueId(null);
-    setIssueForm({ title: '', description: '', status: 'Abierta', propertyId: '' });
+    setIssueForm({ title: '', description: '', status: 'Abierta', propertyId: '', cost: 0, generateTransaction: false });
   };
 
   const handleEditIssue = (issue: any) => {
     setEditingIssueId(issue.id);
-    setIssueForm({ title: issue.title, description: issue.description, status: issue.status, propertyId: issue.propertyId });
+    setIssueForm({ title: issue.title, description: issue.description, status: issue.status, propertyId: issue.propertyId, cost: 0, generateTransaction: false });
     setShowIssueForm(true);
   };
 
@@ -283,18 +296,15 @@ export default function PortfolioView({ initialTab = 'Todos' }: { initialTab?: P
                  )}
                </div>
                
-               {viewMode === 'info' && (
+               
+               {['info', 'finanzas', 'mantenimiento'].includes(viewMode) && (
                  <div className="flex border-b border-slate-200 bg-white">
-                   <button onClick={() => setViewMode('info')} className="flex-1 py-3 text-sm font-bold text-blue-600 border-b-2 border-blue-600">Info</button>
-                   <button onClick={() => setViewMode('finanzas')} className="flex-1 py-3 text-sm font-semibold text-slate-500 hover:text-slate-700">Finanzas</button>
+                   <button onClick={() => setViewMode('info')} className={`flex-1 py-3 text-[13px] ${viewMode === 'info' ? 'font-bold text-blue-600 border-b-2 border-blue-600' : 'font-semibold text-slate-500 hover:text-slate-700'}`}>Info</button>
+                   <button onClick={() => setViewMode('finanzas')} className={`flex-1 py-3 text-[13px] ${viewMode === 'finanzas' ? 'font-bold text-blue-600 border-b-2 border-blue-600' : 'font-semibold text-slate-500 hover:text-slate-700'}`}>Finanzas</button>
+                   <button onClick={() => setViewMode('mantenimiento')} className={`flex-1 py-3 text-[13px] ${viewMode === 'mantenimiento' ? 'font-bold text-blue-600 border-b-2 border-blue-600' : 'font-semibold text-slate-500 hover:text-slate-700'}`}>Mantenimiento</button>
                  </div>
                )}
-               {viewMode === 'finanzas' && (
-                 <div className="flex border-b border-slate-200 bg-white">
-                   <button onClick={() => setViewMode('info')} className="flex-1 py-3 text-sm font-semibold text-slate-500 hover:text-slate-700">Info</button>
-                   <button onClick={() => setViewMode('finanzas')} className="flex-1 py-3 text-sm font-bold text-blue-600 border-b-2 border-blue-600">Finanzas</button>
-                 </div>
-               )}
+               
 
                <div className="p-5 flex-1 overflow-auto bg-slate-50/50">
                   {viewMode === 'info' && (
@@ -432,6 +442,58 @@ export default function PortfolioView({ initialTab = 'Todos' }: { initialTab?: P
                            No hay contratos activos para este inmueble.
                          </div>
                        )}
+                     </div>
+                  )}
+
+                  
+                  {viewMode === 'mantenimiento' && (
+                     <div className="animate-in fade-in slide-in-from-right-4 duration-300">
+                        <div className="flex justify-between items-center mb-4">
+                          <h3 className="font-bold text-slate-900 text-lg flex items-center gap-2"><AlertTriangle size={20} className="text-amber-500"/> Mantenimiento y Alertas</h3>
+                        </div>
+                        
+                        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm mb-6 flex flex-col items-center justify-center text-center">
+                          <p className="text-sm text-slate-500 mb-4 max-w-sm">
+                            Gestiona las incidencias, reparaciones o alertas vinculadas a este inmueble. Al resolverlas, podrás generar un gasto automáticamente.
+                          </p>
+                          <button 
+                             onClick={() => {
+                               setIssueForm({ title: '', description: '', status: 'Abierta', propertyId: selectedProperty.id, cost: 0, generateTransaction: false });
+                               setEditingIssueId(null);
+                               setShowIssueForm(true);
+                             }}
+                             className="px-4 py-2 bg-slate-900 text-white font-bold text-sm rounded-lg shadow-sm hover:bg-slate-800 flex items-center gap-2"
+                           >
+                             <Plus size={16} /> Registrar Nueva Incidencia
+                           </button>
+                        </div>
+                        
+                        {propertyIssues.length === 0 ? (
+                           <div className="bg-slate-50 border border-slate-100 p-8 rounded-xl text-center text-slate-400 text-sm">
+                             <CheckCircle size={32} className="mx-auto mb-3 text-slate-300" />
+                             Todo perfecto. No hay incidencias registradas en este momento.
+                           </div>
+                         ) : (
+                           <div className="space-y-4">
+                             {propertyIssues.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).map(issue => (
+                               <div key={issue.id} onClick={() => handleEditIssue(issue)} className={`bg-white border shadow-sm p-4 rounded-xl relative transition-colors cursor-pointer group ${issue.status === 'Resuelta' ? 'border-slate-200 hover:border-slate-300' : 'border-amber-200 hover:border-amber-300'}`}>
+                                 <div className="flex justify-between items-start mb-2">
+                                   <h4 className="font-bold text-slate-900 text-sm group-hover:text-blue-600 transition-colors flex items-center gap-2">
+                                     {issue.status === 'Resuelta' ? <CheckCircle size={16} className="text-emerald-500" /> : <AlertTriangle size={16} className="text-amber-500"/>}
+                                     {issue.title}
+                                   </h4>
+                                 </div>
+                                 <p className="text-sm text-slate-600 leading-relaxed mb-4">{issue.description}</p>
+                                 <div className="flex items-center justify-between text-[11px] font-semibold border-t border-slate-100 pt-3">
+                                   <span className="text-slate-400">Fecha reporte: {formatDate(issue.createdAt)}</span>
+                                   <span className={`px-3 py-1 rounded-full ${issue.status === 'Resuelta' ? 'bg-emerald-100 text-emerald-700' : issue.status === 'En Progreso' ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700'}`}>
+                                     {issue.status}
+                                   </span>
+                                 </div>
+                               </div>
+                             ))}
+                           </div>
+                         )}
                      </div>
                   )}
 

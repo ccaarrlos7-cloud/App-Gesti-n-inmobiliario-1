@@ -34,16 +34,41 @@ interface AppContextType {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
+
+function useLocalStorage<T>(key: string, initialValue: T) {
+  const [storedValue, setStoredValue] = useState<T>(() => {
+    try {
+      const item = window.localStorage.getItem(key);
+      return item ? JSON.parse(item) : initialValue;
+    } catch (error) {
+      console.warn(`Error reading localStorage for ${key}`, error);
+      return initialValue;
+    }
+  });
+
+  const setValue = (value: T | ((val: T) => T)) => {
+    try {
+      const valueToStore = value instanceof Function ? value(storedValue) : value;
+      setStoredValue(valueToStore);
+      window.localStorage.setItem(key, JSON.stringify(valueToStore));
+    } catch (error) {
+      console.warn(`Error setting localStorage for ${key}`, error);
+    }
+  };
+
+  return [storedValue, setValue] as const;
+}
+
 export function AppProvider({ children }: { children: ReactNode }) {
-  const [properties, setProperties] = useState(mockProperties);
-  const [tenants, setTenants] = useState(mockTenants);
-  const [contracts, setContracts] = useState(mockContracts);
-  const [transactions, setTransactions] = useState(mockTransactions);
-  const [issues, setIssues] = useState(mockIssues);
-  const [userName, setUserName] = useState("Carlos Hill Balsera");
-  const [avatarUrl, setAvatarUrl] = useState("");
-  const [theme, setTheme] = useState("Claro");
-  const [language, setLanguage] = useState("Español");
+  const [properties, setProperties] = useLocalStorage('ai_crm_properties', mockProperties);
+  const [tenants, setTenants] = useLocalStorage('ai_crm_tenants', mockTenants);
+  const [contracts, setContracts] = useLocalStorage('ai_crm_contracts', mockContracts);
+  const [transactions, setTransactions] = useLocalStorage('ai_crm_transactions', mockTransactions);
+  const [issues, setIssues] = useLocalStorage('ai_crm_issues', mockIssues);
+  const [userName, setUserName] = useLocalStorage("ai_crm_userName", "Carlos Hill Balsera");
+  const [avatarUrl, setAvatarUrl] = useLocalStorage("ai_crm_avatarUrl", "");
+  const [theme, setTheme] = useLocalStorage("ai_crm_theme", "Claro");
+  const [language, setLanguage] = useLocalStorage("ai_crm_language", "Español");
 
   const updateProperty = (updatedProp: Property) => {
     setProperties(prev => prev.map(p => p.id === updatedProp.id ? updatedProp : p));
