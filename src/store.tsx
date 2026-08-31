@@ -70,8 +70,34 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [issues, setIssues] = useState<Issue[]>([]);
   const [userName, setUserName] = useState("Carlos Hill Balsera");
   const [avatarUrl, setAvatarUrl] = useState("");
-  const [theme, setTheme] = useState("Claro");
-  const [language, setLanguage] = useState("Español");
+  const [theme, setThemeState] = useState<string>(() => {
+    try {
+      return localStorage.getItem('app_theme') || 'Claro';
+    } catch {
+      return 'Claro';
+    }
+  });
+  const [language, setLanguageState] = useState<string>(() => {
+    try {
+      return localStorage.getItem('app_language') || 'Español';
+    } catch {
+      return 'Español';
+    }
+  });
+
+  const setTheme = (t: string) => {
+    setThemeState(t);
+    try {
+      localStorage.setItem('app_theme', t);
+    } catch {}
+  };
+
+  const setLanguage = (l: string) => {
+    setLanguageState(l);
+    try {
+      localStorage.setItem('app_language', l);
+    } catch {}
+  };
   
   const [isAppReady, setIsAppReady] = useState(false);
 
@@ -101,10 +127,37 @@ export function AppProvider({ children }: { children: ReactNode }) {
     loadData();
   }, []);
 
+  const sanitizeProperty = (p: Property): Property => ({
+    ...p,
+    price: Math.max(0, Number(p.price) || 0),
+    marketValue: p.marketValue !== undefined ? Math.max(0, Number(p.marketValue) || 0) : undefined,
+    sqm: p.sqm !== undefined ? Math.max(0, Number(p.sqm) || 0) : undefined,
+    rooms: p.rooms !== undefined ? Math.max(0, Math.floor(Number(p.rooms) || 0)) : undefined,
+    purchasePrice: p.purchasePrice !== undefined ? Math.max(0, Number(p.purchasePrice) || 0) : undefined,
+    downPayment: p.downPayment !== undefined ? Math.max(0, Number(p.downPayment) || 0) : undefined,
+    purchaseExpenses: p.purchaseExpenses !== undefined ? Math.max(0, Number(p.purchaseExpenses) || 0) : undefined,
+    renovationExpenses: p.renovationExpenses !== undefined ? Math.max(0, Number(p.renovationExpenses) || 0) : undefined,
+    mortgageInstallment: p.mortgageInstallment !== undefined ? Math.max(0, Number(p.mortgageInstallment) || 0) : undefined,
+    communityFees: p.communityFees !== undefined ? Math.max(0, Number(p.communityFees) || 0) : undefined,
+    ibi: p.ibi !== undefined ? Math.max(0, Number(p.ibi) || 0) : undefined,
+  });
+
+  const sanitizeContract = (c: Contract): Contract => ({
+    ...c,
+    rentAmount: Math.max(0, Number(c.rentAmount) || 0),
+    deposit: Math.max(0, Number(c.deposit) || 0),
+  });
+
+  const sanitizeTransaction = (tx: Transaction): Transaction => ({
+    ...tx,
+    amount: Math.max(0, Number(tx.amount) || 0),
+  });
+
   const updateProperty = async (updatedProp: Property) => {
+    const sanitized = sanitizeProperty(updatedProp);
     // Optimistic update
-    setProperties(prev => prev.map(p => p.id === updatedProp.id ? updatedProp : p));
-    const data = toSnake(updatedProp);
+    setProperties(prev => prev.map(p => p.id === sanitized.id ? sanitized : p));
+    const data = toSnake(sanitized);
     await supabase.from('properties').update(data).eq('id', data.id);
   };
 
@@ -115,93 +168,107 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   const addContract = async (contract: Contract) => {
-    setContracts(prev => [contract, ...prev]);
-    const data = toSnake(contract);
+    const sanitized = sanitizeContract(contract);
+    setContracts(prev => [sanitized, ...prev]);
+    const data = toSnake(sanitized);
     await supabase.from('contracts').insert(data);
   };
 
   const updateContract = async (updatedContract: Contract) => {
-    setContracts(prev => prev.map(c => c.id === updatedContract.id ? updatedContract : c));
-    const data = toSnake(updatedContract);
+    const sanitized = sanitizeContract(updatedContract);
+    setContracts(prev => prev.map(c => c.id === sanitized.id ? sanitized : c));
+    const data = toSnake(sanitized);
     await supabase.from('contracts').update(data).eq('id', data.id);
   };
 
   const addTransaction = async (tx: Transaction) => {
-    setTransactions(prev => [tx, ...prev]);
-    const data = toSnake(tx);
+    const sanitized = sanitizeTransaction(tx);
+    setTransactions(prev => [sanitized, ...prev]);
+    const data = toSnake(sanitized);
     await supabase.from('transactions').insert(data);
   };
 
   const getDynamicTransactions = () => {
     const dynamicTxs: Transaction[] = [...transactions];
-    const currentYear = new Date().getFullYear();
-    // For each property, generate 12 months of community and IBI (divided by 12)
-    properties.forEach(p => {
-      if (p.communityFees && p.communityFees > 0) {
-        for (let m = 1; m <= 12; m++) {
-          dynamicTxs.push({
-            id: `auto-comm-${p.id}-${currentYear}-${m}`,
-            propertyId: p.id,
-            type: 'gasto',
-            category: 'Comunidad',
-            amount: p.communityFees,
-            date: `${currentYear}-${m.toString().padStart(2, '0')}-01`,
-            description: 'Cuota Comunidad (Auto)'
-          });
-        }
-      }
-      if (p.ibi && p.ibi > 0) {
-        const monthlyIbi = p.ibi / 12;
-        for (let m = 1; m <= 12; m++) {
-          dynamicTxs.push({
-            id: `auto-ibi-${p.id}-${currentYear}-${m}`,
-            propertyId: p.id,
-            type: 'gasto',
-            category: 'Impuestos',
-            amount: monthlyIbi,
-            date: `${currentYear}-${m.toString().padStart(2, '0')}-01`,
-            description: 'Proporción IBI (Auto)'
-          });
-        }
-      }
-      if (p.hasMortgage && p.mortgageInstallment && p.mortgageInstallment > 0) {
-        for (let m = 1; m <= 12; m++) {
-          dynamicTxs.push({
-            id: `auto-mort-${p.id}-${currentYear}-${m}`,
-            propertyId: p.id,
-            type: 'gasto',
-            category: 'Hipoteca',
-            amount: p.mortgageInstallment,
-            date: `${currentYear}-${m.toString().padStart(2, '0')}-01`,
-            description: 'Cuota Hipoteca (Auto)'
-          });
-        }
-      }
-    });
+    const years = [2025, 2026];
 
-    // For each contract, if Al día for that month, generate Rent
-    contracts.forEach(c => {
-      if (c.status === 'Activo') {
-        for (let m = 1; m <= 12; m++) {
-          const datePrefix = `${currentYear}-${m.toString().padStart(2, '0')}`;
-          const currentStatus = c.monthlyPayments?.[datePrefix] || c.paymentStatus;
-          
-          if (currentStatus === 'Al día') {
-            const existingManualRent = transactions.find(t => t.propertyId === c.propertyId && t.category === 'Alquiler' && t.date.startsWith(datePrefix));
-            if (!existingManualRent) {
-              dynamicTxs.push({
-                id: `auto-rent-${c.id}-${currentYear}-${m}`,
-                propertyId: c.propertyId,
-                type: 'ingreso',
-                category: 'Alquiler',
-                amount: c.rentAmount,
-                date: `${datePrefix}-01`,
-                description: 'Alquiler (Auto - Al día)'
-              });
+    years.forEach(year => {
+      // For each property, generate 12 months of community and IBI (divided by 12)
+      properties.forEach(p => {
+        if (p.communityFees && p.communityFees > 0) {
+          for (let m = 1; m <= 12; m++) {
+            dynamicTxs.push({
+              id: `auto-comm-${p.id}-${year}-${m}`,
+              propertyId: p.id,
+              type: 'gasto',
+              category: 'Comunidad',
+              amount: p.communityFees,
+              date: `${year}-${m.toString().padStart(2, '0')}-01`,
+              description: 'Cuota Comunidad (Auto)'
+            });
+          }
+        }
+        if (p.ibi && p.ibi > 0) {
+          const monthlyIbi = p.ibi / 12;
+          for (let m = 1; m <= 12; m++) {
+            dynamicTxs.push({
+              id: `auto-ibi-${p.id}-${year}-${m}`,
+              propertyId: p.id,
+              type: 'gasto',
+              category: 'Impuestos',
+              amount: monthlyIbi,
+              date: `${year}-${m.toString().padStart(2, '0')}-01`,
+              description: 'Proporción IBI (Auto)'
+            });
+          }
+        }
+        if (p.hasMortgage && p.mortgageInstallment && p.mortgageInstallment > 0) {
+          for (let m = 1; m <= 12; m++) {
+            dynamicTxs.push({
+              id: `auto-mort-${p.id}-${year}-${m}`,
+              propertyId: p.id,
+              type: 'gasto',
+              category: 'Hipoteca',
+              amount: p.mortgageInstallment,
+              date: `${year}-${m.toString().padStart(2, '0')}-01`,
+              description: 'Cuota Hipoteca (Auto)'
+            });
+          }
+        }
+      });
+
+      // For each contract, only generate Rent if explicitly marked as 'Al día' in monthlyPayments and within contract validity dates
+      contracts.forEach(c => {
+        if (c.status === 'Activo') {
+          const startMonth = c.startDate ? c.startDate.slice(0, 7) : '';
+          const endMonth = c.endDate ? c.endDate.slice(0, 7) : '';
+
+          for (let m = 1; m <= 12; m++) {
+            const datePrefix = `${year}-${m.toString().padStart(2, '0')}`;
+            
+            // 1. Validar que el mes esté dentro de las fechas de vigencia del contrato
+            const isWithinContract = (!startMonth || datePrefix >= startMonth) && (!endMonth || datePrefix <= endMonth);
+            
+            // 2. Validar que el mes esté EXPLÍCITAMENTE pagado ('Al día') en el control mensual
+            const isPaid = c.monthlyPayments?.[datePrefix] === 'Al día';
+
+            if (isWithinContract && isPaid) {
+              const existingManualRent = transactions.find(t => t.propertyId === c.propertyId && t.category === 'Alquiler' && t.date.startsWith(datePrefix));
+              if (!existingManualRent) {
+                dynamicTxs.push({
+                  id: `auto-rent-${c.id}-${year}-${m}`,
+                  propertyId: c.propertyId,
+                  type: 'ingreso',
+                  category: 'Alquiler',
+                  amount: c.rentAmount,
+                  date: `${datePrefix}-01`,
+                  description: 'Alquiler (Auto - Al día)'
+                });
+              }
             }
           }
         }
-      }
+      });
     });
 
     return dynamicTxs.sort((a, b) => b.date.localeCompare(a.date));

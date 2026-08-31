@@ -6,7 +6,7 @@ import SettingsModal from './SettingsModal';
 import { User } from 'lucide-react';
 
 
-function FormattedInput({ value, onChange, className, step = "1", ...props }: any) {
+function FormattedInput({ value, onChange, className, step = "1", min = "0", ...props }: any) {
   const [isFocused, setIsFocused] = React.useState(false);
   
   let displayValue: string | number = '';
@@ -21,20 +21,29 @@ function FormattedInput({ value, onChange, className, step = "1", ...props }: an
       {...props}
       type={isFocused ? "number" : "text"}
       step={step}
+      min={min}
+      onKeyDown={(e) => {
+        if (e.key === '-' || e.key === 'e') {
+          e.preventDefault();
+        }
+        if (props.onKeyDown) props.onKeyDown(e);
+      }}
       className={className}
       value={displayValue}
       onFocus={() => setIsFocused(true)}
       onBlur={() => setIsFocused(false)}
-      onChange={(e) => onChange(Number(e.target.value))}
+      onChange={(e) => {
+        const raw = Number(e.target.value);
+        onChange(Math.max(0, isNaN(raw) ? 0 : raw));
+      }}
     />
   );
 }
 
 export default function CalculatorView() {
-  const { language } = useAppContext();
+  const { language, userName, avatarUrl } = useAppContext();
   const isEs = language === 'Español';
   const [showSettings, setShowSettings] = useState(false);
-  const { userName, avatarUrl } = useAppContext();
   const [activeTab, setActiveTab] = useState<'investment' | 'mortgage'>('investment');
 
   // Mortgage State
@@ -89,42 +98,41 @@ export default function CalculatorView() {
   const paybackYears = annualCashFlow > 0 ? (investedCapital / annualCashFlow) : 0;
 
   return (
-    <div className="flex flex-col h-full relative">
-      <header className="min-h-[64px] py-3 bg-white border-b border-slate-200 flex flex-wrap gap-3 items-center justify-between px-4 sm:px-8 shrink-0">
-        <h1 className="text-[18px] font-semibold text-slate-900 flex items-center gap-2 hidden sm:flex">
-          <Calculator size={20} className="text-blue-600" />
+    <div className="flex flex-col h-full relative bg-slate-50 dark:bg-slate-900 transition-colors">
+      <header className="min-h-[64px] py-3 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 flex flex-wrap gap-3 items-center justify-between px-4 sm:px-8 shrink-0">
+        <h1 className="text-[18px] font-semibold text-slate-900 dark:text-white flex items-center gap-2 hidden sm:flex">
+          <Calculator size={20} className="text-blue-600 dark:text-blue-400" />
           {isEs ? 'Calculadora' : 'Calculator'}
         </h1>
         
         <div className="relative flex-1 min-w-[150px] sm:min-w-[200px] sm:mx-4">
-          <h1 className="text-[18px] font-semibold text-slate-900 flex items-center gap-2 sm:hidden">
-            <Calculator size={20} className="text-blue-600" />
+          <h1 className="text-[18px] font-semibold text-slate-900 dark:text-white flex items-center gap-2 sm:hidden">
+            <Calculator size={20} className="text-blue-600 dark:text-blue-400" />
             {isEs ? 'Calculadora' : 'Calculator'}
           </h1>
         </div>
         
         <div className="flex items-center gap-3">
-          {/* Placeholder invisible para igualar el espaciado si los otros tienen botón */}
           <div className="w-[40px] sm:w-[150px] invisible hidden md:block"></div>
           
-          <button onClick={() => setShowSettings(true)} className="w-10 h-10 rounded-full flex items-center justify-center bg-slate-100 border border-slate-200 hover:bg-slate-200 transition-colors overflow-hidden shrink-0">
+          <button onClick={() => setShowSettings(true)} className="w-10 h-10 rounded-full flex items-center justify-center bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors overflow-hidden shrink-0">
             {avatarUrl ? (
               <img src={avatarUrl} alt={userName} className="w-full h-full object-cover" />
             ) : (
-              <User size={20} className="text-slate-500" />
+              <User size={20} className="text-slate-500 dark:text-slate-300" />
             )}
           </button>
         </div>
       </header>
 
-      <div className="p-4 sm:p-6 flex-1 overflow-auto bg-slate-50/50">
+      <div className="p-4 sm:p-6 flex-1 overflow-auto bg-slate-50/50 dark:bg-slate-900/50">
         
         {/* Tabs */}
-        <div className="flex p-1 bg-slate-200/50 rounded-xl mb-6 max-w-sm mx-auto">
+        <div className="flex p-1 bg-slate-200/50 dark:bg-slate-800 rounded-xl mb-6 max-w-sm mx-auto">
           <button
             onClick={() => setActiveTab('investment')}
             className={`flex-1 py-2 text-[13px] font-bold rounded-lg transition-all flex items-center justify-center gap-2 ${
-              activeTab === 'investment' ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+              activeTab === 'investment' ? 'bg-white dark:bg-slate-700 text-blue-700 dark:text-blue-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
             }`}
           >
             <TrendingUp size={16} /> {isEs ? 'Inversión' : 'Investment'}
@@ -132,7 +140,7 @@ export default function CalculatorView() {
           <button
             onClick={() => setActiveTab('mortgage')}
             className={`flex-1 py-2 text-[13px] font-bold rounded-lg transition-all flex items-center justify-center gap-2 ${
-              activeTab === 'mortgage' ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+              activeTab === 'mortgage' ? 'bg-white dark:bg-slate-700 text-blue-700 dark:text-blue-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
             }`}
           >
             <Home size={16} /> {isEs ? 'Hipoteca' : 'Mortgage'}
@@ -143,37 +151,37 @@ export default function CalculatorView() {
           {activeTab === 'mortgage' && (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Inputs */}
-              <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-                <h2 className="text-[14px] font-bold text-slate-900 uppercase tracking-wider mb-4 border-b border-slate-100 pb-2">
+              <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
+                <h2 className="text-[14px] font-bold text-slate-900 dark:text-white uppercase tracking-wider mb-4 border-b border-slate-100 dark:border-slate-700 pb-2">
                   {isEs ? 'Datos del Préstamo' : 'Loan Details'}
                 </h2>
                 
                 <div>
-                  <label className="block text-[11px] font-semibold text-slate-500 uppercase mb-1">{isEs ? 'Capital Solicitado (€)' : 'Capital (€)'}</label>
+                  <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">{isEs ? 'Capital Solicitado (€)' : 'Capital (€)'}</label>
                   <div className="relative">
                     <Euro size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                    <FormattedInput className="w-full border border-slate-200 rounded-xl pl-9 pr-3 py-2.5 text-sm font-semibold bg-slate-50 focus:bg-white focus:border-blue-500 outline-none transition-colors" value={mortgageCapital} onChange={setMortgageCapital} />
+                    <FormattedInput className="w-full border border-slate-200 dark:border-slate-700 rounded-xl pl-9 pr-3 py-2.5 text-sm font-semibold bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-blue-500 outline-none transition-colors" value={mortgageCapital} onChange={setMortgageCapital} />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-[11px] font-semibold text-slate-500 uppercase mb-1">{isEs ? 'Tipo de Interés (%)' : 'Interest Rate (%)'}</label>
+                    <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">{isEs ? 'Tipo de Interés (%)' : 'Interest Rate (%)'}</label>
                     <div className="relative">
                       <Percent size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                      <FormattedInput step="0.01" className="w-full border border-slate-200 rounded-xl pl-9 pr-3 py-2.5 text-sm font-semibold bg-slate-50 focus:bg-white focus:border-blue-500 outline-none transition-colors" value={mortgageInterest} onChange={setMortgageInterest} />
+                      <FormattedInput step="0.01" className="w-full border border-slate-200 dark:border-slate-700 rounded-xl pl-9 pr-3 py-2.5 text-sm font-semibold bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-blue-500 outline-none transition-colors" value={mortgageInterest} onChange={setMortgageInterest} />
                     </div>
                   </div>
                   <div>
-                    <label className="block text-[11px] font-semibold text-slate-500 uppercase mb-1">{isEs ? 'Plazo (Años)' : 'Term (Years)'}</label>
-                    <FormattedInput className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm font-semibold bg-slate-50 focus:bg-white focus:border-blue-500 outline-none transition-colors" value={mortgageYears} onChange={setMortgageYears} />
+                    <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">{isEs ? 'Plazo (Años)' : 'Term (Years)'}</label>
+                    <FormattedInput className="w-full border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2.5 text-sm font-semibold bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-blue-500 outline-none transition-colors" value={mortgageYears} onChange={setMortgageYears} />
                   </div>
                 </div>
               </div>
 
               {/* Results */}
               <div className="space-y-4">
-                <div className="bg-slate-900 p-6 rounded-2xl shadow-sm text-white flex flex-col justify-center relative overflow-hidden">
+                <div className="bg-slate-900 dark:bg-slate-800 border border-transparent dark:border-slate-700 p-6 rounded-2xl shadow-sm text-white flex flex-col justify-center relative overflow-hidden">
                   <div className="absolute top-0 right-0 p-4 opacity-10"><Calculator size={100}/></div>
                   <h3 className="text-[12px] font-bold text-slate-400 uppercase tracking-wider mb-2 relative z-10">
                     {isEs ? 'Cuota Mensual Estimada' : 'Estimated Monthly Payment'}
@@ -184,13 +192,13 @@ export default function CalculatorView() {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-center">
-                    <span className="text-[11px] font-bold text-slate-500 uppercase mb-1">{isEs ? 'Total Intereses' : 'Total Interest'}</span>
-                    <span className="text-xl font-bold text-slate-900">{formatNumber(mTotalInterest, 2)} €</span>
+                  <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-center">
+                    <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">{isEs ? 'Total Intereses' : 'Total Interest'}</span>
+                    <span className="text-xl font-bold text-slate-900 dark:text-white">{formatNumber(mTotalInterest, 2)} €</span>
                   </div>
-                  <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-center">
-                    <span className="text-[11px] font-bold text-slate-500 uppercase mb-1">{isEs ? 'Coste Total' : 'Total Cost'}</span>
-                    <span className="text-xl font-bold text-slate-900">{formatNumber(mTotalCost, 2)} €</span>
+                  <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-center">
+                    <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">{isEs ? 'Coste Total' : 'Total Cost'}</span>
+                    <span className="text-xl font-bold text-slate-900 dark:text-white">{formatNumber(mTotalCost, 2)} €</span>
                   </div>
                 </div>
               </div>
@@ -204,83 +212,83 @@ export default function CalculatorView() {
               <div className="lg:col-span-7 space-y-4">
                 
                 {/* Acquisition & Rehab */}
-                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-                  <h2 className="text-[14px] font-bold text-slate-900 uppercase tracking-wider mb-4 border-b border-slate-100 pb-2">
+                <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
+                  <h2 className="text-[14px] font-bold text-slate-900 dark:text-white uppercase tracking-wider mb-4 border-b border-slate-100 dark:border-slate-700 pb-2">
                     {isEs ? 'Adquisición y Reforma' : 'Acquisition & Rehab'}
                   </h2>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div>
-                      <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">{isEs ? 'Precio Compra' : 'Purchase Price'}</label>
-                      <FormattedInput className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm font-semibold bg-slate-50 focus:bg-white focus:border-blue-500" value={invPurchasePrice} onChange={setInvPurchasePrice} />
+                      <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">{isEs ? 'Precio Compra' : 'Purchase Price'}</label>
+                      <FormattedInput className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm font-semibold bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-blue-500" value={invPurchasePrice} onChange={setInvPurchasePrice} />
                     </div>
                     <div>
-                      <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">{isEs ? 'Gastos + ITP' : 'Taxes & Fees'}</label>
-                      <FormattedInput className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm font-semibold bg-slate-50 focus:bg-white focus:border-blue-500" value={invPurchaseExpenses} onChange={setInvPurchaseExpenses} />
+                      <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">{isEs ? 'Gastos + ITP' : 'Taxes & Fees'}</label>
+                      <FormattedInput className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm font-semibold bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-blue-500" value={invPurchaseExpenses} onChange={setInvPurchaseExpenses} />
                     </div>
                     <div>
-                      <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">{isEs ? 'Reforma' : 'Rehab'}</label>
-                      <FormattedInput className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm font-semibold bg-slate-50 focus:bg-white focus:border-blue-500" value={invRehabCost} onChange={setInvRehabCost} />
+                      <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">{isEs ? 'Reforma' : 'Rehab'}</label>
+                      <FormattedInput className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm font-semibold bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-blue-500" value={invRehabCost} onChange={setInvRehabCost} />
                     </div>
                   </div>
-                  <div className="flex justify-between items-center bg-slate-50 p-3 rounded-lg border border-slate-100">
-                    <span className="text-xs font-bold text-slate-600 uppercase">{isEs ? 'Coste Total Proyecto' : 'Total Project Cost'}</span>
-                    <span className="text-lg font-bold text-slate-900">{formatNumber(totalProjectCost, 2)} €</span>
+                  <div className="flex justify-between items-center bg-slate-50 dark:bg-slate-700/50 p-3 rounded-lg border border-slate-100 dark:border-slate-700">
+                    <span className="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase">{isEs ? 'Coste Total Proyecto' : 'Total Project Cost'}</span>
+                    <span className="text-lg font-bold text-slate-900 dark:text-white">{formatNumber(totalProjectCost, 2)} €</span>
                   </div>
                 </div>
 
                 {/* Financing */}
-                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-                  <h2 className="text-[14px] font-bold text-slate-900 uppercase tracking-wider mb-4 border-b border-slate-100 pb-2">
+                <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
+                  <h2 className="text-[14px] font-bold text-slate-900 dark:text-white uppercase tracking-wider mb-4 border-b border-slate-100 dark:border-slate-700 pb-2">
                     {isEs ? 'Financiación' : 'Financing'}
                   </h2>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div>
-                      <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">{isEs ? 'Capital Hipoteca' : 'Loan Capital'}</label>
-                      <FormattedInput className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm font-semibold bg-slate-50 focus:bg-white focus:border-blue-500" value={invFinancedCapital} onChange={setInvFinancedCapital} />
+                      <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">{isEs ? 'Capital Hipoteca' : 'Loan Capital'}</label>
+                      <FormattedInput className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm font-semibold bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-blue-500" value={invFinancedCapital} onChange={setInvFinancedCapital} />
                     </div>
                     <div>
-                      <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">{isEs ? 'Interés (%)' : 'Interest Rate'}</label>
-                      <FormattedInput step="0.01" className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm font-semibold bg-slate-50 focus:bg-white focus:border-blue-500" value={invInterest} onChange={setInvInterest} />
+                      <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">{isEs ? 'Interés (%)' : 'Interest Rate'}</label>
+                      <FormattedInput step="0.01" className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm font-semibold bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-blue-500" value={invInterest} onChange={setInvInterest} />
                     </div>
                     <div>
-                      <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">{isEs ? 'Plazo (Años)' : 'Term (Years)'}</label>
-                      <FormattedInput className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm font-semibold bg-slate-50 focus:bg-white focus:border-blue-500" value={invYears} onChange={setInvYears} />
+                      <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">{isEs ? 'Plazo (Años)' : 'Term (Years)'}</label>
+                      <FormattedInput className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm font-semibold bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-blue-500" value={invYears} onChange={setInvYears} />
                     </div>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="bg-blue-50 text-blue-900 p-3 rounded-lg border border-blue-100 flex justify-between items-center">
+                    <div className="bg-blue-50 dark:bg-blue-950/30 text-blue-900 dark:text-blue-300 p-3 rounded-lg border border-blue-100 dark:border-blue-900/40 flex justify-between items-center">
                       <span className="text-[10px] font-bold uppercase">{isEs ? 'Aportación Propia' : 'Down Payment'}</span>
                       <span className="text-[15px] font-bold">{formatNumber(investedCapital, 2)} €</span>
                     </div>
-                    <div className="bg-slate-50 text-slate-900 p-3 rounded-lg border border-slate-100 flex justify-between items-center">
+                    <div className="bg-slate-50 dark:bg-slate-700/50 text-slate-900 dark:text-white p-3 rounded-lg border border-slate-100 dark:border-slate-700 flex justify-between items-center">
                       <span className="text-[10px] font-bold uppercase">{isEs ? 'Cuota Hipoteca' : 'Mortgage Pmt'}</span>
-                      <span className="text-[15px] font-bold">{formatNumber(invMortgagePayment, 2)} €<span className="text-[10px] font-normal text-slate-500">/mes</span></span>
+                      <span className="text-[15px] font-bold">{formatNumber(invMortgagePayment, 2)} €<span className="text-[10px] font-normal text-slate-500 dark:text-slate-400">{isEs ? '/mes' : '/mo'}</span></span>
                     </div>
                   </div>
                 </div>
 
                 {/* Income & Expenses */}
-                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-                  <h2 className="text-[14px] font-bold text-slate-900 uppercase tracking-wider mb-4 border-b border-slate-100 pb-2">
+                <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
+                  <h2 className="text-[14px] font-bold text-slate-900 dark:text-white uppercase tracking-wider mb-4 border-b border-slate-100 dark:border-slate-700 pb-2">
                     {isEs ? 'Ingresos y Gastos' : 'Income & Expenses'}
                   </h2>
                   <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
                     <div className="sm:col-span-1">
-                      <label className="block text-[10px] font-bold text-emerald-600 uppercase mb-1">{isEs ? 'Alquiler/Mes' : 'Monthly Rent'}</label>
-                      <FormattedInput className="w-full border border-emerald-200 rounded-lg px-3 py-2 text-sm font-bold bg-emerald-50 focus:bg-white focus:border-emerald-500" value={invMonthlyRent} onChange={setInvMonthlyRent} />
+                      <label className="block text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase mb-1">{isEs ? 'Alquiler/Mes' : 'Monthly Rent'}</label>
+                      <FormattedInput className="w-full border border-emerald-200 dark:border-emerald-800 rounded-lg px-3 py-2 text-sm font-bold bg-emerald-50 dark:bg-emerald-950/30 text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-emerald-500" value={invMonthlyRent} onChange={setInvMonthlyRent} />
                     </div>
                     <div className="sm:col-span-3 grid grid-cols-1 sm:grid-cols-3 gap-4">
                       <div>
-                        <label className="block text-[10px] font-bold text-red-500 uppercase mb-1">{isEs ? 'IBI (Anual)' : 'Tax/Year'}</label>
-                        <FormattedInput className="w-full border border-red-200 rounded-lg px-3 py-2 text-sm font-semibold bg-red-50 focus:bg-white focus:border-red-500" value={invIbi} onChange={setInvIbi} />
+                        <label className="block text-[10px] font-bold text-red-500 dark:text-red-400 uppercase mb-1">{isEs ? 'IBI (Anual)' : 'Tax/Year'}</label>
+                        <FormattedInput className="w-full border border-red-200 dark:border-red-800 rounded-lg px-3 py-2 text-sm font-semibold bg-red-50 dark:bg-red-950/30 text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-red-500" value={invIbi} onChange={setInvIbi} />
                       </div>
                       <div>
-                        <label className="block text-[10px] font-bold text-red-500 uppercase mb-1">{isEs ? 'Comunidad (Mensual)' : 'HOA/Month'}</label>
-                        <FormattedInput className="w-full border border-red-200 rounded-lg px-3 py-2 text-sm font-semibold bg-red-50 focus:bg-white focus:border-red-500" value={invCommunity} onChange={setInvCommunity} />
+                        <label className="block text-[10px] font-bold text-red-500 dark:text-red-400 uppercase mb-1">{isEs ? 'Comunidad (Mensual)' : 'HOA/Month'}</label>
+                        <FormattedInput className="w-full border border-red-200 dark:border-red-800 rounded-lg px-3 py-2 text-sm font-semibold bg-red-50 dark:bg-red-950/30 text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-red-500" value={invCommunity} onChange={setInvCommunity} />
                       </div>
                       <div>
-                        <label className="block text-[10px] font-bold text-red-500 uppercase mb-1">{isEs ? 'Seguro (Anual)' : 'Ins/Year'}</label>
-                        <FormattedInput className="w-full border border-red-200 rounded-lg px-3 py-2 text-sm font-semibold bg-red-50 focus:bg-white focus:border-red-500" value={invInsurance} onChange={setInvInsurance} />
+                        <label className="block text-[10px] font-bold text-red-500 dark:text-red-400 uppercase mb-1">{isEs ? 'Seguro (Anual)' : 'Ins/Year'}</label>
+                        <FormattedInput className="w-full border border-red-200 dark:border-red-800 rounded-lg px-3 py-2 text-sm font-semibold bg-red-50 dark:bg-red-950/30 text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-red-500" value={invInsurance} onChange={setInvInsurance} />
                       </div>
                     </div>
                   </div>
@@ -290,7 +298,7 @@ export default function CalculatorView() {
 
               {/* Investment KPIs Column */}
               <div className="lg:col-span-5 space-y-4">
-                <div className="bg-slate-900 p-6 rounded-2xl shadow-xl text-white">
+                <div className="bg-slate-900 dark:bg-slate-800 border border-transparent dark:border-slate-700 p-6 rounded-2xl shadow-xl text-white">
                   <h3 className="text-[12px] font-bold text-blue-300 uppercase tracking-wider mb-6 flex items-center gap-2">
                     <PieChart size={16}/> {isEs ? 'Rentabilidades Estimadas' : 'Estimated Returns'}
                   </h3>
@@ -301,8 +309,8 @@ export default function CalculatorView() {
                         <span className="text-[13px] text-slate-300 font-medium">{isEs ? 'Rentabilidad Bruta' : 'Gross Yield'}</span>
                         <span className="text-2xl font-bold">{formatNumber(grossYield, 2)}%</span>
                       </div>
-                      <div className="w-full bg-slate-800 rounded-full h-1.5"><div className="bg-slate-400 h-1.5 rounded-full" style={{width: `${Math.min(grossYield * 5, 100)}%`}}></div></div>
-                      <p className="text-[10px] text-slate-500 mt-1">Alquiler Anual / Precio de Compra</p>
+                      <div className="w-full bg-slate-800 dark:bg-slate-700 rounded-full h-1.5"><div className="bg-slate-400 h-1.5 rounded-full" style={{width: `${Math.min(grossYield * 5, 100)}%`}}></div></div>
+                      <p className="text-[10px] text-slate-400 mt-1">{isEs ? 'Alquiler Anual / Precio de Compra' : 'Annual Rent / Purchase Price'}</p>
                     </div>
 
                     <div>
@@ -310,8 +318,8 @@ export default function CalculatorView() {
                         <span className="text-[13px] text-slate-300 font-medium">{isEs ? 'Rentabilidad Neta' : 'Net Yield'}</span>
                         <span className="text-2xl font-bold">{formatNumber(netYield, 2)}%</span>
                       </div>
-                      <div className="w-full bg-slate-800 rounded-full h-1.5"><div className="bg-emerald-500 h-1.5 rounded-full" style={{width: `${Math.min(netYield * 5, 100)}%`}}></div></div>
-                      <p className="text-[10px] text-slate-500 mt-1">NOI / Coste Total del Proyecto</p>
+                      <div className="w-full bg-slate-800 dark:bg-slate-700 rounded-full h-1.5"><div className="bg-emerald-500 h-1.5 rounded-full" style={{width: `${Math.min(netYield * 5, 100)}%`}}></div></div>
+                      <p className="text-[10px] text-slate-400 mt-1">{isEs ? 'NOI / Coste Total del Proyecto' : 'NOI / Total Project Cost'}</p>
                     </div>
 
                     <div>
@@ -319,8 +327,8 @@ export default function CalculatorView() {
                         <span className="text-[13px] text-slate-300 font-medium">{isEs ? 'ROI (Cash on Cash)' : 'Cash on Cash Return'}</span>
                         <span className="text-3xl font-bold text-blue-400">{formatNumber(cashOnCash, 2)}%</span>
                       </div>
-                      <div className="w-full bg-slate-800 rounded-full h-2"><div className="bg-blue-500 h-2 rounded-full" style={{width: `${Math.min(cashOnCash * 4, 100)}%`}}></div></div>
-                      <p className="text-[10px] text-slate-500 mt-1">Flujo de Caja Anual / Capital Invertido</p>
+                      <div className="w-full bg-slate-800 dark:bg-slate-700 rounded-full h-2"><div className="bg-blue-500 h-2 rounded-full" style={{width: `${Math.min(cashOnCash * 4, 100)}%`}}></div></div>
+                      <p className="text-[10px] text-slate-400 mt-1">{isEs ? 'Flujo de Caja Anual / Capital Invertido' : 'Annual Cash Flow / Invested Capital'}</p>
                     </div>
 
                     <div>
@@ -328,36 +336,36 @@ export default function CalculatorView() {
                         <span className="text-[13px] text-slate-300 font-medium">{isEs ? 'Tiempo de Recuperación' : 'Payback Period'}</span>
                         <span className="text-2xl font-bold">{formatNumber(paybackYears, 1)} {isEs ? 'años' : 'years'}</span>
                       </div>
-                      <p className="text-[10px] text-slate-500 mt-1">Años para pagar la aportación con el alquiler</p>
+                      <p className="text-[10px] text-slate-400 mt-1">{isEs ? 'Años para pagar la aportación con el alquiler' : 'Years to recover investment with cash flow'}</p>
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-                  <h3 className="text-[12px] font-bold text-slate-900 uppercase tracking-wider mb-2">
+                <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
+                  <h3 className="text-[12px] font-bold text-slate-900 dark:text-white uppercase tracking-wider mb-2">
                     {isEs ? 'Flujo de Caja' : 'Cash Flow'}
                   </h3>
                   
                   <div className="space-y-3">
-                    <div className="flex justify-between items-center text-sm border-b border-slate-100 pb-2">
-                      <span className="text-slate-600">+ {isEs ? 'Ingresos Anuales' : 'Annual Income'}</span>
-                      <span className="font-semibold text-emerald-600">{formatNumber(annualRent, 2)} €</span>
+                    <div className="flex justify-between items-center text-sm border-b border-slate-100 dark:border-slate-700 pb-2">
+                      <span className="text-slate-600 dark:text-slate-300">+ {isEs ? 'Ingresos Anuales' : 'Annual Income'}</span>
+                      <span className="font-semibold text-emerald-600 dark:text-emerald-400">{formatNumber(annualRent, 2)} €</span>
                     </div>
-                    <div className="flex justify-between items-center text-sm border-b border-slate-100 pb-2">
-                      <span className="text-slate-600">- {isEs ? 'Gastos Anuales' : 'Annual Expenses'}</span>
-                      <span className="font-semibold text-red-500">{formatNumber(annualExpenses, 2)} €</span>
+                    <div className="flex justify-between items-center text-sm border-b border-slate-100 dark:border-slate-700 pb-2">
+                      <span className="text-slate-600 dark:text-slate-300">- {isEs ? 'Gastos Anuales' : 'Annual Expenses'}</span>
+                      <span className="font-semibold text-red-500 dark:text-red-400">{formatNumber(annualExpenses, 2)} €</span>
                     </div>
-                    <div className="flex justify-between items-center text-sm border-b border-slate-100 pb-2">
-                      <span className="text-slate-600">- {isEs ? 'Hipoteca Anual' : 'Annual Mortgage'}</span>
-                      <span className="font-semibold text-red-500">{formatNumber(annualMortgageCost, 2)} €</span>
+                    <div className="flex justify-between items-center text-sm border-b border-slate-100 dark:border-slate-700 pb-2">
+                      <span className="text-slate-600 dark:text-slate-300">- {isEs ? 'Hipoteca Anual' : 'Annual Mortgage'}</span>
+                      <span className="font-semibold text-red-500 dark:text-red-400">{formatNumber(annualMortgageCost, 2)} €</span>
                     </div>
                     <div className="flex justify-between items-center text-lg pt-1">
-                      <span className="font-bold text-slate-900">{isEs ? 'Flujo Neto (Anual)' : 'Net Cash Flow'}</span>
-                      <span className={`font-bold ${annualCashFlow >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>{annualCashFlow > 0 ? '+' : ''}{formatNumber(annualCashFlow, 2)} €</span>
+                      <span className="font-bold text-slate-900 dark:text-white">{isEs ? 'Flujo Neto (Anual)' : 'Net Cash Flow'}</span>
+                      <span className={`font-bold ${annualCashFlow >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>{annualCashFlow > 0 ? '+' : ''}{formatNumber(annualCashFlow, 2)} €</span>
                     </div>
-                    <div className="flex justify-between items-center text-sm bg-blue-50 p-3 rounded-lg border border-blue-100 mt-2">
-                      <span className="font-bold text-blue-900">{isEs ? 'Flujo de Caja (Mensual)' : 'Monthly Cash Flow'}</span>
-                      <span className={`font-bold ${monthlyCashFlow >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>{monthlyCashFlow > 0 ? '+' : ''}{formatNumber(monthlyCashFlow, 2)} €</span>
+                    <div className="flex justify-between items-center text-sm bg-blue-50 dark:bg-blue-950/30 p-3 rounded-lg border border-blue-100 dark:border-blue-900/40 mt-2">
+                      <span className="font-bold text-blue-900 dark:text-blue-300">{isEs ? 'Flujo de Caja (Mensual)' : 'Monthly Cash Flow'}</span>
+                      <span className={`font-bold ${monthlyCashFlow >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>{monthlyCashFlow > 0 ? '+' : ''}{formatNumber(monthlyCashFlow, 2)} €</span>
                     </div>
                   </div>
                 </div>

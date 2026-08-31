@@ -74,17 +74,6 @@ export default function App() {
 
   return (
     <div className="h-screen w-full bg-slate-50 dark:bg-slate-900 flex flex-col text-slate-900 dark:text-white font-sans overflow-hidden transition-colors">
-      {/* Logout button header for simplicity */}
-      <div className="absolute top-4 right-4 z-50">
-        <button
-          onClick={() => supabase.auth.signOut()}
-          className="bg-white dark:bg-slate-800 p-2 rounded-full shadow-md text-slate-500 hover:text-red-500 transition-colors"
-          title="Cerrar sesión"
-        >
-          <LogOut size={20} />
-        </button>
-      </div>
-
       {/* Main Content */}
       <main className="flex-1 w-full relative overflow-hidden flex flex-col mt-2">
         <div className="animate-in fade-in duration-300 h-full flex flex-col w-full">

@@ -2,6 +2,7 @@ import { formatNumber } from "../utils";
 import React, { useState, useRef } from 'react';
 import { Camera, Moon, Globe, Bell, Download, Book, Mail, Shield, ChevronRight, ChevronLeft, User, X, Check, FileText, Table, Send, Sun, LogOut } from 'lucide-react';
 import { useAppContext } from '../store';
+import { supabase } from '../lib/supabase';
 
 export default function SettingsModal({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) {
   const { properties, tenants, userName, setUserName, avatarUrl, setAvatarUrl, theme, setTheme, language, setLanguage } = useAppContext();
@@ -18,12 +19,12 @@ export default function SettingsModal({ isOpen, onClose }: { isOpen: boolean, on
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const isEs = language === 'Español';
+  const supportEmail = 'soporte@gestinmo.com';
 
   if (!isOpen) return null;
 
   const handleExportClick = (format: 'PDF' | 'Excel') => {
-    // Generate dummy content for the file to force a real download without getting stuck
-    let content = "Reporte de Portfolio\n\n";
+    let content = isEs ? "Reporte de Portfolio\n\n" : "Portfolio Report\n\n";
     properties.forEach(p => {
       content += `${p.title} - ${formatNumber(p.price)}€ - ${p.status}\n`;
     });
@@ -32,7 +33,7 @@ export default function SettingsModal({ isOpen, onClose }: { isOpen: boolean, on
     const file = new Blob([content], { type: 'text/plain' });
     element.href = URL.createObjectURL(file);
     element.download = `Portfolio_${format}.${format === 'Excel' ? 'csv' : 'pdf'}`;
-    document.body.appendChild(element); // Required for this to work in FireFox
+    document.body.appendChild(element);
     element.click();
     document.body.removeChild(element);
 
@@ -59,6 +60,20 @@ export default function SettingsModal({ isOpen, onClose }: { isOpen: boolean, on
     setIsEditingName(false);
   };
 
+  const handleSendSupport = () => {
+    const subject = encodeURIComponent(isEs ? 'Consulta de Soporte - Gestinmo' : 'Support Inquiry - Gestinmo');
+    const body = encodeURIComponent(supportMessage);
+    window.location.href = `mailto:${supportEmail}?subject=${subject}&body=${body}`;
+    setSupportSent(true);
+  };
+
+  const handleLogout = async () => {
+    if (window.confirm(isEs ? '¿Estás seguro de que deseas cerrar sesión?' : 'Are you sure you want to log out?')) {
+      onClose();
+      await supabase.auth.signOut();
+    }
+  };
+
   if (showPrivacy) {
     return (
       <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[200] flex justify-end" onClick={() => setShowPrivacy(false)}>
@@ -70,29 +85,29 @@ export default function SettingsModal({ isOpen, onClose }: { isOpen: boolean, on
              <h2 className="font-bold text-[16px] text-slate-900 dark:text-white ml-2">{isEs ? 'Política de Privacidad' : 'Privacy Policy'}</h2>
            </div>
            <div className="p-6 overflow-y-auto prose prose-sm text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 flex-1">
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Términos y Política de Privacidad</h3>
-              <p className="mb-4"><strong>Última actualización: 25 de Agosto, 2026</strong></p>
-              <p className="mb-6">En nuestra aplicación, la privacidad y seguridad de sus datos personales y financieros es nuestra máxima prioridad. Esta política detalla cómo recopilamos, usamos y protegemos su información de acuerdo con las normativas vigentes.</p>
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">{isEs ? 'Términos y Política de Privacidad' : 'Terms & Privacy Policy'}</h3>
+              <p className="mb-4"><strong>{isEs ? 'Última actualización: 25 de Agosto, 2026' : 'Last updated: August 25, 2026'}</strong></p>
+              <p className="mb-6">{isEs ? 'En nuestra aplicación, la privacidad y seguridad de sus datos personales y financieros es nuestra máxima prioridad. Esta política detalla cómo recopilamos, usamos y protegemos su información de acuerdo con las normativas vigentes.' : 'In our application, the privacy and security of your personal and financial data is our highest priority. This policy details how we collect, use, and protect your information in compliance with current regulations.'}</p>
               
-              <h4 className="font-bold text-slate-900 dark:text-white mb-2">1. Datos que recopilamos</h4>
-              <p className="mb-2">Recopilamos información que usted proporciona directamente al usar la plataforma, incluyendo:</p>
+              <h4 className="font-bold text-slate-900 dark:text-white mb-2">{isEs ? '1. Datos que recopilamos' : '1. Data We Collect'}</h4>
+              <p className="mb-2">{isEs ? 'Recopilamos información que usted proporciona directamente al usar la plataforma, incluyendo:' : 'We collect information you directly provide when using the platform, including:'}</p>
               <ul className="list-disc pl-5 mb-6 space-y-1">
-                <li>Datos de perfil (Nombre, correo electrónico, foto).</li>
-                <li>Datos financieros y de propiedades (rentas, gastos, valores de adquisición, hipotecas).</li>
-                <li>Información de inquilinos y contratos de arrendamiento.</li>
+                <li>{isEs ? 'Datos de perfil (Nombre, correo electrónico, foto).' : 'Profile data (Name, email, photo).'}</li>
+                <li>{isEs ? 'Datos financieros y de propiedades (rentas, gastos, valores de adquisición, hipotecas).' : 'Financial and property data (rent, expenses, purchase values, mortgages).'}</li>
+                <li>{isEs ? 'Información de inquilinos y contratos de arrendamiento.' : 'Tenant information and lease contracts.'}</li>
               </ul>
               
-              <h4 className="font-bold text-slate-900 dark:text-white mb-2">2. Uso de la Información</h4>
-              <p className="mb-6">Utilizamos sus datos exclusivamente para proveer el servicio de gestión de su portfolio inmobiliario, generar analíticas financieras, facilitar el control de cobros y enviarle notificaciones relevantes sobre pagos o vencimientos.</p>
+              <h4 className="font-bold text-slate-900 dark:text-white mb-2">{isEs ? '2. Uso de la Información' : '2. Use of Information'}</h4>
+              <p className="mb-6">{isEs ? 'Utilizamos sus datos exclusivamente para proveer el servicio de gestión de su portfolio inmobiliario, generar analíticas financieras, facilitar el control de cobros y enviarle notificaciones relevantes sobre pagos o vencimientos.' : 'We use your data exclusively to provide real estate portfolio management services, generate financial analytics, facilitate rent collection tracking, and send you relevant notifications regarding payments or contract expirations.'}</p>
               
-              <h4 className="font-bold text-slate-900 dark:text-white mb-2">3. Protección y Seguridad</h4>
-              <p className="mb-6">Implementamos medidas de seguridad técnicas y organizativas robustas (incluyendo cifrado de datos en reposo y en tránsito) para proteger sus datos contra acceso no autorizado, alteración, divulgación o destrucción.</p>
+              <h4 className="font-bold text-slate-900 dark:text-white mb-2">{isEs ? '3. Protección y Seguridad' : '3. Protection and Security'}</h4>
+              <p className="mb-6">{isEs ? 'Implementamos medidas de seguridad técnicas y organizativas robustas (incluyendo cifrado de datos en reposo y en tránsito) para proteger sus datos contra acceso no autorizado, alteración, divulgación o destrucción.' : 'We implement robust technical and organizational security measures (including data encryption at rest and in transit) to protect your data against unauthorized access, alteration, disclosure, or destruction.'}</p>
               
-              <h4 className="font-bold text-slate-900 dark:text-white mb-2">4. Compartir Información</h4>
-              <p className="mb-6">No vendemos, alquilamos ni compartimos sus datos personales con terceros para fines comerciales. Sus datos solo pueden ser compartidos cuando sea estrictamente requerido por la ley aplicable.</p>
+              <h4 className="font-bold text-slate-900 dark:text-white mb-2">{isEs ? '4. Compartir Información' : '4. Information Sharing'}</h4>
+              <p className="mb-6">{isEs ? 'No vendemos, alquilamos ni compartimos sus datos personales con terceros para fines comerciales. Sus datos solo pueden ser compartidos cuando sea estrictamente requerido por la ley aplicable.' : 'We do not sell, rent, or share your personal data with third parties for commercial purposes. Your data is only shared when strictly required by applicable law.'}</p>
               
-              <h4 className="font-bold text-slate-900 dark:text-white mb-2">5. Sus Derechos</h4>
-              <p className="mb-6">Usted tiene el derecho de acceder, corregir, exportar (en formato CSV, PDF o Excel) o eliminar sus datos personales en cualquier momento a través de los ajustes de su cuenta, o contactando con nuestro equipo de soporte de la empresa.</p>
+              <h4 className="font-bold text-slate-900 dark:text-white mb-2">{isEs ? '5. Sus Derechos' : '5. Your Rights'}</h4>
+              <p className="mb-6">{isEs ? 'Usted tiene el derecho de acceder, corregir, exportar (en formato CSV, PDF o Excel) o eliminar sus datos personales en cualquier momento a través de los ajustes de su cuenta, o contactando con nuestro equipo de soporte.' : 'You have the right to access, rectify, export (in CSV, PDF, or Excel formats), or delete your personal data at any time via account settings or by contacting our support team.'}</p>
            </div>
         </div>
       </div>
@@ -110,22 +125,22 @@ export default function SettingsModal({ isOpen, onClose }: { isOpen: boolean, on
              <h2 className="font-bold text-[16px] text-slate-900 dark:text-white ml-2">{isEs ? 'Manual de Uso' : 'User Manual'}</h2>
            </div>
            <div className="p-6 overflow-y-auto prose prose-sm text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 flex-1">
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Manual de Usuario</h3>
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">{isEs ? 'Manual de Usuario' : 'User Guide'}</h3>
               
-              <h4 className="font-bold text-slate-900 dark:text-white mb-2">1. Inicio (Dashboard)</h4>
-              <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=500&q=80" alt="Dashboard Ejemplo" className="rounded-xl w-full h-32 object-cover mb-3" />
-              <p className="mb-4">Visualiza un resumen rápido de tus ingresos y gastos mensuales, la tasa de ocupación de tu portfolio y el beneficio neto anual estimado de todas tus propiedades.</p>
+              <h4 className="font-bold text-slate-900 dark:text-white mb-2">{isEs ? '1. Inicio (Dashboard)' : '1. Dashboard'}</h4>
+              <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=500&q=80" alt="Dashboard" className="rounded-xl w-full h-32 object-cover mb-3" />
+              <p className="mb-4">{isEs ? 'Visualiza un resumen rápido de tus ingresos y gastos mensuales, la tasa de ocupación de tu portfolio y el beneficio neto anual estimado de todas tus propiedades.' : 'View a quick summary of your monthly income and expenses, portfolio occupancy rate, and estimated annual net profit across all your properties.'}</p>
 
-              <h4 className="font-bold text-slate-900 dark:text-white mb-2">2. Portfolio</h4>
-              <img src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=500&q=80" alt="Portfolio Ejemplo" className="rounded-xl w-full h-32 object-cover mb-3" />
-              <p className="mb-4">Añade, edita y revisa todas tus propiedades. Puedes adjuntar enlaces a tus contratos, escrituras e hipotecas directamente en la ficha de cada propiedad. Filtra rápidamente por estado (Ocupado, Vacío, etc.).</p>
+              <h4 className="font-bold text-slate-900 dark:text-white mb-2">{isEs ? '2. Portfolio' : '2. Portfolio'}</h4>
+              <img src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=500&q=80" alt="Portfolio" className="rounded-xl w-full h-32 object-cover mb-3" />
+              <p className="mb-4">{isEs ? 'Añade, edita y revisa todas tus propiedades. Puedes adjuntar enlaces a tus contratos, escrituras e hipotecas directamente en la ficha de cada propiedad. Filtra rápidamente por estado (Ocupado, Vacío, etc.).' : 'Add, edit, and review all your properties. Attach links to contracts, deeds, and mortgages directly on each property card. Filter by status (Occupied, Vacant, etc.).'}</p>
 
-              <h4 className="font-bold text-slate-900 dark:text-white mb-2">3. Inquilinos (CRM)</h4>
-              <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=500&q=80" alt="CRM Ejemplo" className="rounded-xl w-full h-32 object-cover mb-3" />
-              <p className="mb-4">Gestiona a las personas que alquilan tus propiedades. Lleva un control anual de los pagos mes a mes (Al día, Pendiente, Deuda) y revisa sus contratos vinculados.</p>
+              <h4 className="font-bold text-slate-900 dark:text-white mb-2">{isEs ? '3. Inquilinos (CRM)' : '3. Tenants (CRM)'}</h4>
+              <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=500&q=80" alt="CRM" className="rounded-xl w-full h-32 object-cover mb-3" />
+              <p className="mb-4">{isEs ? 'Gestiona a las personas que alquilan tus propiedades. Lleva un control anual de los pagos mes a mes (Al día, Pendiente, Deuda) y revisa sus contratos vinculados.' : 'Manage tenants who lease your properties. Track monthly payments year-round (Paid, Pending, Debt) and review linked contracts.'}</p>
 
-              <h4 className="font-bold text-slate-900 dark:text-white mb-2">4. Configuración</h4>
-              <p className="mb-4">Desde tu perfil, edita tu nombre y foto. Cambia el tema (Claro u Oscuro) o el idioma. Exporta la información a PDF o Excel, y contacta con el soporte de la empresa si tienes alguna incidencia.</p>
+              <h4 className="font-bold text-slate-900 dark:text-white mb-2">{isEs ? '4. Configuración' : '4. Settings'}</h4>
+              <p className="mb-4">{isEs ? 'Desde tu perfil, edita tu nombre y foto. Cambia el tema (Claro u Oscuro) o el idioma. Exporta la información a PDF o Excel, y contacta con el soporte si tienes alguna incidencia.' : 'From your profile, update your name and avatar. Toggle theme (Light or Dark) or language. Export data to PDF or Excel, and contact support if you have any questions.'}</p>
            </div>
         </div>
       </div>
@@ -149,24 +164,31 @@ export default function SettingsModal({ isOpen, onClose }: { isOpen: boolean, on
                     <Check size={32} />
                   </div>
                   <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">{isEs ? 'Mensaje Enviado' : 'Message Sent'}</h3>
-                  <p className="text-slate-500 dark:text-slate-400">{isEs ? 'Nos pondremos en contacto contigo pronto.' : 'We will get back to you soon.'}</p>
+                  <p className="text-slate-500 dark:text-slate-400 mb-4">{isEs ? 'Nos pondremos en contacto contigo pronto en tu correo.' : 'We will get back to you soon via email.'}</p>
+                  <p className="text-xs text-slate-400">
+                    {isEs ? 'Destinatario:' : 'Recipient:'} <span className="font-semibold text-slate-600 dark:text-slate-300">{supportEmail}</span>
+                  </p>
                 </div>
               ) : (
                 <>
-                  <p className="text-sm text-slate-600 dark:text-slate-400 mb-6">{isEs ? 'Cuéntanos tu problema y nuestro equipo te ayudará lo antes posible.' : 'Tell us your issue and our team will help you as soon as possible.'}</p>
+                  <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/40 rounded-xl text-xs text-blue-800 dark:text-blue-300">
+                    <p className="font-semibold mb-0.5">{isEs ? 'Canal directo de soporte:' : 'Direct Support Channel:'}</p>
+                    <a href={`mailto:${supportEmail}`} className="underline font-bold text-blue-600 dark:text-blue-400">{supportEmail}</a>
+                  </div>
+                  <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">{isEs ? 'Cuéntanos tu consulta o problema y nuestro equipo te ayudará lo antes posible:' : 'Describe your question or issue and our team will assist you as soon as possible:'}</p>
                   <textarea 
                     value={supportMessage}
                     onChange={(e) => setSupportMessage(e.target.value)}
-                    placeholder={isEs ? "¿En qué podemos ayudarte?" : "How can we help you?"}
+                    placeholder={isEs ? "Escribe tu mensaje aquí..." : "Type your message here..."}
                     className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-4 text-sm text-slate-900 dark:text-white outline-none focus:border-blue-500 min-h-[150px] resize-none mb-4 shadow-sm"
                   ></textarea>
                   <button 
-                    onClick={() => setSupportSent(true)}
+                    onClick={handleSendSupport}
                     disabled={!supportMessage.trim()}
                     className="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold flex items-center justify-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
                   >
                     <Send size={18} />
-                    {isEs ? 'Enviar Mensaje' : 'Send Message'}
+                    {isEs ? 'Enviar Mensaje a Soporte' : 'Send Message to Support'}
                   </button>
                 </>
               )}
@@ -192,7 +214,7 @@ export default function SettingsModal({ isOpen, onClose }: { isOpen: boolean, on
               <span className="font-bold text-sm">Excel</span>
             </button>
           </div>
-          <button onClick={() => setShowExport(false)} className="mt-2 w-full py-2 text-slate-500 font-semibold hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors">{isEs ? 'Cancelar' : 'Cancel'}</button>
+          <button onClick={() => setShowExport(false)} className="mt-2 w-full py-2 text-slate-500 dark:text-slate-400 font-semibold hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors">{isEs ? 'Cancelar' : 'Cancel'}</button>
         </div>
       </div>
     );
@@ -283,7 +305,7 @@ export default function SettingsModal({ isOpen, onClose }: { isOpen: boolean, on
                 <div className="p-4 flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full bg-slate-50 dark:bg-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300">
-                      {theme === 'Oscuro' ? <Moon size={16}/> : <Sun size={16}/>}
+                      {theme === 'Oscuro' || theme === 'Dark' ? <Moon size={16}/> : <Sun size={16}/>}
                     </div>
                     <div>
                       <div className="text-[14px] font-semibold text-slate-900 dark:text-white">{isEs ? 'Tema Oscuro' : 'Dark Mode'}</div>
@@ -291,11 +313,11 @@ export default function SettingsModal({ isOpen, onClose }: { isOpen: boolean, on
                     </div>
                   </div>
                   <button 
-                    onClick={() => setTheme(theme === 'Oscuro' ? 'Claro' : 'Oscuro')}
-                    className={`relative w-14 h-7 rounded-full transition-colors flex items-center shadow-inner ${theme === 'Oscuro' ? 'bg-emerald-500' : 'bg-slate-300'}`}
+                    onClick={() => setTheme(theme === 'Oscuro' || theme === 'Dark' ? 'Claro' : 'Oscuro')}
+                    className={`relative w-14 h-7 rounded-full transition-colors flex items-center shadow-inner ${theme === 'Oscuro' || theme === 'Dark' ? 'bg-emerald-500' : 'bg-slate-300'}`}
                   >
-                    <div className={`w-5 h-5 bg-white rounded-full shadow-sm transform transition-transform duration-200 ease-in-out flex items-center justify-center ${theme === 'Oscuro' ? 'translate-x-8 text-emerald-500' : 'translate-x-1 text-slate-400'}`}>
-                      {theme === 'Oscuro' ? <Moon size={12} strokeWidth={3} /> : <Sun size={12} strokeWidth={3} />}
+                    <div className={`w-5 h-5 bg-white rounded-full shadow-sm transform transition-transform duration-200 ease-in-out flex items-center justify-center ${theme === 'Oscuro' || theme === 'Dark' ? 'translate-x-8 text-emerald-500' : 'translate-x-1 text-slate-400'}`}>
+                      {theme === 'Oscuro' || theme === 'Dark' ? <Moon size={12} strokeWidth={3} /> : <Sun size={12} strokeWidth={3} />}
                     </div>
                   </button>
                 </div>
@@ -377,17 +399,14 @@ export default function SettingsModal({ isOpen, onClose }: { isOpen: boolean, on
               </div>
             </div>
             
+            {/* Cerrar sesión integrado */}
             <div className="mt-8">
               <button 
-                onClick={() => {
-                  if (window.confirm(isEs ? '¿Seguro que quieres cerrar sesión?' : 'Are you sure you want to log out?')) {
-                    window.location.reload();
-                  }
-                }}
+                onClick={handleLogout}
                 className="w-full bg-white dark:bg-slate-800 border border-red-200 dark:border-red-900/50 text-red-600 dark:text-red-400 p-4 rounded-2xl font-bold text-[14px] flex items-center justify-center gap-2 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors shadow-sm"
               >
                 <LogOut size={18} />
-                {isEs ? 'Salir del usuario' : 'Sign Out'}
+                {isEs ? 'Cerrar Sesión' : 'Sign Out'}
               </button>
             </div>
 
