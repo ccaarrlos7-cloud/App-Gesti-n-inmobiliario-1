@@ -5,23 +5,24 @@ import { supabase } from './lib/supabase';
 interface AppContextType {
   properties: Property[];
   setProperties: (props: Property[]) => void;
-  updateProperty: (prop: Property) => void;
+  addProperty: (prop: Omit<Property, 'id'>) => Promise<Property | undefined>;
+  updateProperty: (prop: Property) => Promise<void>;
   tenants: Tenant[];
   setTenants: (tenants: Tenant[]) => void;
-  addTenant: (tenant: Tenant) => void;
+  addTenant: (tenant: Omit<Tenant, 'id'>) => Promise<Tenant | undefined>;
   contracts: Contract[];
   setContracts: (contracts: Contract[]) => void;
-  addContract: (contract: Contract) => void;
-  updateContract: (contract: Contract) => void;
+  addContract: (contract: Omit<Contract, 'id'>) => Promise<Contract | undefined>;
+  updateContract: (contract: Contract) => Promise<void>;
   transactions: Transaction[];
   setTransactions: (transactions: Transaction[]) => void;
-  addTransaction: (tx: Transaction) => void;
+  addTransaction: (tx: Omit<Transaction, 'id'>) => Promise<Transaction | undefined>;
   getDynamicTransactions: () => Transaction[];
   issues: Issue[];
   setIssues: (issues: Issue[]) => void;
-  addIssue: (issue: Issue) => void;
-  updateIssue: (issue: Issue) => void;
-  deleteIssue: (id: string) => void;
+  addIssue: (issue: Omit<Issue, 'id'>) => Promise<Issue | undefined>;
+  updateIssue: (issue: Issue) => Promise<void>;
+  deleteIssue: (id: string) => Promise<void>;
   userName: string;
   setUserName: (name: string) => void;
   avatarUrl: string;
@@ -102,29 +103,79 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [isAppReady, setIsAppReady] = useState(false);
 
   useEffect(() => {
-    async function loadData() {
+    let active = true;
+
+    async function loadData(session: any) {
+      if (!session) return;
       try {
-        const [propsRes, tenantsRes, contractsRes, txsRes, issuesRes] = await Promise.all([
+        const [propsRes, tenantsRes, contractsRes, txsRes, issuesRes, profileRes, ctRes] = await Promise.all([
           supabase.from('properties').select('*'),
           supabase.from('tenants').select('*'),
           supabase.from('contracts').select('*'),
           supabase.from('transactions').select('*'),
-          supabase.from('issues').select('*')
+          supabase.from('issues').select('*'),
+          supabase.from('profiles').select('*').eq('id', session.user.id).single(),
+          supabase.from('contract_tenants').select('*')
         ]);
 
+        if (!active) return;
+
+        if (profileRes.data) {
+          setUserName(profileRes.data.name || "Usuario");
+          setAvatarUrl(profileRes.data.avatar_url || "");
+        }
         if (propsRes.data) setProperties(toCamel(propsRes.data));
         if (tenantsRes.data) setTenants(toCamel(tenantsRes.data));
-        if (contractsRes.data) setContracts(toCamel(contractsRes.data));
+        
+        if (contractsRes.data) {
+          const contractsData = toCamel(contractsRes.data);
+          if (ctRes.data) {
+            const ctData = toCamel(ctRes.data);
+            contractsData.forEach((c: any) => {
+              c.tenantIds = ctData.filter((ct: any) => ct.contractId === c.id).map((ct: any) => ct.tenantId);
+            });
+          } else {
+            contractsData.forEach((c: any) => { c.tenantIds = []; });
+          }
+          setContracts(contractsData);
+        }
+        
         if (txsRes.data) setTransactions(toCamel(txsRes.data));
         if (issuesRes.data) setIssues(toCamel(issuesRes.data));
         
       } catch (e) {
         console.error("Error loading data from Supabase", e);
       } finally {
-        setIsAppReady(true);
+        if (active) setIsAppReady(true);
       }
     }
-    loadData();
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        loadData(session);
+      } else {
+        setIsAppReady(true);
+      }
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) {
+        loadData(session);
+      } else {
+        setProperties([]);
+        setTenants([]);
+        setContracts([]);
+        setTransactions([]);
+        setIssues([]);
+        setUserName("Usuario");
+        setAvatarUrl("");
+      }
+    });
+
+    return () => {
+      active = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const sanitizeProperty = (p: Property): Property => ({
@@ -153,39 +204,139 @@ export function AppProvider({ children }: { children: ReactNode }) {
     amount: Math.max(0, Number(tx.amount) || 0),
   });
 
-  const updateProperty = async (updatedProp: Property) => {
+  const addProperty = async (property: Omit<Property, 'id'>): Promise<Property | undefined> => {
+    const sanitized = sanitizeProperty(property as Property); // As if it was full to sanitize numbers
+    const data = toSnake(sanitized);
+    delete data.id; // Ensure no frontend ID is sent
+    
+    const { data: insertedData, error } = await supabase.from('properties').insert(data).select().single();
+    if (error) {
+      console.error("Error al añadir propiedad:", error);
+      return;
+    }
+    
+    const newProperty = toCamel(insertedData);
+    setProperties(prev => [newProperty, ...prev]);
+    return newProperty;
+  };
+
+  const updateProperty = async (updatedProp: Property): Promise<void> => {
     const sanitized = sanitizeProperty(updatedProp);
-    // Optimistic update
+    const data = toSnake(sanitized);
+    
+    const { error } = await supabase.from('properties').update(data).eq('id', data.id);
+    if (error) {
+      console.error("Error al actualizar propiedad:", error);
+      return;
+    }
+    
     setProperties(prev => prev.map(p => p.id === sanitized.id ? sanitized : p));
-    const data = toSnake(sanitized);
-    await supabase.from('properties').update(data).eq('id', data.id);
   };
 
-  const addTenant = async (tenant: Tenant) => {
-    setTenants(prev => [tenant, ...prev]);
+  const updateUserName = async (name: string) => {
+    setUserName(name);
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.user?.id) {
+      await supabase.from('profiles').update({ name }).eq('id', session.user.id);
+    }
+  };
+
+  const updateAvatarUrl = async (url: string) => {
+    setAvatarUrl(url);
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.user?.id) {
+      await supabase.from('profiles').update({ avatar_url: url }).eq('id', session.user.id);
+    }
+  };
+
+  const addTenant = async (tenant: Omit<Tenant, 'id'>): Promise<Tenant | undefined> => {
     const data = toSnake(tenant);
-    await supabase.from('tenants').insert(data);
+    delete data.id;
+    const { data: insertedData, error } = await supabase.from('tenants').insert(data).select().single();
+    if (error) {
+      console.error("Error al añadir inquilino:", error);
+      return;
+    }
+    const newTenant = toCamel(insertedData);
+    setTenants(prev => [newTenant, ...prev]);
+    return newTenant;
   };
 
-  const addContract = async (contract: Contract) => {
-    const sanitized = sanitizeContract(contract);
-    setContracts(prev => [sanitized, ...prev]);
-    const data = toSnake(sanitized);
-    await supabase.from('contracts').insert(data);
+  const addContract = async (contract: Omit<Contract, 'id'>): Promise<Contract | undefined> => {
+    const sanitized = sanitizeContract(contract as Contract);
+    const { tenantIds, ...contractWithoutTenants } = sanitized;
+    const data = toSnake(contractWithoutTenants);
+    delete data.id;
+    
+    const { data: insertedData, error } = await supabase.from('contracts').insert(data).select().single();
+    if (error) {
+      console.error("Error al añadir contrato:", error);
+      return;
+    }
+
+    if (tenantIds && tenantIds.length > 0) {
+      const ctData = tenantIds.map(tid => ({
+        contract_id: insertedData.id,
+        tenant_id: tid
+      }));
+      const { error: ctError } = await supabase.from('contract_tenants').insert(ctData);
+      if (ctError) {
+        console.error("Error al asociar inquilinos al contrato, ejecutando ROLLBACK:", ctError);
+        await supabase.from('contracts').delete().eq('id', insertedData.id);
+        return; 
+      }
+    }
+    
+    const newContract = { ...toCamel(insertedData), tenantIds: tenantIds || [] };
+    setContracts(prev => [newContract, ...prev]);
+    return newContract;
   };
 
-  const updateContract = async (updatedContract: Contract) => {
+  const updateContract = async (updatedContract: Contract): Promise<void> => {
     const sanitized = sanitizeContract(updatedContract);
+    const { tenantIds, ...contractWithoutTenants } = sanitized;
+    const data = toSnake(contractWithoutTenants);
+    
+    const { error } = await supabase.from('contracts').update(data).eq('id', data.id);
+    if (error) {
+      console.error("Error al actualizar contrato:", error);
+      return;
+    }
+
+    // Replace old associations with new ones safely
+    const { data: oldCtData } = await supabase.from('contract_tenants').select('*').eq('contract_id', data.id);
+    await supabase.from('contract_tenants').delete().eq('contract_id', data.id);
+    
+    if (tenantIds && tenantIds.length > 0) {
+      const ctData = tenantIds.map(tid => ({
+        contract_id: sanitized.id,
+        tenant_id: tid
+      }));
+      const { error: ctError } = await supabase.from('contract_tenants').insert(ctData);
+      if (ctError) {
+        console.error("Error al actualizar inquilinos del contrato, restaurando antiguos:", ctError);
+        if (oldCtData && oldCtData.length > 0) {
+           await supabase.from('contract_tenants').insert(oldCtData);
+        }
+        return;
+      }
+    }
+
     setContracts(prev => prev.map(c => c.id === sanitized.id ? sanitized : c));
-    const data = toSnake(sanitized);
-    await supabase.from('contracts').update(data).eq('id', data.id);
   };
 
-  const addTransaction = async (tx: Transaction) => {
-    const sanitized = sanitizeTransaction(tx);
-    setTransactions(prev => [sanitized, ...prev]);
+  const addTransaction = async (tx: Omit<Transaction, 'id'>): Promise<Transaction | undefined> => {
+    const sanitized = sanitizeTransaction(tx as Transaction);
     const data = toSnake(sanitized);
-    await supabase.from('transactions').insert(data);
+    delete data.id;
+    const { data: insertedData, error } = await supabase.from('transactions').insert(data).select().single();
+    if (error) {
+      console.error("Error al añadir transacción:", error);
+      return;
+    }
+    const newTx = toCamel(insertedData);
+    setTransactions(prev => [newTx, ...prev]);
+    return newTx;
   };
 
   const getDynamicTransactions = () => {
@@ -274,21 +425,36 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return dynamicTxs.sort((a, b) => b.date.localeCompare(a.date));
   };
 
-  const addIssue = async (issue: Issue) => {
-    setIssues(prev => [issue, ...prev]);
+  const addIssue = async (issue: Omit<Issue, 'id'>): Promise<Issue | undefined> => {
     const data = toSnake(issue);
-    await supabase.from('issues').insert(data);
+    delete data.id;
+    const { data: insertedData, error } = await supabase.from('issues').insert(data).select().single();
+    if (error) {
+      console.error("Error al añadir incidencia:", error);
+      return;
+    }
+    const newIssue = toCamel(insertedData);
+    setIssues(prev => [newIssue, ...prev]);
+    return newIssue;
   };
 
-  const updateIssue = async (updatedIssue: Issue) => {
-    setIssues(prev => prev.map(i => i.id === updatedIssue.id ? updatedIssue : i));
+  const updateIssue = async (updatedIssue: Issue): Promise<void> => {
     const data = toSnake(updatedIssue);
-    await supabase.from('issues').update(data).eq('id', data.id);
+    const { error } = await supabase.from('issues').update(data).eq('id', data.id);
+    if (error) {
+      console.error("Error al actualizar incidencia:", error);
+      return;
+    }
+    setIssues(prev => prev.map(i => i.id === updatedIssue.id ? updatedIssue : i));
   };
 
-  const deleteIssue = async (id: string) => {
+  const deleteIssue = async (id: string): Promise<void> => {
+    const { error } = await supabase.from('issues').delete().eq('id', id);
+    if (error) {
+      console.error("Error al eliminar incidencia:", error);
+      return;
+    }
     setIssues(prev => prev.filter(i => i.id !== id));
-    await supabase.from('issues').delete().eq('id', id);
   };
 
   if (!isAppReady) {
@@ -302,13 +468,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   return (
     <AppContext.Provider value={{ 
-      properties, setProperties, updateProperty, 
+      properties, setProperties, addProperty, updateProperty, 
       tenants, setTenants, addTenant,
       contracts, setContracts, addContract, updateContract,
       transactions, setTransactions, addTransaction, getDynamicTransactions,
       issues, setIssues, addIssue, updateIssue, deleteIssue,
-      userName, setUserName,
-      avatarUrl, setAvatarUrl,
+      userName, setUserName: updateUserName,
+      avatarUrl, setAvatarUrl: updateAvatarUrl,
       theme, setTheme,
       language, setLanguage
     }}>

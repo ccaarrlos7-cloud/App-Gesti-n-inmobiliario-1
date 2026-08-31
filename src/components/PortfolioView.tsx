@@ -8,7 +8,7 @@ import SettingsModal from './SettingsModal';
 import { User } from 'lucide-react';
 
 export default function PortfolioView({ initialTab = 'Todos' }: { initialTab?: PropertyStatus | 'Todos' }) {
-  const { properties, setProperties, updateProperty, contracts, tenants, getDynamicTransactions, addTransaction, issues, addIssue, updateIssue, deleteIssue, language, userName, avatarUrl } = useAppContext();
+  const { properties, setProperties, addProperty, updateProperty, contracts, tenants, getDynamicTransactions, addTransaction, issues, addIssue, updateIssue, deleteIssue, language, userName, avatarUrl } = useAppContext();
   const isEs = language === 'Español';
   const allTxs = getDynamicTransactions();
   const [activeTab, setActiveTab] = useState<PropertyStatus | 'Todos'>(initialTab);
@@ -72,8 +72,7 @@ export default function PortfolioView({ initialTab = 'Todos' }: { initialTab?: P
 
   const handleAdd = (e: React.FormEvent) => {
     e.preventDefault();
-    const property: Property = {
-      id: `p${Date.now()}`,
+    const property: Omit<Property, 'id'> = {
       title: newProp.title || '',
       address: newProp.address || '',
       zipCode: newProp.zipCode || '',
@@ -98,7 +97,7 @@ export default function PortfolioView({ initialTab = 'Todos' }: { initialTab?: P
       ibi: Math.max(0, Number(newProp.ibi) || 0),
       image: newProp.image || 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=500&auto=format&fit=crop&q=60'
     };
-    setProperties([property, ...properties]);
+    addProperty(property);
     setIsModalOpen(false);
     setNewProp({ title: '', address: '', price: 0, status: 'Vacío', type: 'Piso', notes: '', hasMortgage: false });
   };
@@ -128,8 +127,7 @@ export default function PortfolioView({ initialTab = 'Todos' }: { initialTab?: P
   const handleAddTx = (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedProperty) return;
-    const tx: Transaction = {
-      id: `tr${Date.now()}`,
+    const tx: Omit<Transaction, 'id'> = {
       propertyId: selectedProperty.id,
       type: newTx.type as 'ingreso' | 'gasto',
       category: newTx.category || (isEs ? 'Otros' : 'Other'),
@@ -165,7 +163,6 @@ export default function PortfolioView({ initialTab = 'Todos' }: { initialTab?: P
       });
     } else {
       addIssue({
-        id: `iss${Date.now()}`,
         propertyId: issueForm.propertyId,
         title: issueForm.title,
         description: issueForm.description,
@@ -178,7 +175,6 @@ export default function PortfolioView({ initialTab = 'Todos' }: { initialTab?: P
     // Auto-generate transaction if requested
     if (issueForm.status === 'Resuelta' && issueForm.generateTransaction && sanitizedCost > 0) {
       addTransaction({
-        id: `tr${Date.now()}`,
         propertyId: issueForm.propertyId,
         type: 'gasto',
         category: isEs ? 'Mantenimiento / Reparación' : 'Maintenance / Repair',

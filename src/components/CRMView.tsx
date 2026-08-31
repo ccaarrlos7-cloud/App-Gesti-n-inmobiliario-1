@@ -466,30 +466,32 @@ export default function CRMView() {
               </button>
             </div>
             <div className="p-5 overflow-y-auto flex-1 bg-slate-50/50 dark:bg-slate-900/50 space-y-6">
-              <form id="new-tenant-form" onSubmit={(e) => {
+              <form id="new-tenant-form" onSubmit={async (e) => {
                 e.preventDefault();
                 
-                // 1. Create Tenants
+                // 1. Create Tenants sequentially and safely
                 const createdTenantIds: string[] = [];
-                newTenants.forEach((nt, index) => {
+                for (let index = 0; index < newTenants.length; index++) {
+                  const nt = newTenants[index];
                   if (nt.name || nt.email) {
-                    const tenantId = `t${Date.now()}-${index}`;
-                    createdTenantIds.push(tenantId);
-                    addTenant({
-                      id: tenantId,
+                    const newTenant = await addTenant({
                       name: nt.name || '',
                       email: nt.email || '',
                       phone: nt.phone || '',
                       dni: nt.dni || ''
                     });
+                    
+                    if (!newTenant) {
+                      console.error("Error al crear inquilino. Se aborta la creación del contrato.");
+                      return; // Abort the whole process, keep the form open so they can retry or see the error
+                    }
+                    createdTenantIds.push(newTenant.id);
                   }
-                });
+                }
 
                 // 2. Create Contract
-                const contractId = `c${Date.now()}`;
-                const contractToSave: Contract = {
-                  id: contractId,
-                  tenantIds: createdTenantIds.length > 0 ? createdTenantIds : [`t${Date.now()}`],
+                const contractToSave: Omit<Contract, 'id'> = {
+                  tenantIds: createdTenantIds,
                   propertyId: newContract.propertyId || '',
                   startDate: newContract.startDate || '',
                   endDate: newContract.endDate || '',
@@ -499,7 +501,12 @@ export default function CRMView() {
                   paymentStatus: 'Pendiente',
                   monthlyPayments: {}
                 };
-                addContract(contractToSave);
+                
+                const createdContract = await addContract(contractToSave);
+                if (!createdContract) {
+                  console.error("Error al crear el contrato. Se conservan los inquilinos creados pero el contrato fue abortado.");
+                  return; // Keep form open
+                }
 
                 // 3. Update Property
                 const relatedProperty = properties.find(p => p.id === newContract.propertyId);
