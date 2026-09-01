@@ -6,6 +6,7 @@ import PropertyFields from './PropertyFields';
 import { formatDate, formatNumber } from '../utils';
 import SettingsModal from './SettingsModal';
 import { User } from 'lucide-react';
+import FormattedNumberInput from './FormattedNumberInput';
 
 export default function PortfolioView({ initialTab = 'Todos' }: { initialTab?: PropertyStatus | 'Todos' }) {
   const { properties, setProperties, addProperty, updateProperty, contracts, tenants, getDynamicTransactions, addTransaction, issues, addIssue, updateIssue, deleteIssue, language, userName, avatarUrl } = useAppContext();
@@ -549,15 +550,12 @@ export default function PortfolioView({ initialTab = 'Todos' }: { initialTab?: P
                                 <option value="gasto">{isEs ? 'Gasto' : 'Expense'}</option>
                                 <option value="ingreso">{isEs ? 'Ingreso' : 'Income'}</option>
                               </select>
-                              <input 
-                                type="number" 
-                                min="0" 
-                                step="any"
-                                onKeyDown={(e) => { if (e.key === '-' || e.key === 'e') e.preventDefault(); }}
+                              <FormattedNumberInput 
+                                decimals={2}
                                 placeholder={isEs ? "Importe (€)" : "Amount (€)"} 
                                 className="border border-slate-200 dark:border-slate-700 rounded p-2 text-sm bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white" 
                                 value={newTx.amount ?? ''} 
-                                onChange={e => setNewTx({...newTx, amount: e.target.value === '' ? 0 : Math.max(0, Number(e.target.value))})} 
+                                onChange={val => setNewTx({...newTx, amount: val === '' ? 0 : val})} 
                                 required 
                               />
                             </div>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Property } from '../types';
 import { useAppContext } from '../store';
+import FormattedNumberInput from './FormattedNumberInput';
 
 interface Props {
   data: Partial<Property>;
@@ -130,28 +131,22 @@ export default function PropertyFields({ data, onChange }: Props) {
             <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">
               {isEs ? 'Metros Cuadrados' : 'Square Meters (m²)'}
             </label>
-            <input 
-              type="number" 
-              min="0"
-              step="any"
-              onKeyDown={(e) => { if (e.key === '-' || e.key === 'e') e.preventDefault(); }}
+            <FormattedNumberInput 
+              decimals={2}
               className="w-full border border-slate-200 dark:border-slate-700 rounded px-3 py-2 text-sm bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white" 
               value={data.sqm ?? ''} 
-              onChange={e => update('sqm', e.target.value === '' ? '' : Math.max(0, Number(e.target.value)))} 
+              onChange={val => update('sqm', val)} 
             />
           </div>
           <div>
             <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">
               {isEs ? 'Nº Habitaciones' : 'Bedrooms'}
             </label>
-            <input 
-              type="number" 
-              min="0"
-              step="1"
-              onKeyDown={(e) => { if (e.key === '-' || e.key === 'e') e.preventDefault(); }}
+            <FormattedNumberInput 
+              decimals={0}
               className="w-full border border-slate-200 dark:border-slate-700 rounded px-3 py-2 text-sm bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white" 
               value={data.rooms ?? ''} 
-              onChange={e => update('rooms', e.target.value === '' ? '' : Math.max(0, Math.floor(Number(e.target.value))))} 
+              onChange={val => update('rooms', val)} 
             />
           </div>
         </div>
@@ -178,14 +173,11 @@ export default function PropertyFields({ data, onChange }: Props) {
               <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">
                 {isEs ? 'Valor de Mercado (€)' : 'Market Value (€)'}
               </label>
-              <input 
-                type="number" 
-                min="0"
-                step="any"
-                onKeyDown={(e) => { if (e.key === '-' || e.key === 'e') e.preventDefault(); }}
+              <FormattedNumberInput 
+                decimals={2}
                 className="w-full border border-slate-200 dark:border-slate-700 rounded px-3 py-2 text-sm bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white" 
                 value={data.marketValue ?? ''} 
-                onChange={e => update('marketValue', e.target.value === '' ? '' : Math.max(0, Number(e.target.value)))} 
+                onChange={val => update('marketValue', val)} 
               />
             </div>
           ) : (
@@ -193,14 +185,11 @@ export default function PropertyFields({ data, onChange }: Props) {
               <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">
                 {isEs ? 'Precio Alquiler / Mes (€)' : 'Rent Price / Month (€)'}
               </label>
-              <input 
-                type="number" 
-                min="0"
-                step="any"
-                onKeyDown={(e) => { if (e.key === '-' || e.key === 'e') e.preventDefault(); }}
+              <FormattedNumberInput 
+                decimals={2}
                 className="w-full border border-slate-200 dark:border-slate-700 rounded px-3 py-2 text-sm bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white" 
                 value={data.price ?? ''} 
-                onChange={e => update('price', e.target.value === '' ? '' : Math.max(0, Number(e.target.value)))} 
+                onChange={val => update('price', val)} 
               />
             </div>
           )}
@@ -219,56 +208,44 @@ export default function PropertyFields({ data, onChange }: Props) {
             <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">
               {isEs ? 'Valor de Compra (€)' : 'Purchase Price (€)'}
             </label>
-            <input 
-              type="number" 
-              min="0"
-              step="any"
-              onKeyDown={(e) => { if (e.key === '-' || e.key === 'e') e.preventDefault(); }}
+            <FormattedNumberInput 
+              decimals={2}
               className="w-full border border-slate-200 dark:border-slate-700 rounded px-3 py-2 text-sm bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white" 
               value={data.purchasePrice ?? ''} 
-              onChange={e => update('purchasePrice', e.target.value === '' ? '' : Math.max(0, Number(e.target.value)))} 
+              onChange={val => update('purchasePrice', val)} 
             />
           </div>
            <div>
             <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">
               {isEs ? 'Entrada Pagada (€)' : 'Down Payment (€)'}
             </label>
-            <input 
-              type="number" 
-              min="0"
-              step="any"
-              onKeyDown={(e) => { if (e.key === '-' || e.key === 'e') e.preventDefault(); }}
+            <FormattedNumberInput 
+              decimals={2}
               className="w-full border border-slate-200 dark:border-slate-700 rounded px-3 py-2 text-sm bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white" 
               value={data.downPayment ?? ''} 
-              onChange={e => update('downPayment', e.target.value === '' ? '' : Math.max(0, Number(e.target.value)))} 
+              onChange={val => update('downPayment', val)} 
             />
           </div>
            <div>
             <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">
               {isEs ? 'Gastos Adquisición (€)' : 'Acquisition Expenses (€)'}
             </label>
-            <input 
-              type="number" 
-              min="0"
-              step="any"
-              onKeyDown={(e) => { if (e.key === '-' || e.key === 'e') e.preventDefault(); }}
+            <FormattedNumberInput 
+              decimals={2}
               className="w-full border border-slate-200 dark:border-slate-700 rounded px-3 py-2 text-sm bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white" 
               value={data.purchaseExpenses ?? ''} 
-              onChange={e => update('purchaseExpenses', e.target.value === '' ? '' : Math.max(0, Number(e.target.value)))} 
+              onChange={val => update('purchaseExpenses', val)} 
             />
           </div>
            <div>
             <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">
               {isEs ? 'Gastos de Reforma (€)' : 'Renovation Expenses (€)'}
             </label>
-            <input 
-              type="number" 
-              min="0"
-              step="any"
-              onKeyDown={(e) => { if (e.key === '-' || e.key === 'e') e.preventDefault(); }}
+            <FormattedNumberInput 
+              decimals={2}
               className="w-full border border-slate-200 dark:border-slate-700 rounded px-3 py-2 text-sm bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white" 
               value={data.renovationExpenses ?? ''} 
-              onChange={e => update('renovationExpenses', e.target.value === '' ? '' : Math.max(0, Number(e.target.value)))} 
+              onChange={val => update('renovationExpenses', val)} 
             />
           </div>
         </div>
@@ -283,14 +260,11 @@ export default function PropertyFields({ data, onChange }: Props) {
               <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">
                 {isEs ? 'Cuota Hipoteca Mensual (€)' : 'Monthly Mortgage Payment (€)'}
               </label>
-              <input 
-                type="number" 
-                min="0"
-                step="any"
-                onKeyDown={(e) => { if (e.key === '-' || e.key === 'e') e.preventDefault(); }}
+              <FormattedNumberInput 
+                decimals={2}
                 className="w-full border border-slate-200 dark:border-slate-700 rounded px-3 py-2 text-sm bg-white dark:bg-slate-900 text-slate-900 dark:text-white" 
                 value={data.mortgageInstallment ?? ''} 
-                onChange={e => update('mortgageInstallment', e.target.value === '' ? '' : Math.max(0, Number(e.target.value)))} 
+                onChange={val => update('mortgageInstallment', val)} 
               />
             </div>
           )}
@@ -301,14 +275,11 @@ export default function PropertyFields({ data, onChange }: Props) {
             <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">
               {isEs ? 'Comunidad (€/mes)' : 'HOA / Community (€/mo)'}
             </label>
-            <input 
-              type="number" 
-              min="0"
-              step="any"
-              onKeyDown={(e) => { if (e.key === '-' || e.key === 'e') e.preventDefault(); }}
+            <FormattedNumberInput 
+              decimals={2}
               className="w-full border border-slate-200 dark:border-slate-700 rounded px-3 py-2 text-sm bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white" 
               value={data.communityFees ?? ''} 
-              onChange={e => update('communityFees', e.target.value === '' ? '' : Math.max(0, Number(e.target.value)))} 
+              onChange={val => update('communityFees', val)} 
               placeholder="0" 
             />
           </div>
@@ -316,14 +287,11 @@ export default function PropertyFields({ data, onChange }: Props) {
             <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">
               {isEs ? 'IBI (€/año)' : 'Property Tax / IBI (€/yr)'}
             </label>
-            <input 
-              type="number" 
-              min="0"
-              step="any"
-              onKeyDown={(e) => { if (e.key === '-' || e.key === 'e') e.preventDefault(); }}
+            <FormattedNumberInput 
+              decimals={2}
               className="w-full border border-slate-200 dark:border-slate-700 rounded px-3 py-2 text-sm bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white" 
               value={data.ibi ?? ''} 
-              onChange={e => update('ibi', e.target.value === '' ? '' : Math.max(0, Number(e.target.value)))} 
+              onChange={val => update('ibi', val)} 
               placeholder="0" 
             />
           </div>

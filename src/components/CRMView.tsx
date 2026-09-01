@@ -7,6 +7,7 @@ import { useAppContext } from '../store';
 import { formatDate, formatNumber } from '../utils';
 import SettingsModal from './SettingsModal';
 import { User } from 'lucide-react';
+import FormattedNumberInput from './FormattedNumberInput';
 
 export default function CRMView() {
   const { properties, updateProperty, tenants, addTenant, contracts, addContract, updateContract, language, userName, avatarUrl } = useAppContext();
@@ -604,27 +605,21 @@ export default function CRMView() {
                     </div>
                     <div>
                       <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">{isEs ? 'Renta Mensual (€) *' : 'Monthly Rent (€) *'}</label>
-                      <input 
-                        type="number" 
-                        min="0" 
-                        step="any"
-                        onKeyDown={(e) => { if (e.key === '-' || e.key === 'e') e.preventDefault(); }}
+                      <FormattedNumberInput 
+                        decimals={2}
                         className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white bg-white dark:bg-slate-800 focus:border-blue-500 outline-none" 
                         value={newContract.rentAmount ?? ''} 
-                        onChange={e => setNewContract({...newContract, rentAmount: e.target.value === '' ? 0 : Math.max(0, Number(e.target.value))})} 
+                        onChange={val => setNewContract({...newContract, rentAmount: val === '' ? 0 : val})} 
                         required 
                       />
                     </div>
                     <div>
                       <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">{isEs ? 'Fianza Depositada (€) *' : 'Deposit (€) *'}</label>
-                      <input 
-                        type="number" 
-                        min="0" 
-                        step="any"
-                        onKeyDown={(e) => { if (e.key === '-' || e.key === 'e') e.preventDefault(); }}
+                      <FormattedNumberInput 
+                        decimals={2}
                         className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white bg-white dark:bg-slate-800 focus:border-blue-500 outline-none" 
                         value={newContract.deposit ?? ''} 
-                        onChange={e => setNewContract({...newContract, deposit: e.target.value === '' ? 0 : Math.max(0, Number(e.target.value))})} 
+                        onChange={val => setNewContract({...newContract, deposit: val === '' ? 0 : val})} 
                         required 
                       />
                     </div>

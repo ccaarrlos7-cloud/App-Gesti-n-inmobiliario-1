@@ -4,38 +4,17 @@ import { useAppContext } from '../store';
 import { formatNumber } from '../utils';
 import SettingsModal from './SettingsModal';
 import { User } from 'lucide-react';
+import FormattedNumberInput from './FormattedNumberInput';
 
 
 function FormattedInput({ value, onChange, className, step = "1", min = "0", ...props }: any) {
-  const [isFocused, setIsFocused] = React.useState(false);
-  
-  let displayValue: string | number = '';
-  if (isFocused) {
-    displayValue = (value || value === 0) ? value : '';
-  } else {
-    displayValue = (value || value === 0) ? formatNumber(value, step === "any" || step.includes(".") ? 2 : 0) : '';
-  }
-
   return (
-    <input
-      {...props}
-      type={isFocused ? "number" : "text"}
-      step={step}
-      min={min}
-      onKeyDown={(e) => {
-        if (e.key === '-' || e.key === 'e') {
-          e.preventDefault();
-        }
-        if (props.onKeyDown) props.onKeyDown(e);
-      }}
+    <FormattedNumberInput
+      decimals={step === "any" || step.includes(".") ? 2 : 0}
       className={className}
-      value={displayValue}
-      onFocus={() => setIsFocused(true)}
-      onBlur={() => setIsFocused(false)}
-      onChange={(e) => {
-        const raw = Number(e.target.value);
-        onChange(Math.max(0, isNaN(raw) ? 0 : raw));
-      }}
+      value={value}
+      onChange={(val) => onChange(val === '' ? 0 : val)}
+      {...props}
     />
   );
 }
