@@ -28,3 +28,32 @@ export function formatNumber(value: number, decimals: number = 2): string {
     useGrouping: true
   });
 }
+
+export function getContractTruePaymentStatus(monthlyPayments: Record<string, string> | undefined): 'Al día' | 'Pendiente' | 'Deuda' {
+  if (!monthlyPayments) return 'Al día';
+  
+  const currentYearStr = new Date().getFullYear();
+  const currentMonthStr = String(new Date().getMonth() + 1).padStart(2, '0');
+  const currentMonthKey = `${currentYearStr}-${currentMonthStr}`;
+
+  let hasDeuda = false;
+  let hasPendiente = false;
+
+  for (const [monthKey, status] of Object.entries(monthlyPayments)) {
+    if (status === 'Deuda') {
+      hasDeuda = true;
+    } else if (status === 'Pendiente') {
+      if (monthKey < currentMonthKey) {
+        // Unpaid past month is considered a debt
+        hasDeuda = true;
+      } else {
+        // Unpaid current or future month is just pending
+        hasPendiente = true;
+      }
+    }
+  }
+
+  if (hasDeuda) return 'Deuda';
+  if (hasPendiente) return 'Pendiente';
+  return 'Al día';
+}

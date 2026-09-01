@@ -6,7 +6,7 @@ import { yearlyAnalytics } from '../data';
 import { ViewType } from '../App';
 import { PropertyStatus } from '../types';
 import { useAppContext } from '../store';
-import { formatDate, formatNumber } from '../utils';
+import { formatDate, formatNumber, getContractTruePaymentStatus } from '../utils';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import SettingsModal from './SettingsModal';
 
@@ -101,15 +101,15 @@ export default function DashboardView({ onNavigate }: { onNavigate?: (view: View
 
   const getPropertyTitle = (id: string) => properties.find(p => p.id === id)?.title || (isEs ? 'Desconocido' : 'Unknown');
 
-  const paymentAlerts = contracts.filter(c => c.status === 'Activo' && (c.paymentStatus === 'Deuda' || c.paymentStatus === 'Pendiente')).map(c => {
+  const paymentAlerts = contracts.filter(c => c.status === 'Activo' && getContractTruePaymentStatus(c.monthlyPayments) === 'Deuda').map(c => {
     const property = properties.find(p => p.id === c.propertyId);
     const tenantIds = c.tenantIds || [];
     const tenantNames = tenantIds.map(tId => tenants.find(t => t.id === tId)?.name || (isEs ? 'Desconocido' : 'Unknown')).join(', ');
-    const statusText = c.paymentStatus === 'Deuda' ? (isEs ? 'deuda' : 'debt') : (isEs ? 'pendiente' : 'pending');
+    const statusText = isEs ? 'deuda' : 'debt';
     return {
       id: `pay-${c.id}`,
-      type: c.paymentStatus === 'Deuda' ? 'error' : 'warning',
-      title: `${isEs ? 'Pago' : 'Payment'} ${statusText} - ${property?.title || (isEs ? 'Inmueble' : 'Property')}`,
+      type: 'error',
+      title: `${isEs ? 'Pago en' : 'Payment in'} ${statusText} - ${property?.title || (isEs ? 'Inmueble' : 'Property')}`,
       description: `${isEs ? 'Inquilino' : 'Tenant'}: ${tenantNames}`,
       icon: 'money'
     };

@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, useContext, ReactNode } from 'react';
+import React, { createContext, useState, useEffect, useContext, ReactNode, useRef } from 'react';
 import { Property, Tenant, Contract, Transaction, Issue } from './types';
 import { supabase } from './lib/supabase';
 
@@ -101,12 +101,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
   
   const [isAppReady, setIsAppReady] = useState(false);
+  const isLoadingData = useRef(false);
+  const loadedSession = useRef<string | null>(null);
 
   useEffect(() => {
     let active = true;
 
     async function loadData(session: any) {
       if (!session) return;
+      if (loadedSession.current === session.user.id) {
+        if (active) setIsAppReady(true);
+        return;
+      }
+      if (isLoadingData.current) return;
+      
+      isLoadingData.current = true;
       try {
         const [propsRes, tenantsRes, contractsRes, txsRes, issuesRes, profileRes, ctRes] = await Promise.all([
           supabase.from('properties').select('*'),
@@ -143,9 +152,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
         if (txsRes.data) setTransactions(toCamel(txsRes.data));
         if (issuesRes.data) setIssues(toCamel(issuesRes.data));
         
+        loadedSession.current = session.user.id;
       } catch (e) {
         console.error("Error loading data from Supabase", e);
       } finally {
+        isLoadingData.current = false;
         if (active) setIsAppReady(true);
       }
     }
@@ -162,6 +173,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       if (session) {
         loadData(session);
       } else {
+        loadedSession.current = null;
         setProperties([]);
         setTenants([]);
         setContracts([]);
@@ -294,6 +306,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const updateContract = async (updatedContract: Contract): Promise<void> => {
     const sanitized = sanitizeContract(updatedContract);
+    
+    // Optimistic UI update: update local state immediately so Dashboard reflects changes instantly
+    setContracts(prev => prev.map(c => c.id === sanitized.id ? sanitized : c));
+
     const { tenantIds, ...contractWithoutTenants } = sanitized;
     const data = toSnake(contractWithoutTenants);
     
@@ -321,8 +337,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
         return;
       }
     }
-
-    setContracts(prev => prev.map(c => c.id === sanitized.id ? sanitized : c));
   };
 
   const addTransaction = async (tx: Omit<Transaction, 'id'>): Promise<Transaction | undefined> => {
