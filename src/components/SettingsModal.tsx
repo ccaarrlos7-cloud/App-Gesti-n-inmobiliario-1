@@ -85,29 +85,162 @@ export default function SettingsModal({ isOpen, onClose }: { isOpen: boolean, on
              <h2 className="font-bold text-[16px] text-slate-900 dark:text-white ml-2">{isEs ? 'Política de Privacidad' : 'Privacy Policy'}</h2>
            </div>
            <div className="p-6 overflow-y-auto prose prose-sm text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 flex-1">
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">{isEs ? 'Términos y Política de Privacidad' : 'Terms & Privacy Policy'}</h3>
-              <p className="mb-4"><strong>{isEs ? 'Última actualización: 25 de Agosto, 2026' : 'Last updated: August 25, 2026'}</strong></p>
-              <p className="mb-6">{isEs ? 'En nuestra aplicación, la privacidad y seguridad de sus datos personales y financieros es nuestra máxima prioridad. Esta política detalla cómo recopilamos, usamos y protegemos su información de acuerdo con las normativas vigentes.' : 'In our application, the privacy and security of your personal and financial data is our highest priority. This policy details how we collect, use, and protect your information in compliance with current regulations.'}</p>
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">{isEs ? 'POLÍTICA DE PRIVACIDAD DE GESTINMO' : 'GESTINMO PRIVACY POLICY'}</h3>
+              <p className="mb-4"><strong>{isEs ? 'Última actualización: 1 de septiembre de 2026' : 'Last updated: September 1, 2026'}</strong></p>
+              <p className="mb-6">{isEs ? 'En GestInmo nos comprometemos a proteger la privacidad y la seguridad de los datos personales de nuestros usuarios. Esta Política de Privacidad explica qué información podemos recopilar, para qué la utilizamos, cómo la protegemos y cuáles son los derechos de los usuarios.' : 'At GestInmo, we are committed to protecting the privacy and security of our users\' personal data. This Privacy Policy explains what information we may collect, what we use it for, how we protect it, and what users\' rights are.'}</p>
               
-              <h4 className="font-bold text-slate-900 dark:text-white mb-2">{isEs ? '1. Datos que recopilamos' : '1. Data We Collect'}</h4>
-              <p className="mb-2">{isEs ? 'Recopilamos información que usted proporciona directamente al usar la plataforma, incluyendo:' : 'We collect information you directly provide when using the platform, including:'}</p>
-              <ul className="list-disc pl-5 mb-6 space-y-1">
-                <li>{isEs ? 'Datos de perfil (Nombre, correo electrónico, foto).' : 'Profile data (Name, email, photo).'}</li>
-                <li>{isEs ? 'Datos financieros y de propiedades (rentas, gastos, valores de adquisición, hipotecas).' : 'Financial and property data (rent, expenses, purchase values, mortgages).'}</li>
-                <li>{isEs ? 'Información de inquilinos y contratos de arrendamiento.' : 'Tenant information and lease contracts.'}</li>
+              <h4 className="font-bold text-slate-900 dark:text-white mb-2">{isEs ? '1. Responsable del tratamiento' : '1. Data Controller'}</h4>
+              <p className="mb-6">{isEs ? 'Responsable del tratamiento: GestInmo' : 'Data Controller: GestInmo'}<br/>
+              {isEs ? 'Correo electrónico: ' : 'Email: '}<a href="mailto:Appgestioninmuebles@gmail.com" className="text-blue-600 hover:underline">Appgestioninmuebles@gmail.com</a></p>
+
+              <h4 className="font-bold text-slate-900 dark:text-white mb-2">{isEs ? '2. Información que recopilamos' : '2. Information we collect'}</h4>
+              <p className="mb-2">{isEs ? 'Dependiendo del uso que haga el usuario de la aplicación, GestInmo puede tratar diferentes categorías de información:' : 'Depending on the user\'s use of the application, GestInmo may process different categories of information:'}</p>
+              
+              <p className="font-semibold mt-4 mb-1">{isEs ? 'Datos de la cuenta' : 'Account data'}</p>
+              <ul className="list-disc pl-5 mb-4 space-y-1">
+                <li>{isEs ? 'Dirección de correo electrónico.' : 'Email address.'}</li>
+                <li>{isEs ? 'Nombre o nombre de perfil.' : 'Name or profile name.'}</li>
+                <li>{isEs ? 'Identificador único asociado a la cuenta de usuario.' : 'Unique identifier associated with the user account.'}</li>
+                <li>{isEs ? 'Información necesaria para gestionar el acceso y autenticación en la aplicación.' : 'Information necessary to manage access and authentication in the application.'}</li>
               </ul>
-              
-              <h4 className="font-bold text-slate-900 dark:text-white mb-2">{isEs ? '2. Uso de la Información' : '2. Use of Information'}</h4>
-              <p className="mb-6">{isEs ? 'Utilizamos sus datos exclusivamente para proveer el servicio de gestión de su portfolio inmobiliario, generar analíticas financieras, facilitar el control de cobros y enviarle notificaciones relevantes sobre pagos o vencimientos.' : 'We use your data exclusively to provide real estate portfolio management services, generate financial analytics, facilitate rent collection tracking, and send you relevant notifications regarding payments or contract expirations.'}</p>
-              
-              <h4 className="font-bold text-slate-900 dark:text-white mb-2">{isEs ? '3. Protección y Seguridad' : '3. Protection and Security'}</h4>
-              <p className="mb-6">{isEs ? 'Implementamos medidas de seguridad técnicas y organizativas robustas (incluyendo cifrado de datos en reposo y en tránsito) para proteger sus datos contra acceso no autorizado, alteración, divulgación o destrucción.' : 'We implement robust technical and organizational security measures (including data encryption at rest and in transit) to protect your data against unauthorized access, alteration, disclosure, or destruction.'}</p>
-              
-              <h4 className="font-bold text-slate-900 dark:text-white mb-2">{isEs ? '4. Compartir Información' : '4. Information Sharing'}</h4>
-              <p className="mb-6">{isEs ? 'No vendemos, alquilamos ni compartimos sus datos personales con terceros para fines comerciales. Sus datos solo pueden ser compartidos cuando sea estrictamente requerido por la ley aplicable.' : 'We do not sell, rent, or share your personal data with third parties for commercial purposes. Your data is only shared when strictly required by applicable law.'}</p>
-              
-              <h4 className="font-bold text-slate-900 dark:text-white mb-2">{isEs ? '5. Sus Derechos' : '5. Your Rights'}</h4>
-              <p className="mb-6">{isEs ? 'Usted tiene el derecho de acceder, corregir, exportar (en formato CSV, PDF o Excel) o eliminar sus datos personales en cualquier momento a través de los ajustes de su cuenta, o contactando con nuestro equipo de soporte.' : 'You have the right to access, rectify, export (in CSV, PDF, or Excel formats), or delete your personal data at any time via account settings or by contacting our support team.'}</p>
+
+              <p className="font-semibold mt-4 mb-1">{isEs ? 'Datos de inmuebles' : 'Property data'}</p>
+              <p className="mb-2">{isEs ? 'El usuario puede introducir información relacionada con sus inmuebles, incluyendo, entre otros:' : 'The user may enter information related to their properties, including, but not limited to:'}</p>
+              <ul className="list-disc pl-5 mb-4 space-y-1">
+                <li>{isEs ? 'Dirección o ubicación del inmueble.' : 'Address or location of the property.'}</li>
+                <li>{isEs ? 'Tipo de inmueble.' : 'Property type.'}</li>
+                <li>{isEs ? 'Superficie.' : 'Surface area.'}</li>
+                <li>{isEs ? 'Precio de compra.' : 'Purchase price.'}</li>
+                <li>{isEs ? 'Valor de mercado.' : 'Market value.'}</li>
+                <li>{isEs ? 'Precio de alquiler.' : 'Rental price.'}</li>
+                <li>{isEs ? 'Gastos asociados.' : 'Associated expenses.'}</li>
+                <li>{isEs ? 'Información hipotecaria.' : 'Mortgage information.'}</li>
+                <li>{isEs ? 'Información sobre reformas.' : 'Information on renovations.'}</li>
+                <li>{isEs ? 'Información de mantenimiento.' : 'Maintenance information.'}</li>
+                <li>{isEs ? 'Incidencias, gastos y otros datos relacionados con la gestión del inmueble.' : 'Incidents, expenses, and other data related to property management.'}</li>
+              </ul>
+
+              <p className="font-semibold mt-4 mb-1">{isEs ? 'Datos de inquilinos y contratos' : 'Tenant and contract data'}</p>
+              <p className="mb-2">{isEs ? 'Cuando el usuario utiliza las funciones de gestión de alquileres, puede introducir información relativa a:' : 'When the user uses the rental management functions, they may enter information regarding:'}</p>
+              <ul className="list-disc pl-5 mb-4 space-y-1">
+                <li>{isEs ? 'Inquilinos.' : 'Tenants.'}</li>
+                <li>{isEs ? 'Contratos de alquiler.' : 'Lease contracts.'}</li>
+                <li>{isEs ? 'Fechas de inicio y finalización.' : 'Start and end dates.'}</li>
+                <li>{isEs ? 'Importes de alquiler.' : 'Rental amounts.'}</li>
+                <li>{isEs ? 'Fianzas.' : 'Deposits.'}</li>
+                <li>{isEs ? 'Estado de los pagos.' : 'Payment status.'}</li>
+                <li>{isEs ? 'Información relacionada con la gestión de los contratos.' : 'Information related to contract management.'}</li>
+              </ul>
+              <p className="mb-4">{isEs ? 'El usuario será responsable de asegurarse de que dispone de una base legal adecuada para introducir y gestionar datos personales de terceros en la aplicación.' : 'The user will be responsible for ensuring they have a suitable legal basis for entering and managing third-party personal data in the application.'}</p>
+
+              <p className="font-semibold mt-4 mb-1">{isEs ? 'Documentos y archivos' : 'Documents and files'}</p>
+              <p className="mb-2">{isEs ? 'La aplicación puede permitir al usuario almacenar documentos relacionados con sus inmuebles, contratos u otra información de gestión.' : 'The application may allow the user to store documents related to their properties, contracts, or other management information.'}</p>
+              <p className="mb-6">{isEs ? 'El usuario debe evitar almacenar información que no sea necesaria para la finalidad de gestión de sus inmuebles y debe actuar conforme a la normativa aplicable en materia de protección de datos.' : 'The user should avoid storing information that is not necessary for the purpose of managing their properties and must act in accordance with applicable data protection regulations.'}</p>
+
+              <h4 className="font-bold text-slate-900 dark:text-white mb-2">{isEs ? '3. Finalidad del tratamiento' : '3. Purpose of processing'}</h4>
+              <p className="mb-2">{isEs ? 'Los datos se utilizan principalmente para proporcionar y mejorar las funcionalidades de GestInmo, incluyendo:' : 'Data is mainly used to provide and improve GestInmo functionalities, including:'}</p>
+              <ul className="list-disc pl-5 mb-4 space-y-1">
+                <li>{isEs ? 'Crear y gestionar la cuenta del usuario.' : 'Create and manage the user account.'}</li>
+                <li>{isEs ? 'Permitir el inicio y cierre de sesión.' : 'Allow login and logout.'}</li>
+                <li>{isEs ? 'Mantener la sesión iniciada de forma segura.' : 'Keep the session securely logged in.'}</li>
+                <li>{isEs ? 'Gestionar inmuebles y propiedades.' : 'Manage real estate and properties.'}</li>
+                <li>{isEs ? 'Gestionar inquilinos y contratos.' : 'Manage tenants and contracts.'}</li>
+                <li>{isEs ? 'Registrar y consultar pagos de alquiler.' : 'Record and query rental payments.'}</li>
+                <li>{isEs ? 'Gestionar gastos, ingresos e incidencias.' : 'Manage expenses, income, and incidents.'}</li>
+                <li>{isEs ? 'Permitir el almacenamiento y consulta de documentos cuando esta funcionalidad esté disponible.' : 'Allow the storage and querying of documents when this functionality is available.'}</li>
+                <li>{isEs ? 'Generar cálculos, estadísticas, informes y otros datos derivados de la información introducida por el usuario.' : 'Generate calculations, statistics, reports, and other data derived from the information entered by the user.'}</li>
+                <li>{isEs ? 'Mantener la seguridad de la aplicación.' : 'Maintain application security.'}</li>
+                <li>{isEs ? 'Detectar y solucionar errores técnicos.' : 'Detect and fix technical errors.'}</li>
+                <li>{isEs ? 'Mejorar el funcionamiento y la experiencia de usuario.' : 'Improve functioning and user experience.'}</li>
+              </ul>
+              <p className="mb-6">{isEs ? 'GestInmo no utilizará los datos introducidos por el usuario para fines incompatibles con las finalidades descritas en esta política.' : 'GestInmo will not use the data entered by the user for purposes incompatible with those described in this policy.'}</p>
+
+              <h4 className="font-bold text-slate-900 dark:text-white mb-2">{isEs ? '4. Base jurídica' : '4. Legal basis'}</h4>
+              <p className="mb-2">{isEs ? 'El tratamiento de los datos personales se realizará, según corresponda, sobre las siguientes bases jurídicas:' : 'The processing of personal data will be carried out, as appropriate, on the following legal bases:'}</p>
+              <ul className="list-disc pl-5 mb-6 space-y-1">
+                <li>{isEs ? 'Ejecución de la relación con el usuario: cuando el tratamiento sea necesario para proporcionar las funcionalidades solicitadas de GestInmo.' : 'Execution of the relationship with the user: when the processing is necessary to provide the requested GestInmo functionalities.'}</li>
+                <li>{isEs ? 'Consentimiento: cuando sea necesario obtenerlo conforme a la legislación aplicable.' : 'Consent: when necessary to obtain it according to applicable legislation.'}</li>
+                <li>{isEs ? 'Interés legítimo: para garantizar la seguridad, prevenir usos fraudulentos, mantener y mejorar la aplicación y resolver problemas técnicos, siempre respetando los derechos y libertades de los usuarios.' : 'Legitimate interest: to guarantee security, prevent fraudulent use, maintain and improve the application and solve technical problems, always respecting the rights and freedoms of users.'}</li>
+                <li>{isEs ? 'Cumplimiento de obligaciones legales: cuando el tratamiento resulte necesario para cumplir obligaciones establecidas por la normativa aplicable.' : 'Compliance with legal obligations: when processing is necessary to comply with obligations established by applicable regulations.'}</li>
+              </ul>
+
+              <h4 className="font-bold text-slate-900 dark:text-white mb-2">{isEs ? '5. Datos de terceros introducidos por el usuario' : '5. Third-party data entered by the user'}</h4>
+              <p className="mb-2">{isEs ? 'GestInmo permite gestionar información relacionada con terceras personas, especialmente inquilinos.' : 'GestInmo allows the management of information related to third parties, especially tenants.'}</p>
+              <p className="mb-2">{isEs ? 'El usuario que introduzca datos personales de terceros será responsable de garantizar que tiene legitimación suficiente para hacerlo y de cumplir las obligaciones que le correspondan conforme a la normativa de protección de datos.' : 'The user entering third-party personal data will be responsible for ensuring they have sufficient legitimacy to do so and for fulfilling their corresponding obligations according to data protection regulations.'}</p>
+              <p className="mb-6">{isEs ? 'GestInmo tratará dichos datos únicamente en la medida necesaria para proporcionar las funcionalidades de gestión solicitadas por el usuario.' : 'GestInmo will process such data only to the extent necessary to provide the management functionalities requested by the user.'}</p>
+
+              <h4 className="font-bold text-slate-900 dark:text-white mb-2">{isEs ? '6. Seguridad de la información' : '6. Information security'}</h4>
+              <p className="mb-2">{isEs ? 'GestInmo aplica medidas técnicas y organizativas destinadas a proteger la información almacenada frente a accesos no autorizados, pérdida, alteración, divulgación o destrucción.' : 'GestInmo applies technical and organizational measures aimed at protecting stored information against unauthorized access, loss, alteration, disclosure, or destruction.'}</p>
+              <p className="mb-2">{isEs ? 'La aplicación utiliza mecanismos de autenticación y control de acceso para limitar el acceso a la información de cada cuenta.' : 'The application uses authentication and access control mechanisms to limit access to each account\'s information.'}</p>
+              <p className="mb-2">{isEs ? 'Asimismo, se aplican mecanismos de seguridad a nivel de base de datos destinados a evitar que un usuario pueda acceder a los datos pertenecientes a otros usuarios.' : 'Likewise, database-level security mechanisms are applied to prevent a user from accessing data belonging to other users.'}</p>
+              <p className="mb-6">{isEs ? 'No obstante, ningún sistema conectado a Internet puede garantizar una seguridad absoluta. Por este motivo, GestInmo continuará revisando y mejorando sus medidas de seguridad.' : 'However, no system connected to the Internet can guarantee absolute security. For this reason, GestInmo will continue reviewing and improving its security measures.'}</p>
+
+              <h4 className="font-bold text-slate-900 dark:text-white mb-2">{isEs ? '7. Separación de datos entre usuarios' : '7. Data separation among users'}</h4>
+              <p className="mb-2">{isEs ? 'Los datos introducidos en GestInmo están asociados a la cuenta del usuario correspondiente.' : 'The data entered in GestInmo is associated with the corresponding user account.'}</p>
+              <p className="mb-2">{isEs ? 'GestInmo utiliza mecanismos de control de acceso para garantizar que cada usuario pueda acceder únicamente a la información asociada a su propia cuenta.' : 'GestInmo uses access control mechanisms to ensure each user can access only the information associated with their own account.'}</p>
+              <p className="mb-6">{isEs ? 'El usuario no debe compartir sus credenciales de acceso con terceros.' : 'The user should not share their access credentials with third parties.'}</p>
+
+              <h4 className="font-bold text-slate-900 dark:text-white mb-2">{isEs ? '8. Conservación de los datos' : '8. Data retention'}</h4>
+              <p className="mb-2">{isEs ? 'Los datos se conservarán mientras la cuenta del usuario permanezca activa y mientras resulte necesario para proporcionar las funcionalidades de GestInmo.' : 'The data will be retained as long as the user account remains active and as long as it is necessary to provide GestInmo functionalities.'}</p>
+              <p className="mb-2">{isEs ? 'Cuando el usuario solicite la eliminación de su cuenta, se procederá a eliminar o anonimizar los datos personales asociados a ella cuando corresponda, salvo que exista una obligación legal que requiera su conservación durante un periodo determinado.' : 'When the user requests account deletion, the personal data associated with it will be deleted or anonymized when appropriate, unless there is a legal obligation requiring its retention for a specific period.'}</p>
+              <p className="mb-6">{isEs ? 'Los datos podrán conservarse durante el tiempo necesario para atender posibles responsabilidades legales o cumplir obligaciones legales.' : 'The data may be retained for the time necessary to address possible legal liabilities or fulfill legal obligations.'}</p>
+
+              <h4 className="font-bold text-slate-900 dark:text-white mb-2">{isEs ? '9. Proveedores de servicios' : '9. Service providers'}</h4>
+              <p className="mb-2">{isEs ? 'GestInmo puede utilizar proveedores tecnológicos externos necesarios para proporcionar determinadas funcionalidades de la aplicación, como servicios de autenticación, almacenamiento, bases de datos, infraestructura tecnológica o servicios relacionados.' : 'GestInmo may use external technological providers necessary to provide certain application functionalities, such as authentication, storage, database, technological infrastructure, or related services.'}</p>
+              <p className="mb-6">{isEs ? 'Estos proveedores únicamente deberán acceder a la información en la medida necesaria para prestar los servicios correspondientes y estarán sujetos a las obligaciones de protección de datos que resulten aplicables.' : 'These providers shall only access the information to the extent necessary to provide the corresponding services and will be subject to applicable data protection obligations.'}</p>
+
+              <h4 className="font-bold text-slate-900 dark:text-white mb-2">{isEs ? '10. Transferencias internacionales' : '10. International transfers'}</h4>
+              <p className="mb-2">{isEs ? 'En función de los proveedores tecnológicos utilizados por GestInmo y de la ubicación de sus servidores, determinados datos podrían ser tratados fuera del Espacio Económico Europeo.' : 'Depending on the technological providers used by GestInmo and the location of their servers, certain data could be processed outside the European Economic Area.'}</p>
+              <p className="mb-6">{isEs ? 'Cuando se produzcan transferencias internacionales de datos, se adoptarán las garantías y mecanismos exigidos por la normativa aplicable, cuando sean necesarios.' : 'When international data transfers occur, the guarantees and mechanisms required by applicable regulations will be adopted when necessary.'}</p>
+
+              <h4 className="font-bold text-slate-900 dark:text-white mb-2">{isEs ? '11. Derechos de los usuarios' : '11. User rights'}</h4>
+              <p className="mb-2">{isEs ? 'El usuario puede ejercer los derechos reconocidos por la normativa aplicable en materia de protección de datos, incluyendo:' : 'The user may exercise the rights recognized by applicable data protection regulations, including:'}</p>
+              <ul className="list-disc pl-5 mb-4 space-y-1">
+                <li>{isEs ? 'Derecho de acceso.' : 'Right of access.'}</li>
+                <li>{isEs ? 'Derecho de rectificación.' : 'Right to rectification.'}</li>
+                <li>{isEs ? 'Derecho de supresión.' : 'Right to erasure.'}</li>
+                <li>{isEs ? 'Derecho a la limitación del tratamiento.' : 'Right to restriction of processing.'}</li>
+                <li>{isEs ? 'Derecho a la portabilidad de los datos.' : 'Right to data portability.'}</li>
+                <li>{isEs ? 'Derecho de oposición.' : 'Right to object.'}</li>
+                <li>{isEs ? 'Derecho a retirar el consentimiento cuando el tratamiento se base en el consentimiento.' : 'Right to withdraw consent when processing is based on consent.'}</li>
+              </ul>
+              <p className="mb-2">{isEs ? 'Para ejercer estos derechos, el usuario puede contactar con GestInmo a través de:' : 'To exercise these rights, the user can contact GestInmo via:'}<br/>
+              <a href="mailto:Appgestioninmuebles@gmail.com" className="text-blue-600 hover:underline">Appgestioninmuebles@gmail.com</a></p>
+              <p className="mb-2">{isEs ? 'La solicitud deberá permitir identificar razonablemente al solicitante y especificar el derecho que desea ejercer.' : 'The request must reasonably identify the applicant and specify the right they wish to exercise.'}</p>
+              <p className="mb-6">{isEs ? 'El usuario también tiene derecho a presentar una reclamación ante la autoridad de protección de datos competente, especialmente ante la Agencia Española de Protección de Datos (AEPD) cuando considere que el tratamiento de sus datos no se ajusta a la normativa aplicable.' : 'The user also has the right to lodge a complaint with the competent data protection authority, especially with the Spanish Data Protection Agency (AEPD), when considering that the processing of their data does not comply with applicable regulations.'}</p>
+
+              <h4 className="font-bold text-slate-900 dark:text-white mb-2">{isEs ? '12. Datos de menores' : '12. Data of minors'}</h4>
+              <p className="mb-2">{isEs ? 'GestInmo no está destinada específicamente a menores de edad.' : 'GestInmo is not specifically intended for minors.'}</p>
+              <p className="mb-2">{isEs ? 'No se pretende recopilar deliberadamente información personal de menores que no puedan utilizar legalmente el servicio sin la correspondiente autorización.' : 'There is no intention to deliberately collect personal information from minors who cannot legally use the service without corresponding authorization.'}</p>
+              <p className="mb-6">{isEs ? 'Si se detecta que se han recopilado datos personales de un menor de forma indebida, se adoptarán las medidas razonables para proceder a su eliminación cuando corresponda.' : 'If it is detected that a minor\'s personal data has been collected improperly, reasonable measures will be adopted to proceed with its deletion when appropriate.'}</p>
+
+              <h4 className="font-bold text-slate-900 dark:text-white mb-2">{isEs ? '13. Cookies y almacenamiento local' : '13. Cookies and local storage'}</h4>
+              <p className="mb-2">{isEs ? 'GestInmo puede utilizar mecanismos de almacenamiento local del dispositivo, como localStorage, para conservar determinadas preferencias del usuario, por ejemplo:' : 'GestInmo may use device local storage mechanisms, such as localStorage, to retain certain user preferences, for example:'}</p>
+              <ul className="list-disc pl-5 mb-4 space-y-1">
+                <li>{isEs ? 'Preferencia de idioma.' : 'Language preference.'}</li>
+                <li>{isEs ? 'Preferencia de apariencia o tema.' : 'Appearance or theme preference.'}</li>
+                <li>{isEs ? 'Determinadas configuraciones de la aplicación.' : 'Certain application settings.'}</li>
+              </ul>
+              <p className="mb-2">{isEs ? 'Estos mecanismos tienen como finalidad mejorar el funcionamiento y la experiencia de usuario.' : 'The purpose of these mechanisms is to improve functioning and user experience.'}</p>
+              <p className="mb-6">{isEs ? 'Asimismo, los servicios de autenticación utilizados por la aplicación pueden utilizar tecnologías necesarias para mantener de forma segura la sesión del usuario.' : 'Additionally, authentication services used by the application may use technologies necessary to securely maintain the user session.'}</p>
+
+              <h4 className="font-bold text-slate-900 dark:text-white mb-2">{isEs ? '14. Exactitud de la información' : '14. Accuracy of information'}</h4>
+              <p className="mb-2">{isEs ? 'El usuario será responsable de que los datos que introduzca en GestInmo sean correctos, completos y estén actualizados cuando resulte necesario.' : 'The user will be responsible for ensuring that the data entered in GestInmo is correct, complete, and updated when necessary.'}</p>
+              <p className="mb-6">{isEs ? 'GestInmo no será responsable de las decisiones económicas, financieras, contractuales o de cualquier otra naturaleza que el usuario adopte basándose exclusivamente en los datos introducidos o cálculos realizados mediante la aplicación.' : 'GestInmo will not be responsible for economic, financial, contractual, or any other decisions adopted by the user based exclusively on the data entered or calculations performed through the application.'}</p>
+
+              <h4 className="font-bold text-slate-900 dark:text-white mb-2">{isEs ? '15. Uso responsable de la aplicación' : '15. Responsible use of the application'}</h4>
+              <p className="mb-2">{isEs ? 'El usuario se compromete a utilizar GestInmo de forma lícita y conforme a la normativa aplicable.' : 'The user commits to using GestInmo lawfully and in accordance with applicable regulations.'}</p>
+              <p className="mb-6">{isEs ? 'No deberá utilizar la aplicación para introducir, almacenar o tratar información de forma ilícita o para vulnerar los derechos de otras personas.' : 'They must not use the application to illegally enter, store, or process information or to violate the rights of others.'}</p>
+
+              <h4 className="font-bold text-slate-900 dark:text-white mb-2">{isEs ? '16. Cambios en esta Política de Privacidad' : '16. Changes to this Privacy Policy'}</h4>
+              <p className="mb-2">{isEs ? 'GestInmo podrá actualizar esta Política de Privacidad cuando resulte necesario para adaptarla a cambios legislativos, técnicos o funcionales de la aplicación.' : 'GestInmo may update this Privacy Policy when necessary to adapt it to legislative, technical, or functional application changes.'}</p>
+              <p className="mb-2">{isEs ? 'Cuando se produzcan modificaciones relevantes, se podrá informar a los usuarios mediante la propia aplicación u otros medios apropiados.' : 'When significant modifications occur, users may be informed via the application itself or other appropriate means.'}</p>
+              <p className="mb-6">{isEs ? 'La fecha indicada al comienzo de esta política permitirá conocer cuándo fue realizada la última actualización.' : 'The date indicated at the beginning of this policy will allow knowing when the last update was made.'}</p>
+
+              <h4 className="font-bold text-slate-900 dark:text-white mb-2">{isEs ? '17. Contacto' : '17. Contact'}</h4>
+              <p className="mb-2">{isEs ? 'Para cualquier consulta relacionada con la privacidad, protección de datos o ejercicio de derechos, el usuario puede contactar con GestInmo mediante:' : 'For any query related to privacy, data protection, or the exercise of rights, the user may contact GestInmo via:'}<br/>
+              {isEs ? 'GestInmo' : 'GestInmo'}<br/>
+              <a href="mailto:Appgestioninmuebles@gmail.com" className="text-blue-600 hover:underline">Appgestioninmuebles@gmail.com</a></p>
            </div>
         </div>
       </div>
