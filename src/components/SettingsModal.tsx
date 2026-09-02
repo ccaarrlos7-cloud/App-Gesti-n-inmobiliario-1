@@ -81,22 +81,24 @@ export default function SettingsModal({ isOpen, onClose }: { isOpen: boolean, on
     setIsSendingSupport(true);
     setSupportError('');
     try {
-      const response = await fetch('/api/support', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      const { data, error } = await supabase.functions.invoke('send-support-email', {
+        body: {
           name: userName,
           email: userEmail,
           message: supportMessage
-        })
+        }
       });
-      if (response.ok) {
-        setSupportSent(true);
+      
+      if (error) {
+        console.error('Error invoking edge function:', error);
+        setSupportError(isEs ? 'Hubo un error de conexión al enviar el mensaje.' : 'There was a connection error sending the message.');
+      } else if (data && data.error) {
+        setSupportError(data.error);
       } else {
-        const errorData = await response.json();
-        setSupportError(errorData.error || (isEs ? 'Hubo un error al enviar tu consulta.' : 'There was an error sending your inquiry.'));
+        setSupportSent(true);
       }
     } catch (err) {
+      console.error('Exception calling edge function:', err);
       setSupportError(isEs ? 'Hubo un error de conexión al enviar el mensaje.' : 'There was a connection error sending the message.');
     } finally {
       setIsSendingSupport(false);
