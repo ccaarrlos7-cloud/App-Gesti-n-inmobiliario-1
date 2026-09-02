@@ -249,7 +249,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setUserName(name);
     const { data: { session } } = await supabase.auth.getSession();
     if (session?.user?.id) {
-      await supabase.from('profiles').update({ name }).eq('id', session.user.id);
+      const { error } = await supabase.from('profiles').upsert({ id: session.user.id, name, avatar_url: avatarUrl }, { onConflict: 'id' });
+      if (error) console.error("Error saving profile name:", error);
     }
   };
 
@@ -257,7 +258,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setAvatarUrl(url);
     const { data: { session } } = await supabase.auth.getSession();
     if (session?.user?.id) {
-      await supabase.from('profiles').update({ avatar_url: url }).eq('id', session.user.id);
+      const { error } = await supabase.from('profiles').upsert({ id: session.user.id, name: userName, avatar_url: url }, { onConflict: 'id' });
+      if (error) console.error("Error saving profile avatar:", error);
     }
   };
 

@@ -1,5 +1,5 @@
 import { formatNumber } from "../utils";
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Camera, Moon, Globe, Bell, Download, Book, Mail, Shield, ChevronRight, ChevronLeft, User, X, Check, FileText, Table, Send, Sun, LogOut } from 'lucide-react';
 import { useAppContext } from '../store';
 import { supabase } from '../lib/supabase';
@@ -13,13 +13,30 @@ export default function SettingsModal({ isOpen, onClose }: { isOpen: boolean, on
   const [showSupport, setShowSupport] = useState(false);
   const [supportMessage, setSupportMessage] = useState('');
   const [supportSent, setSupportSent] = useState(false);
+  const [isSendingSupport, setIsSendingSupport] = useState(false);
+  const [supportError, setSupportError] = useState('');
+  const [userEmail, setUserEmail] = useState('');
   const [isEditingName, setIsEditingName] = useState(false);
   const [tempName, setTempName] = useState(userName);
+
+  useEffect(() => {
+    if (isOpen) {
+      setTempName(userName);
+    }
+  }, [isOpen, userName]);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const isEs = language === 'Español';
-  const supportEmail = 'soporte@gestinmo.com';
+  const supportEmail = 'appgestioninmuebles@gmail.com';
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session?.user?.email) {
+        setUserEmail(data.session.user.email);
+      }
+    });
+  }, []);
 
   if (!isOpen) return null;
 
@@ -60,11 +77,30 @@ export default function SettingsModal({ isOpen, onClose }: { isOpen: boolean, on
     setIsEditingName(false);
   };
 
-  const handleSendSupport = () => {
-    const subject = encodeURIComponent(isEs ? 'Consulta de Soporte - Gestinmo' : 'Support Inquiry - Gestinmo');
-    const body = encodeURIComponent(supportMessage);
-    window.location.href = `mailto:${supportEmail}?subject=${subject}&body=${body}`;
-    setSupportSent(true);
+  const handleSendSupport = async () => {
+    setIsSendingSupport(true);
+    setSupportError('');
+    try {
+      const response = await fetch('/api/support', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: userName,
+          email: userEmail,
+          message: supportMessage
+        })
+      });
+      if (response.ok) {
+        setSupportSent(true);
+      } else {
+        const errorData = await response.json();
+        setSupportError(errorData.error || (isEs ? 'Hubo un error al enviar tu consulta.' : 'There was an error sending your inquiry.'));
+      }
+    } catch (err) {
+      setSupportError(isEs ? 'Hubo un error de conexión al enviar el mensaje.' : 'There was a connection error sending the message.');
+    } finally {
+      setIsSendingSupport(false);
+    }
   };
 
   const handleLogout = async () => {
@@ -306,9 +342,16 @@ export default function SettingsModal({ isOpen, onClose }: { isOpen: boolean, on
                 <>
                   <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/40 rounded-xl text-xs text-blue-800 dark:text-blue-300">
                     <p className="font-semibold mb-0.5">{isEs ? 'Canal directo de soporte:' : 'Direct Support Channel:'}</p>
-                    <a href={`mailto:${supportEmail}`} className="underline font-bold text-blue-600 dark:text-blue-400">{supportEmail}</a>
+                    <p className="font-bold text-blue-600 dark:text-blue-400">{supportEmail}</p>
                   </div>
                   <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">{isEs ? 'Cuéntanos tu consulta o problema y nuestro equipo te ayudará lo antes posible:' : 'Describe your question or issue and our team will assist you as soon as possible:'}</p>
+                  
+                  {supportError && (
+                    <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 rounded-xl text-sm text-red-600 dark:text-red-400 font-medium">
+                      {supportError}
+                    </div>
+                  )}
+
                   <textarea 
                     value={supportMessage}
                     onChange={(e) => setSupportMessage(e.target.value)}
@@ -317,11 +360,11 @@ export default function SettingsModal({ isOpen, onClose }: { isOpen: boolean, on
                   ></textarea>
                   <button 
                     onClick={handleSendSupport}
-                    disabled={!supportMessage.trim()}
+                    disabled={!supportMessage.trim() || isSendingSupport}
                     className="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold flex items-center justify-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
                   >
-                    <Send size={18} />
-                    {isEs ? 'Enviar Mensaje a Soporte' : 'Send Message to Support'}
+                    <Send size={18} className={isSendingSupport ? 'animate-pulse' : ''} />
+                    {isSendingSupport ? (isEs ? 'Enviando...' : 'Sending...') : (isEs ? 'Enviar Mensaje a Soporte' : 'Send Message to Support')}
                   </button>
                 </>
               )}
@@ -412,7 +455,7 @@ export default function SettingsModal({ isOpen, onClose }: { isOpen: boolean, on
               </h2>
             )}
             
-            <p className="text-sm text-slate-500 dark:text-slate-400">ccaarrlos7@gmail.com</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400">{userEmail || 'ccaarrlos7@gmail.com'}</p>
             
             <div className="flex gap-4 mt-6 w-full">
               <div className="flex-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-center shadow-sm">
