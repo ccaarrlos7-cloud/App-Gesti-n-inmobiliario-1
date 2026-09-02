@@ -27,12 +27,27 @@ export function DocumentActionButtons({
     try {
       const url = await resolveDocumentUrl(downloadUrl);
       if (url) {
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = downloadName;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
+        if (url.startsWith('http')) {
+          // Cross-origin URL: fetch as Blob to force a true download without navigation
+          const response = await fetch(url);
+          const blob = await response.blob();
+          const objectUrl = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = objectUrl;
+          a.download = downloadName;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          window.URL.revokeObjectURL(objectUrl);
+        } else {
+          // data: URI
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = downloadName;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+        }
       }
     } catch (error) {
       console.error("Error downloading document:", error);
@@ -44,6 +59,7 @@ export function DocumentActionButtons({
   return (
     <div className="flex items-center gap-1.5 shrink-0">
       <button 
+        type="button"
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
@@ -56,6 +72,7 @@ export function DocumentActionButtons({
       </button>
       
       <button 
+        type="button"
         onClick={handleDownloadClick}
         className="w-9 h-9 rounded-full flex items-center justify-center text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors"
         title="Descargar documento"
@@ -65,6 +82,7 @@ export function DocumentActionButtons({
       </button>
       
       <button 
+        type="button"
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
