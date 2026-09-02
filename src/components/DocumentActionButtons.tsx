@@ -1,5 +1,6 @@
-import React from 'react';
-import { Eye, Download, Trash2 } from 'lucide-react';
+import React, { useState } from 'react';
+import { Eye, Download, Trash2, Loader2 } from 'lucide-react';
+import { resolveDocumentUrl } from '../lib/documentStorage';
 
 interface DocumentActionButtonsProps {
   onView: () => void;
@@ -15,6 +16,31 @@ export function DocumentActionButtons({
   downloadUrl,
   downloadName
 }: DocumentActionButtonsProps) {
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  const handleDownloadClick = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (isDownloading) return;
+    
+    setIsDownloading(true);
+    try {
+      const url = await resolveDocumentUrl(downloadUrl);
+      if (url) {
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = downloadName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+    } catch (error) {
+      console.error("Error downloading document:", error);
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
   return (
     <div className="flex items-center gap-1.5 shrink-0">
       <button 
@@ -29,17 +55,14 @@ export function DocumentActionButtons({
         <Eye size={18} />
       </button>
       
-      <a 
-        href={downloadUrl} 
-        download={downloadName}
-        onClick={(e) => {
-          e.stopPropagation();
-        }}
+      <button 
+        onClick={handleDownloadClick}
         className="w-9 h-9 rounded-full flex items-center justify-center text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors"
         title="Descargar documento"
+        disabled={isDownloading}
       >
-        <Download size={18} />
-      </a>
+        {isDownloading ? <Loader2 size={18} className="animate-spin" /> : <Download size={18} />}
+      </button>
       
       <button 
         onClick={(e) => {

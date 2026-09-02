@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Contract, Tenant } from '../types';
-import { X, Eye, Phone, Mail, FileText, CreditCard, Building2, Users, Plus, Upload, Trash2, Download, Paperclip, FileDown } from 'lucide-react';
+import { X, Eye, Phone, Mail, FileText, CreditCard, Building2, Users, Plus, Upload, Trash2, Download, Paperclip, FileDown, Loader2 } from 'lucide-react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { useAppContext } from '../store';
@@ -8,6 +8,7 @@ import { formatDate, formatNumber, getContractTruePaymentStatus } from '../utils
 import SettingsModal from './SettingsModal';
 import { User } from 'lucide-react';
 import FormattedNumberInput from './FormattedNumberInput';
+import { uploadDocument, deleteDocument } from '../lib/documentStorage';
 
 import { DocumentViewerModal } from './DocumentViewerModal';
 import { DocumentActionButtons } from './DocumentActionButtons';
@@ -17,6 +18,7 @@ export default function CRMView() {
   const isEs = language === 'Español';
   const [selectedContract, setSelectedContract] = useState<Contract | null>(null);
   const [viewingDoc, setViewingDoc] = useState<{url: string, name: string} | null>(null);
+  const [isUploadingDoc, setIsUploadingDoc] = useState(false);
   const [paymentYear, setPaymentYear] = useState<number>(new Date().getFullYear());
   const [showNewTenantForm, setShowNewTenantForm] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -338,21 +340,24 @@ export default function CRMView() {
                       <div className="text-[11px] text-slate-400 uppercase font-bold flex items-center gap-1.5 tracking-wider">
                         <Paperclip size={14} /> {isEs ? 'Gestión Documental' : 'Document Management'}
                       </div>
-                      <label className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 font-semibold flex items-center gap-1 cursor-pointer">
-                        <Upload size={14} /> {isEs ? 'Subir Documento' : 'Upload Document'}
+                      <label className={`text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 font-semibold flex items-center gap-1 ${isUploadingDoc ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}>
+                        {isUploadingDoc ? <Loader2 size={14} className="animate-spin" /> : <Upload size={14} />} 
+                        {isUploadingDoc ? (isEs ? 'Subiendo...' : 'Uploading...') : (isEs ? 'Subir Documento' : 'Upload Document')}
                         <input 
                           type="file" 
                           className="hidden" 
                           accept=".pdf,.png,.jpg,.jpeg,.doc,.docx"
-                          onChange={(e) => {
+                          disabled={isUploadingDoc}
+                          onChange={async (e) => {
                             const file = e.target.files?.[0];
                             if (file) {
-                              const reader = new FileReader();
-                              reader.onload = (event) => {
+                              setIsUploadingDoc(true);
+                              try {
+                                const path = await uploadDocument(file);
                                 const newDoc = {
                                   id: `doc-${Date.now()}`,
                                   name: file.name,
-                                  url: event.target?.result as string,
+                                  url: path,
                                   date: new Date().toISOString(),
                                   size: file.size
                                 };
@@ -360,8 +365,12 @@ export default function CRMView() {
                                 const updated = { ...selectedContract, documents: updatedDocs };
                                 setSelectedContract(updated);
                                 updateContract(updated);
-                              };
-                              reader.readAsDataURL(file);
+                              } catch (err) {
+                                console.error("Upload error:", err);
+                                alert(isEs ? "Error al subir el archivo" : "Error uploading file");
+                              } finally {
+                                setIsUploadingDoc(false);
+                              }
                             }
                             e.target.value = '';
                           }}
@@ -392,8 +401,9 @@ export default function CRMView() {
                               onView={() => setViewingDoc({ url: doc.url, name: doc.name })}
                               downloadUrl={doc.url}
                               downloadName={doc.name}
-                              onDelete={() => {
+                              onDelete={async () => {
                                 if(confirm(isEs ? '¿Eliminar documento?' : 'Delete document?')) {
+                                  await deleteDocument(doc.url);
                                   const updatedDocs = selectedContract.documents.filter(d => d.id !== doc.id);
                                   const updated = { ...selectedContract, documents: updatedDocs };
                                   setSelectedContract(updated);

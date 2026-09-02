@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Property } from '../types';
 import { useAppContext } from '../store';
 import FormattedNumberInput from './FormattedNumberInput';
+import { uploadDocument, deleteDocument, resolveDocumentUrl } from '../lib/documentStorage';
 
 interface Props {
   data: Partial<Property>;
@@ -12,6 +13,43 @@ export default function PropertyFields({ data, onChange }: Props) {
   const { language } = useAppContext();
   const isEs = language === 'Español';
   const update = (key: keyof Property, value: any) => onChange({ ...data, [key]: value });
+  const [isUploading, setIsUploading] = useState<string | null>(null);
+  
+  const handleUpload = async (key: keyof Property, file: File) => {
+    setIsUploading(key as string);
+    try {
+      const path = await uploadDocument(file);
+      // If there was an old storage document, delete it
+      if (data[key] && typeof data[key] === 'string') {
+        await deleteDocument(data[key] as string);
+      }
+      update(key, path);
+    } catch (e) {
+      console.error("Upload error:", e);
+      alert(isEs ? "Error al subir el archivo" : "Error uploading file");
+    } finally {
+      setIsUploading(null);
+    }
+  };
+
+  const handleDelete = async (key: keyof Property) => {
+    if (data[key] && typeof data[key] === 'string') {
+      await deleteDocument(data[key] as string);
+      update(key, '');
+    }
+  };
+
+  const handleDownload = async (e: React.MouseEvent, docUrl: string, fileName: string) => {
+    e.preventDefault();
+    const url = await resolveDocumentUrl(docUrl);
+    if (!url) return;
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
 
   return (
     <div className="space-y-6">
@@ -354,10 +392,10 @@ export default function PropertyFields({ data, onChange }: Props) {
             </label>
             {data.rentalContractUrl ? (
               <div className="flex items-center gap-2 p-2 border border-slate-200 dark:border-slate-700 rounded bg-slate-50 dark:bg-slate-800">
-                 <a href={data.rentalContractUrl} download="Contrato_Alquiler" className="text-blue-600 dark:text-blue-400 text-[13px] font-semibold hover:underline flex-1 truncate" title={isEs ? 'Descargar' : 'Download'}>
+                 <a href="#" onClick={(e) => handleDownload(e, data.rentalContractUrl!, "Contrato_Alquiler")} className="text-blue-600 dark:text-blue-400 text-[13px] font-semibold hover:underline flex-1 truncate" title={isEs ? 'Descargar' : 'Download'}>
                    {isEs ? 'Documento adjunto (Ver / Descargar)' : 'Attached Document (View / Download)'}
                  </a>
-                 <button type="button" onClick={() => update('rentalContractUrl', '')} className="text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 p-1.5 rounded transition-colors" title={isEs ? 'Eliminar documento' : 'Delete document'}>
+                 <button type="button" onClick={() => handleDelete('rentalContractUrl')} className="text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 p-1.5 rounded transition-colors" title={isEs ? 'Eliminar documento' : 'Delete document'}>
                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
                  </button>
               </div>
@@ -366,20 +404,16 @@ export default function PropertyFields({ data, onChange }: Props) {
                 <input 
                   type="file" 
                   accept=".pdf,.png,.jpg,.jpeg,.doc,.docx"
+                  disabled={isUploading === 'rentalContractUrl'}
                   className="w-full text-sm file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-[11px] file:font-bold file:uppercase file:bg-blue-50 dark:file:bg-blue-900/30 file:text-blue-700 dark:file:text-blue-300 hover:file:bg-blue-100 cursor-pointer"
                   onChange={(e) => {
                     const file = e.target.files?.[0];
                     if (file) {
-                      const reader = new FileReader();
-                      reader.onload = (event) => {
-                        if (event.target?.result) {
-                          update('rentalContractUrl', event.target.result);
-                        }
-                      };
-                      reader.readAsDataURL(file);
+                      handleUpload('rentalContractUrl', file);
                     }
                   }}
                 />
+                {isUploading === 'rentalContractUrl' && <span className="text-xs text-blue-500">{isEs ? 'Subiendo...' : 'Uploading...'}</span>}
               </div>
             )}
           </div>
@@ -389,10 +423,10 @@ export default function PropertyFields({ data, onChange }: Props) {
             </label>
             {data.purchaseDocumentUrl ? (
               <div className="flex items-center gap-2 p-2 border border-slate-200 dark:border-slate-700 rounded bg-slate-50 dark:bg-slate-800">
-                 <a href={data.purchaseDocumentUrl} download="Documento_Compra" className="text-blue-600 dark:text-blue-400 text-[13px] font-semibold hover:underline flex-1 truncate" title={isEs ? 'Descargar' : 'Download'}>
+                 <a href="#" onClick={(e) => handleDownload(e, data.purchaseDocumentUrl!, "Documento_Compra")} className="text-blue-600 dark:text-blue-400 text-[13px] font-semibold hover:underline flex-1 truncate" title={isEs ? 'Descargar' : 'Download'}>
                    {isEs ? 'Documento adjunto (Ver / Descargar)' : 'Attached Document (View / Download)'}
                  </a>
-                 <button type="button" onClick={() => update('purchaseDocumentUrl', '')} className="text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 p-1.5 rounded transition-colors" title={isEs ? 'Eliminar documento' : 'Delete document'}>
+                 <button type="button" onClick={() => handleDelete('purchaseDocumentUrl')} className="text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 p-1.5 rounded transition-colors" title={isEs ? 'Eliminar documento' : 'Delete document'}>
                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
                  </button>
               </div>
@@ -401,20 +435,16 @@ export default function PropertyFields({ data, onChange }: Props) {
                 <input 
                   type="file" 
                   accept=".pdf,.png,.jpg,.jpeg,.doc,.docx"
+                  disabled={isUploading === 'purchaseDocumentUrl'}
                   className="w-full text-sm file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-[11px] file:font-bold file:uppercase file:bg-blue-50 dark:file:bg-blue-900/30 file:text-blue-700 dark:file:text-blue-300 hover:file:bg-blue-100 cursor-pointer"
                   onChange={(e) => {
                     const file = e.target.files?.[0];
                     if (file) {
-                      const reader = new FileReader();
-                      reader.onload = (event) => {
-                        if (event.target?.result) {
-                          update('purchaseDocumentUrl', event.target.result);
-                        }
-                      };
-                      reader.readAsDataURL(file);
+                      handleUpload('purchaseDocumentUrl', file);
                     }
                   }}
                 />
+                {isUploading === 'purchaseDocumentUrl' && <span className="text-xs text-blue-500">{isEs ? 'Subiendo...' : 'Uploading...'}</span>}
               </div>
             )}
           </div>
@@ -425,10 +455,10 @@ export default function PropertyFields({ data, onChange }: Props) {
             </label>
             {data.mortgageDocumentUrl ? (
               <div className="flex items-center gap-2 p-2 border border-slate-200 dark:border-slate-700 rounded bg-slate-50 dark:bg-slate-800">
-                 <a href={data.mortgageDocumentUrl} download="Documento_Hipoteca" className="text-blue-600 dark:text-blue-400 text-[13px] font-semibold hover:underline flex-1 truncate" title={isEs ? 'Descargar' : 'Download'}>
+                 <a href="#" onClick={(e) => handleDownload(e, data.mortgageDocumentUrl!, "Documento_Hipoteca")} className="text-blue-600 dark:text-blue-400 text-[13px] font-semibold hover:underline flex-1 truncate" title={isEs ? 'Descargar' : 'Download'}>
                    {isEs ? 'Documento adjunto (Ver / Descargar)' : 'Attached Document (View / Download)'}
                  </a>
-                 <button type="button" onClick={() => update('mortgageDocumentUrl', '')} className="text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 p-1.5 rounded transition-colors" title={isEs ? 'Eliminar documento' : 'Delete document'}>
+                 <button type="button" onClick={() => handleDelete('mortgageDocumentUrl')} className="text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 p-1.5 rounded transition-colors" title={isEs ? 'Eliminar documento' : 'Delete document'}>
                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
                  </button>
               </div>
@@ -437,20 +467,16 @@ export default function PropertyFields({ data, onChange }: Props) {
                 <input 
                   type="file" 
                   accept=".pdf,.png,.jpg,.jpeg,.doc,.docx"
+                  disabled={isUploading === 'mortgageDocumentUrl'}
                   className="w-full text-sm file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-[11px] file:font-bold file:uppercase file:bg-blue-50 dark:file:bg-blue-900/30 file:text-blue-700 dark:file:text-blue-300 hover:file:bg-blue-100 cursor-pointer"
                   onChange={(e) => {
                     const file = e.target.files?.[0];
                     if (file) {
-                      const reader = new FileReader();
-                      reader.onload = (event) => {
-                        if (event.target?.result) {
-                          update('mortgageDocumentUrl', event.target.result);
-                        }
-                      };
-                      reader.readAsDataURL(file);
+                      handleUpload('mortgageDocumentUrl', file);
                     }
                   }}
                 />
+                {isUploading === 'mortgageDocumentUrl' && <span className="text-xs text-blue-500">{isEs ? 'Subiendo...' : 'Uploading...'}</span>}
               </div>
             )}
           </div>
