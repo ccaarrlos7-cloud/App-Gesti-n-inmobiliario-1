@@ -21,7 +21,7 @@ export default function PortfolioView({ initialTab = 'Todos' }: { initialTab?: P
   }, [initialTab]);
   
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
-  const [viewMode, setViewMode] = useState<'info' | 'contract' | 'edit' | 'finanzas' | 'mantenimiento'>('info');
+  const [viewMode, setViewMode] = useState<'info' | 'contract' | 'edit' | 'finanzas'>('info');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newProp, setNewProp] = useState<Partial<Property>>({
     title: '', address: '', price: 0, status: 'Vacío', type: 'Piso', notes: ''
@@ -338,11 +338,10 @@ export default function PortfolioView({ initialTab = 'Todos' }: { initialTab?: P
                  )}
                </div>
                
-               {['info', 'finanzas', 'mantenimiento'].includes(viewMode) && (
+               {['info', 'finanzas'].includes(viewMode) && (
                  <div className="flex border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
                    <button onClick={() => setViewMode('info')} className={`flex-1 py-3 text-[13px] ${viewMode === 'info' ? 'font-bold text-blue-600 dark:text-blue-400 border-b-2 border-blue-600' : 'font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'}`}>{isEs ? 'Info' : 'Info'}</button>
                    <button onClick={() => setViewMode('finanzas')} className={`flex-1 py-3 text-[13px] ${viewMode === 'finanzas' ? 'font-bold text-blue-600 dark:text-blue-400 border-b-2 border-blue-600' : 'font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'}`}>{isEs ? 'Finanzas' : 'Finances'}</button>
-                   <button onClick={() => setViewMode('mantenimiento')} className={`flex-1 py-3 text-[13px] ${viewMode === 'mantenimiento' ? 'font-bold text-blue-600 dark:text-blue-400 border-b-2 border-blue-600' : 'font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'}`}>{isEs ? 'Mantenimiento' : 'Maintenance'}</button>
                  </div>
                )}
 
@@ -485,56 +484,7 @@ export default function PortfolioView({ initialTab = 'Todos' }: { initialTab?: P
                      </div>
                   )}
 
-                  {viewMode === 'mantenimiento' && (
-                     <div className="animate-in fade-in slide-in-from-right-4 duration-300">
-                        <div className="flex justify-between items-center mb-4">
-                          <h3 className="font-bold text-slate-900 dark:text-white text-lg flex items-center gap-2"><AlertTriangle size={20} className="text-amber-500"/> {isEs ? 'Mantenimiento y Alertas' : 'Maintenance & Alerts'}</h3>
-                        </div>
-                        
-                        <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm mb-6 flex flex-col items-center justify-center text-center">
-                          <p className="text-sm text-slate-500 dark:text-slate-400 mb-4 max-w-sm">
-                            {isEs ? 'Gestiona las incidencias, reparaciones o alertas vinculadas a este inmueble. Al resolverlas, podrás generar un gasto automáticamente.' : 'Manage issues, repairs, or alerts linked to this property. When resolved, you can auto-generate an expense.'}
-                          </p>
-                          <button 
-                             onClick={() => {
-                               setIssueForm({ title: '', description: '', status: 'Abierta', propertyId: selectedProperty.id, cost: 0, generateTransaction: false });
-                               setEditingIssueId(null);
-                               setShowIssueForm(true);
-                             }}
-                             className="px-4 py-2 bg-slate-900 hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-bold text-sm rounded-lg shadow-sm flex items-center gap-2"
-                           >
-                             <Plus size={16} /> {isEs ? 'Registrar Nueva Incidencia' : 'Register New Issue'}
-                           </button>
-                        </div>
-                        
-                        {propertyIssues.length === 0 ? (
-                           <div className="bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 p-8 rounded-xl text-center text-slate-400 text-sm">
-                             <CheckCircle size={32} className="mx-auto mb-3 text-slate-300 dark:text-slate-600" />
-                             {isEs ? 'Todo perfecto. No hay incidencias registradas en este momento.' : 'All good. No issues registered at this time.'}
-                           </div>
-                         ) : (
-                           <div className="space-y-4">
-                             {propertyIssues.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).map(issue => (
-                               <div key={issue.id} onClick={() => handleEditIssue(issue)} className={`bg-white dark:bg-slate-800 border shadow-sm p-4 rounded-xl relative transition-colors cursor-pointer group ${issue.status === 'Resuelta' ? 'border-slate-200 dark:border-slate-700 hover:border-slate-300' : 'border-amber-200 dark:border-amber-900/40 hover:border-amber-300'}`}>
-                                 <div className="flex justify-between items-start mb-2">
-                                   <h4 className="font-bold text-slate-900 dark:text-white text-sm group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors flex items-center gap-2">
-                                     {issue.status === 'Resuelta' ? <CheckCircle size={16} className="text-emerald-500" /> : <AlertTriangle size={16} className="text-amber-500"/>}
-                                     {issue.title}
-                                   </h4>
-                                 </div>
-                                 <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-4">{issue.description}</p>
-                                 <div className="flex items-center justify-between text-[11px] font-semibold border-t border-slate-100 dark:border-slate-700 pt-3">
-                                   <span className="text-slate-400">{isEs ? 'Fecha reporte:' : 'Report date:'} {formatDate(issue.createdAt)}</span>
-                                   <span className={`px-3 py-1 rounded-full ${issue.status === 'Resuelta' ? 'bg-emerald-100 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300' : issue.status === 'En Progreso' ? 'bg-blue-100 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300' : 'bg-amber-100 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300'}`}>
-                                     {issue.status === 'Resuelta' ? (isEs ? 'Resuelta' : 'Resolved') : issue.status === 'En Progreso' ? (isEs ? 'En Progreso' : 'In Progress') : (isEs ? 'Abierta' : 'Open')}
-                                   </span>
-                                 </div>
-                               </div>
-                             ))}
-                           </div>
-                         )}
-                     </div>
-                  )}
+
 
                   {viewMode === 'finanzas' && (
                      <div className="animate-in fade-in slide-in-from-right-4 duration-300">
