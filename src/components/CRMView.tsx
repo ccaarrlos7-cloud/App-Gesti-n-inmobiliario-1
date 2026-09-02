@@ -9,10 +9,14 @@ import SettingsModal from './SettingsModal';
 import { User } from 'lucide-react';
 import FormattedNumberInput from './FormattedNumberInput';
 
+import { DocumentViewerModal } from './DocumentViewerModal';
+import { DocumentActionButtons } from './DocumentActionButtons';
+
 export default function CRMView() {
   const { properties, updateProperty, tenants, addTenant, contracts, addContract, updateContract, language, userName, avatarUrl } = useAppContext();
   const isEs = language === 'Español';
   const [selectedContract, setSelectedContract] = useState<Contract | null>(null);
+  const [viewingDoc, setViewingDoc] = useState<{url: string, name: string} | null>(null);
   const [paymentYear, setPaymentYear] = useState<number>(new Date().getFullYear());
   const [showNewTenantForm, setShowNewTenantForm] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -384,28 +388,20 @@ export default function CRMView() {
                                 </p>
                               </div>
                             </div>
-                            <div className="flex items-center gap-2 shrink-0">
-                              <a 
-                                href={doc.url} 
-                                download={doc.name}
-                                className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors"
-                              >
-                                <Download size={16} />
-                              </a>
-                              <button 
-                                onClick={() => {
-                                  if(confirm(isEs ? '¿Eliminar documento?' : 'Delete document?')) {
-                                    const updatedDocs = selectedContract.documents.filter(d => d.id !== doc.id);
-                                    const updated = { ...selectedContract, documents: updatedDocs };
-                                    setSelectedContract(updated);
-                                    updateContract(updated);
-                                  }
-                                }}
-                                className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
-                              >
-                                <Trash2 size={16} />
-                              </button>
-                            </div>
+                            <DocumentActionButtons 
+                              onView={() => setViewingDoc({ url: doc.url, name: doc.name })}
+                              downloadUrl={doc.url}
+                              downloadName={doc.name}
+                              onDelete={() => {
+                                if(confirm(isEs ? '¿Eliminar documento?' : 'Delete document?')) {
+                                  const updatedDocs = selectedContract.documents.filter(d => d.id !== doc.id);
+                                  const updated = { ...selectedContract, documents: updatedDocs };
+                                  setSelectedContract(updated);
+                                  updateContract(updated);
+                                }
+                              }}
+                              onDownload={() => {}} 
+                            />
                           </div>
                         ))
                       )}
@@ -639,6 +635,13 @@ export default function CRMView() {
         </div>
       )}
       <SettingsModal isOpen={showSettings} onClose={() => setShowSettings(false)} />
+      {/* Document Viewer Modal */}
+      <DocumentViewerModal 
+        isOpen={!!viewingDoc}
+        onClose={() => setViewingDoc(null)}
+        documentUrl={viewingDoc?.url || ''}
+        documentName={viewingDoc?.name || ''}
+      />
     </div>
   );
 }

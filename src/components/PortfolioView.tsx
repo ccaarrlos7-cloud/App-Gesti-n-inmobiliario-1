@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { PropertyStatus, Property, Transaction } from '../types';
-import { Search, AlertTriangle, CheckCircle, ChevronLeft, FileText, X, Edit, Plus, TrendingUp, TrendingDown, DollarSign, AlertCircle, Trash2, Paperclip } from 'lucide-react';
+import { Search, AlertTriangle, CheckCircle, ChevronLeft, FileText, X, Edit, Plus, TrendingUp, TrendingDown, DollarSign, AlertCircle, Trash2, Upload, Download, Paperclip , Eye} from 'lucide-react';
 import { useAppContext } from '../store';
 import PropertyFields from './PropertyFields';
 import { formatDate, formatNumber } from '../utils';
 import SettingsModal from './SettingsModal';
 import { User } from 'lucide-react';
 import FormattedNumberInput from './FormattedNumberInput';
+
+import { DocumentViewerModal } from './DocumentViewerModal';
+import { DocumentActionButtons } from './DocumentActionButtons';
 
 export default function PortfolioView({ initialTab = 'Todos' }: { initialTab?: PropertyStatus | 'Todos' }) {
   const { properties, setProperties, addProperty, updateProperty, contracts, tenants, getDynamicTransactions, addTransaction, issues, addIssue, updateIssue, deleteIssue, language, userName, avatarUrl } = useAppContext();
@@ -23,6 +26,7 @@ export default function PortfolioView({ initialTab = 'Todos' }: { initialTab?: P
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const [viewMode, setViewMode] = useState<'info' | 'contract' | 'edit' | 'finanzas'>('info');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [viewingDoc, setViewingDoc] = useState<{url: string, name: string} | null>(null);
   const [newProp, setNewProp] = useState<Partial<Property>>({
     title: '', address: '', price: 0, status: 'Vacío', type: 'Piso', notes: ''
   });
@@ -401,28 +405,141 @@ export default function PortfolioView({ initialTab = 'Todos' }: { initialTab?: P
                          </div>
                        </div>
 
-                       {(selectedProperty.purchaseDocumentUrl || selectedProperty.mortgageDocumentUrl || selectedProperty.rentalContractUrl) && (
-                         <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm mb-6">
-                           <div className="text-[11px] text-slate-400 uppercase font-semibold mb-3">{isEs ? 'Documentos Adjuntos' : 'Attached Documents'}</div>
+                       <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm mb-6">
+                           <div className="text-[11px] text-slate-400 uppercase font-semibold mb-3 flex items-center justify-between">
+                             <span>{isEs ? 'Documentos Adjuntos' : 'Attached Documents'}</span>
+                           </div>
                            <div className="space-y-3 text-[13px]">
-                             {selectedProperty.rentalContractUrl && (
-                               <a href={selectedProperty.rentalContractUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-blue-600 dark:text-blue-400 font-medium hover:underline p-2 bg-blue-50/50 dark:bg-blue-950/30 rounded-lg border border-blue-100 dark:border-blue-900/40">
-                                 <FileText size={16} className="text-blue-500" /> {isEs ? 'Contrato de Alquiler' : 'Rental Contract'}
-                                </a>
+                             
+                             {/* Contrato Alquiler */}
+                             <div className="flex items-center justify-between p-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+                               <div className="flex items-center gap-2">
+                                 <FileText size={16} className="text-blue-500" />
+                                 <span className="font-semibold text-slate-700 dark:text-slate-300">{isEs ? 'Contrato Alquiler' : 'Rental Contract'}</span>
+                               </div>
+                               {selectedProperty.rentalContractUrl ? (
+                                 <DocumentActionButtons 
+                                     onView={() => setViewingDoc({ url: selectedProperty.rentalContractUrl!, name: 'Contrato Alquiler' })}
+                                     downloadUrl={selectedProperty.rentalContractUrl!}
+                                     downloadName="Contrato_Alquiler"
+                                     onDelete={() => {
+                                        if(confirm(isEs ? '¿Eliminar documento?' : 'Delete document?')) {
+                                          const updated = { ...selectedProperty, rentalContractUrl: '' };
+                                          setSelectedProperty(updated);
+                                          updateProperty(updated);
+                                        }
+                                     }}
+                                     onDownload={() => {}}
+                                   />
+                               ) : (
+                                 <label className="text-xs text-blue-600 hover:text-blue-700 cursor-pointer flex items-center gap-1">
+                                   <Upload size={14} /> {isEs ? 'Subir' : 'Upload'}
+                                   <input type="file" className="hidden" accept=".pdf,.png,.jpg,.jpeg" onChange={(e) => {
+                                      const file = e.target.files?.[0];
+                                      if (file) {
+                                        const reader = new FileReader();
+                                        reader.onload = (event) => {
+                                          if (event.target?.result) {
+                                            const updated = { ...selectedProperty, rentalContractUrl: event.target.result as string };
+                                            setSelectedProperty(updated);
+                                            updateProperty(updated);
+                                          }
+                                        };
+                                        reader.readAsDataURL(file);
+                                      }
+                                      e.target.value = '';
+                                   }} />
+                                 </label>
+                               )}
+                             </div>
+
+                             {/* Documento Compra */}
+                             <div className="flex items-center justify-between p-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+                               <div className="flex items-center gap-2">
+                                 <FileText size={16} className="text-slate-500" />
+                                 <span className="font-semibold text-slate-700 dark:text-slate-300">{isEs ? 'Documento Compra' : 'Purchase Deed'}</span>
+                               </div>
+                               {selectedProperty.purchaseDocumentUrl ? (
+                                 <DocumentActionButtons 
+                                     onView={() => setViewingDoc({ url: selectedProperty.purchaseDocumentUrl!, name: 'Documento Compra' })}
+                                     downloadUrl={selectedProperty.purchaseDocumentUrl!}
+                                     downloadName="Documento_Compra"
+                                     onDelete={() => {
+                                        if(confirm(isEs ? '¿Eliminar documento?' : 'Delete document?')) {
+                                          const updated = { ...selectedProperty, purchaseDocumentUrl: '' };
+                                          setSelectedProperty(updated);
+                                          updateProperty(updated);
+                                        }
+                                     }}
+                                     onDownload={() => {}}
+                                   />
+                               ) : (
+                                 <label className="text-xs text-blue-600 hover:text-blue-700 cursor-pointer flex items-center gap-1">
+                                   <Upload size={14} /> {isEs ? 'Subir' : 'Upload'}
+                                   <input type="file" className="hidden" accept=".pdf,.png,.jpg,.jpeg" onChange={(e) => {
+                                      const file = e.target.files?.[0];
+                                      if (file) {
+                                        const reader = new FileReader();
+                                        reader.onload = (event) => {
+                                          if (event.target?.result) {
+                                            const updated = { ...selectedProperty, purchaseDocumentUrl: event.target.result as string };
+                                            setSelectedProperty(updated);
+                                            updateProperty(updated);
+                                          }
+                                        };
+                                        reader.readAsDataURL(file);
+                                      }
+                                      e.target.value = '';
+                                   }} />
+                                 </label>
+                               )}
+                             </div>
+
+                             {/* Documento Hipoteca */}
+                             {selectedProperty.hasMortgage && (
+                               <div className="flex items-center justify-between p-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+                                 <div className="flex items-center gap-2">
+                                   <FileText size={16} className="text-slate-500" />
+                                   <span className="font-semibold text-slate-700 dark:text-slate-300">{isEs ? 'Documento Hipoteca' : 'Mortgage Document'}</span>
+                                 </div>
+                                 {selectedProperty.mortgageDocumentUrl ? (
+                                   <div className="flex items-center gap-2">
+                                     <a href={selectedProperty.mortgageDocumentUrl} download="Documento_Hipoteca" className="text-blue-600 dark:text-blue-400 font-semibold hover:underline">
+                                       <Download size={14} />
+                                     </a>
+                                     <button onClick={() => {
+                                        const updated = { ...selectedProperty, mortgageDocumentUrl: '' };
+                                        setSelectedProperty(updated);
+                                        updateProperty(updated);
+                                     }} className="text-slate-400 hover:text-red-500">
+                                       <Trash2 size={14} />
+                                     </button>
+                                   </div>
+                                 ) : (
+                                   <label className="text-xs text-blue-600 hover:text-blue-700 cursor-pointer flex items-center gap-1">
+                                     <Upload size={14} /> {isEs ? 'Subir' : 'Upload'}
+                                     <input type="file" className="hidden" accept=".pdf,.png,.jpg,.jpeg" onChange={(e) => {
+                                        const file = e.target.files?.[0];
+                                        if (file) {
+                                          const reader = new FileReader();
+                                          reader.onload = (event) => {
+                                            if (event.target?.result) {
+                                              const updated = { ...selectedProperty, mortgageDocumentUrl: event.target.result as string };
+                                              setSelectedProperty(updated);
+                                              updateProperty(updated);
+                                            }
+                                          };
+                                          reader.readAsDataURL(file);
+                                        }
+                                        e.target.value = '';
+                                     }} />
+                                   </label>
+                                 )}
+                               </div>
                              )}
-                             {selectedProperty.purchaseDocumentUrl && (
-                               <a href={selectedProperty.purchaseDocumentUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-slate-700 dark:text-slate-200 font-medium hover:underline p-2 bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-200 dark:border-slate-600">
-                                 <FileText size={16} className="text-slate-400" /> {isEs ? 'Documento de Compra' : 'Purchase Deed'}
-                               </a>
-                             )}
-                             {selectedProperty.mortgageDocumentUrl && (
-                               <a href={selectedProperty.mortgageDocumentUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-slate-700 dark:text-slate-200 font-medium hover:underline p-2 bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-200 dark:border-slate-600">
-                                 <FileText size={16} className="text-slate-400" /> {isEs ? 'Documento de Hipoteca' : 'Mortgage Document'}
-                               </a>
-                             )}
+
                            </div>
                          </div>
-                       )}
 
                        <div className="mb-6">
                          <div className="flex items-center justify-between mb-3">
@@ -835,6 +952,13 @@ export default function PortfolioView({ initialTab = 'Todos' }: { initialTab?: P
         </div>
       )}
       <SettingsModal isOpen={showSettings} onClose={() => setShowSettings(false)} />
+      {/* Document Viewer Modal */}
+      <DocumentViewerModal 
+        isOpen={!!viewingDoc}
+        onClose={() => setViewingDoc(null)}
+        documentUrl={viewingDoc?.url || ''}
+        documentName={viewingDoc?.name || ''}
+      />
     </div>
   );
 }
