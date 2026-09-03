@@ -132,7 +132,26 @@ export default function DashboardView({ onNavigate }: { onNavigate?: (view: View
     return null;
   }).filter(Boolean);
 
-  const notifications = [...paymentAlerts, ...expirationAlerts] as { id: string, type: 'error' | 'warning', title: string, description: string, icon: 'money' | 'calendar' }[];
+  const issueAlerts = issues.filter(i => i.status !== 'Resuelta').map(i => {
+    const property = properties.find(p => p.id === i.propertyId);
+    return {
+      id: `issue-${i.id}`,
+      type: 'error',
+      title: isEs ? 'Incidencia pendiente' : 'Pending issue',
+      description: `${property?.title || (isEs ? 'Inmueble' : 'Property')} - ${i.title}`,
+      icon: 'alert',
+      onClick: () => onNavigate?.('portfolio')
+    };
+  });
+
+  const notifications = [...paymentAlerts, ...expirationAlerts, ...issueAlerts] as { 
+    id: string, 
+    type: 'error' | 'warning', 
+    title: string, 
+    description: string, 
+    icon: 'money' | 'calendar' | 'alert',
+    onClick?: () => void 
+  }[];
 
   return (
     <div className="flex flex-col h-full bg-slate-50 dark:bg-slate-900 transition-colors">
@@ -291,7 +310,7 @@ export default function DashboardView({ onNavigate }: { onNavigate?: (view: View
                 </div>
               ) : (
                 notifications.map((notif) => (
-                  <div key={notif.id} className={`p-3 rounded-xl border ${notif.type === 'error' ? 'bg-red-50/50 dark:bg-red-950/30 border-red-100 dark:border-red-900/40' : 'bg-amber-50/50 dark:bg-amber-950/30 border-amber-100 dark:border-amber-900/40'} flex gap-3 items-start`}>
+                  <div key={notif.id} onClick={notif.onClick} className={`p-3 rounded-xl border ${notif.onClick ? 'cursor-pointer hover:opacity-80 transition-opacity ' : ''}${notif.type === 'error' ? 'bg-red-50/50 dark:bg-red-950/30 border-red-100 dark:border-red-900/40' : 'bg-amber-50/50 dark:bg-amber-950/30 border-amber-100 dark:border-amber-900/40'} flex gap-3 items-start`}>
                     <div className={`mt-0.5 shrink-0 ${notif.type === 'error' ? 'text-red-500' : 'text-amber-500'}`}>
                       {notif.icon === 'calendar' ? <CalendarClock size={16} /> : <AlertTriangle size={16} />}
                     </div>
