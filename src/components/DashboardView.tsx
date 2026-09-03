@@ -349,7 +349,7 @@ export default function DashboardView({ onNavigate }: { onNavigate?: (view: View
                 </div>
               ))}
             </div>
-            <div className="p-4 border-t border-slate-100 dark:border-slate-700 bg-emerald-50 dark:bg-emerald-950/30 flex justify-between items-center shrink-0">
+            <div className="p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] border-t border-slate-100 dark:border-slate-700 bg-emerald-50 dark:bg-emerald-950/30 flex justify-between items-center shrink-0">
               <span className="font-bold text-emerald-900 dark:text-emerald-300 uppercase text-[12px]">{isEs ? 'Total Mensual' : 'Monthly Total'}</span>
               <span className="font-bold text-emerald-700 dark:text-emerald-400 text-xl">{formatNumber(ingresosMes)} €</span>
             </div>
@@ -376,7 +376,7 @@ export default function DashboardView({ onNavigate }: { onNavigate?: (view: View
                 </div>
               ))}
             </div>
-            <div className="p-4 border-t border-slate-100 dark:border-slate-700 bg-red-50 dark:bg-red-950/30 flex justify-between items-center shrink-0">
+            <div className="p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] border-t border-slate-100 dark:border-slate-700 bg-red-50 dark:bg-red-950/30 flex justify-between items-center shrink-0">
               <span className="font-bold text-red-900 dark:text-red-300 uppercase text-[12px]">{isEs ? 'Total Mensual' : 'Monthly Total'}</span>
               <span className="font-bold text-red-700 dark:text-red-400 text-xl">{formatNumber(gastosMes)} €</span>
             </div>

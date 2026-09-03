@@ -73,7 +73,7 @@ export default function App() {
   }
 
   return (
-    <div className="h-screen w-full bg-slate-50 dark:bg-slate-900 flex flex-col text-slate-900 dark:text-white font-sans overflow-hidden transition-colors">
+    <div className="h-screen w-full bg-slate-50 dark:bg-slate-900 flex flex-col text-slate-900 dark:text-white font-sans overflow-hidden transition-colors pt-[env(safe-area-inset-top)]">
       {/* Main Content */}
       <main className="flex-1 w-full relative overflow-hidden flex flex-col mt-2">
         <div className="animate-in fade-in duration-300 h-full flex flex-col w-full">
@@ -85,7 +85,7 @@ export default function App() {
       </main>
 
       {/* Bottom Navigation */}
-      <nav className="shrink-0 w-full bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 flex items-center justify-around px-1 py-2 z-50 transition-colors">
+      <nav className="shrink-0 w-full bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 flex items-center justify-around px-1 pt-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] z-50 transition-colors">
         {navigation.map((item) => (
           <button
             key={item.id}

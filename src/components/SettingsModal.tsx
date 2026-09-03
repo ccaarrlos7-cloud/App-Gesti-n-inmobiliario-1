@@ -116,13 +116,13 @@ export default function SettingsModal({ isOpen, onClose }: { isOpen: boolean, on
     return (
       <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[200] flex justify-end" onClick={() => setShowPrivacy(false)}>
         <div className="w-full max-w-md bg-white dark:bg-slate-900 h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-200" onClick={e => e.stopPropagation()}>
-           <div className="h-16 border-b border-slate-100 dark:border-slate-800 flex items-center px-4 shrink-0 bg-white dark:bg-slate-900">
+           <div className="pt-[calc(env(safe-area-inset-top)+0.5rem)] pb-2 border-b border-slate-100 dark:border-slate-800 flex items-center px-4 shrink-0 bg-white dark:bg-slate-900">
              <button onClick={() => setShowPrivacy(false)} className="p-2 -ml-2 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 rounded-full hover:bg-slate-50 dark:hover:bg-slate-800">
                <ChevronLeft size={24} />
              </button>
              <h2 className="font-bold text-[16px] text-slate-900 dark:text-white ml-2">{isEs ? 'Política de Privacidad' : 'Privacy Policy'}</h2>
            </div>
-           <div className="p-6 overflow-y-auto prose prose-sm text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 flex-1">
+           <div className="p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] overflow-y-auto prose prose-sm text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 flex-1">
               <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">{isEs ? 'POLÍTICA DE PRIVACIDAD DE GESTINMO' : 'GESTINMO PRIVACY POLICY'}</h3>
               <p className="mb-4"><strong>{isEs ? 'Última actualización: 1 de septiembre de 2026' : 'Last updated: September 1, 2026'}</strong></p>
               <p className="mb-6">{isEs ? 'En GestInmo nos comprometemos a proteger la privacidad y la seguridad de los datos personales de nuestros usuarios. Esta Política de Privacidad explica qué información podemos recopilar, para qué la utilizamos, cómo la protegemos y cuáles son los derechos de los usuarios.' : 'At GestInmo, we are committed to protecting the privacy and security of our users\' personal data. This Privacy Policy explains what information we may collect, what we use it for, how we protect it, and what users\' rights are.'}</p>
@@ -289,13 +289,13 @@ export default function SettingsModal({ isOpen, onClose }: { isOpen: boolean, on
     return (
       <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[200] flex justify-end" onClick={() => setShowManual(false)}>
         <div className="w-full max-w-md bg-white dark:bg-slate-900 h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-200" onClick={e => e.stopPropagation()}>
-           <div className="h-16 border-b border-slate-100 dark:border-slate-800 flex items-center px-4 shrink-0 bg-white dark:bg-slate-900">
+           <div className="pt-[calc(env(safe-area-inset-top)+0.5rem)] pb-2 border-b border-slate-100 dark:border-slate-800 flex items-center px-4 shrink-0 bg-white dark:bg-slate-900">
              <button onClick={() => setShowManual(false)} className="p-2 -ml-2 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 rounded-full hover:bg-slate-50 dark:hover:bg-slate-800">
                <ChevronLeft size={24} />
              </button>
              <h2 className="font-bold text-[16px] text-slate-900 dark:text-white ml-2">{isEs ? 'Manual de Uso' : 'User Manual'}</h2>
            </div>
-           <div className="p-6 overflow-y-auto prose prose-sm text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 flex-1">
+           <div className="p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] overflow-y-auto prose prose-sm text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 flex-1">
               <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">{isEs ? 'Manual de Usuario' : 'User Guide'}</h3>
               
               <h4 className="font-bold text-slate-900 dark:text-white mb-2">{isEs ? '1. Inicio (Dashboard)' : '1. Dashboard'}</h4>
@@ -322,13 +322,13 @@ export default function SettingsModal({ isOpen, onClose }: { isOpen: boolean, on
     return (
       <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[200] flex justify-end" onClick={() => { setShowSupport(false); setSupportSent(false); setSupportMessage(''); }}>
         <div className="w-full max-w-md bg-white dark:bg-slate-900 h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-200" onClick={e => e.stopPropagation()}>
-           <div className="h-16 border-b border-slate-100 dark:border-slate-800 flex items-center px-4 shrink-0 bg-white dark:bg-slate-900">
+           <div className="pt-[calc(env(safe-area-inset-top)+0.5rem)] pb-2 border-b border-slate-100 dark:border-slate-800 flex items-center px-4 shrink-0 bg-white dark:bg-slate-900">
              <button onClick={() => { setShowSupport(false); setSupportSent(false); setSupportMessage(''); }} className="p-2 -ml-2 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 rounded-full hover:bg-slate-50 dark:hover:bg-slate-800">
                <ChevronLeft size={24} />
              </button>
              <h2 className="font-bold text-[16px] text-slate-900 dark:text-white ml-2">{isEs ? 'Ayuda y Soporte' : 'Help & Support'}</h2>
            </div>
-           <div className="p-6 overflow-y-auto bg-slate-50 dark:bg-slate-900 flex-1 flex flex-col">
+           <div className="p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] overflow-y-auto bg-slate-50 dark:bg-slate-900 flex-1 flex flex-col">
               {supportSent ? (
                 <div className="flex flex-col items-center justify-center flex-1 text-center animate-in zoom-in-95">
                   <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center mb-4">
@@ -403,14 +403,14 @@ export default function SettingsModal({ isOpen, onClose }: { isOpen: boolean, on
       <div className="w-full max-w-md bg-slate-50 dark:bg-slate-900 h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-200" onClick={e => e.stopPropagation()}>
         
         {/* Header */}
-        <div className="h-16 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-4 shrink-0 bg-white dark:bg-slate-900">
+        <div className="pt-[calc(env(safe-area-inset-top)+0.5rem)] pb-2 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-4 shrink-0 bg-white dark:bg-slate-900">
           <h2 className="font-bold text-[18px] text-slate-900 dark:text-white">{isEs ? 'Configuración' : 'Settings'}</h2>
           <button onClick={onClose} className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
             <X size={20} />
           </button>
         </div>
 
-        <div className="p-6 flex-1 overflow-y-auto">
+        <div className="p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] flex-1 overflow-y-auto">
           {/* Profile Section */}
           <div className="flex flex-col items-center mb-8">
             <div 
