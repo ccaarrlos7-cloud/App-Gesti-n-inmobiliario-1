@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Contract, Tenant } from '../types';
-import { X, Eye, Phone, Mail, FileText, CreditCard, Building2, Users, Plus, Upload, Trash2, Download, Paperclip, FileDown, Loader2 } from 'lucide-react';
+import { X, Eye, Phone, Mail, FileText, CreditCard, Building2, Users, Plus, Upload, Trash2, Download, Paperclip, FileDown, Loader2, Key, Link as LinkIcon, RefreshCw, ShieldAlert, CheckCircle2, Clock } from 'lucide-react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { useAppContext } from '../store';
@@ -14,7 +14,7 @@ import { DocumentViewerModal } from './DocumentViewerModal';
 import { DocumentActionButtons } from './DocumentActionButtons';
 
 export default function CRMView() {
-  const { properties, updateProperty, tenants, addTenant, contracts, addContract, updateContract, language, userName, avatarUrl } = useAppContext();
+  const { properties, updateProperty, tenants, addTenant, contracts, addContract, updateContract, uploadContractDocument, toggleDocumentSharing, deleteContractDocument, language, userName, avatarUrl, pendingInvitations, generateInvitation, revokeInvitation } = useAppContext();
   const isEs = language === 'Español';
   const [selectedContract, setSelectedContract] = useState<Contract | null>(null);
   const [viewingDoc, setViewingDoc] = useState<{url: string, name: string} | null>(null);
@@ -25,6 +25,9 @@ export default function CRMView() {
   
   const [newTenants, setNewTenants] = useState<Partial<Tenant>[]>([{ name: '', email: '', phone: '', dni: '' }]);
   const [newContract, setNewContract] = useState<Partial<Contract>>({ propertyId: '', startDate: '', endDate: '', rentAmount: 0, deposit: 0, status: 'Activo' });
+  const [invitationLinkData, setInvitationLinkData] = useState<{tenantId: string, link: string} | null>(null);
+  const [isGeneratingInv, setIsGeneratingInv] = useState<string | null>(null);
+  const [isRevokingInv, setIsRevokingInv] = useState<string | null>(null);
 
   const getPropertyInfo = (id: string) => properties.find(p => p.id === id);
 
@@ -101,6 +104,42 @@ export default function CRMView() {
   const currentYearStr = new Date().getFullYear();
   const currentMonthStr = String(new Date().getMonth() + 1).padStart(2, '0');
   const currentMonthKey = `${currentYearStr}-${currentMonthStr}`;
+
+  const handleGenerateInvitation = async (tenantId: string) => {
+    setIsGeneratingInv(tenantId);
+    const token = await generateInvitation(tenantId);
+    setIsGeneratingInv(null);
+    if (token) {
+      const baseUrl = import.meta.env.VITE_APP_PUBLIC_URL || window.location.origin;
+      const link = `${baseUrl}/?token=${token}`;
+      setInvitationLinkData({ tenantId, link });
+    } else {
+      alert(isEs ? "Error al generar la invitación. Inténtalo de nuevo." : "Error generating invitation. Please try again.");
+    }
+  };
+
+  const handleRevokeInvitation = async (invitationId: string, tenantId: string) => {
+    setIsRevokingInv(tenantId);
+    const success = await revokeInvitation(invitationId);
+    setIsRevokingInv(null);
+    if (!success) {
+      alert(isEs ? "Error al revocar la invitación. Inténtalo de nuevo." : "Error revoking invitation. Please try again.");
+    } else {
+      if (invitationLinkData?.tenantId === tenantId) {
+        setInvitationLinkData(null);
+      }
+    }
+  };
+
+  const handleCopyLink = async (link: string) => {
+    try {
+      await navigator.clipboard.writeText(link);
+      alert(isEs ? "Enlace copiado al portapapeles" : "Link copied to clipboard");
+    } catch (e) {
+      console.error(e);
+      alert(isEs ? "Error al copiar el enlace" : "Error copying link");
+    }
+  };
 
   return (
     <div className="flex flex-col h-full relative bg-slate-50 dark:bg-slate-900 transition-colors">
@@ -193,11 +232,12 @@ export default function CRMView() {
       <div className={`absolute inset-0 bg-slate-900/40 backdrop-blur-[2px] z-50 transition-opacity duration-300 ${selectedContract ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} onClick={() => setSelectedContract(null)}>
         <div 
           className={`absolute inset-y-0 right-0 w-full sm:w-[380px] bg-white dark:bg-slate-900 shadow-2xl transition-transform duration-300 transform border-l border-slate-200 dark:border-slate-800 flex flex-col ${selectedContract ? 'translate-x-0' : 'translate-x-full'}`}
-          onClick={e => e.stopPropagation()}
+          onClick={(e) => e.stopPropagation()}
         >
           {selectedContract && (() => {
-            const contractTenants = getTenantsInfo(selectedContract.tenantIds);
-            const property = getPropertyInfo(selectedContract.propertyId);
+            const currentContract = contracts.find(c => c.id === selectedContract.id) || selectedContract;
+            const contractTenants = getTenantsInfo(currentContract.tenantIds);
+            const property = getPropertyInfo(currentContract.propertyId);
             return (
             <div className="flex flex-col h-full overflow-hidden">
               <div className="p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0 bg-slate-50 dark:bg-slate-800/80">
@@ -214,7 +254,8 @@ export default function CRMView() {
                 <div className="mb-6 space-y-4">
                   <h3 className="text-[12px] font-bold text-slate-400 uppercase tracking-wider mb-2">{isEs ? 'Inquilinos' : 'Tenants'} ({contractTenants.length})</h3>
                   {contractTenants.map(t => t && (
-                    <div key={t.id} className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-start gap-4">
+                    <div key={t.id} className="flex flex-col gap-0">
+                      <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-start gap-4">
                       <div className="w-10 h-10 shrink-0 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-lg font-bold text-slate-500 dark:text-slate-300">
                         {t.name.charAt(0)}
                       </div>
@@ -235,6 +276,95 @@ export default function CRMView() {
                         </div>
                       </div>
                     </div>
+                    {/* Access Management Section */}
+                    {(() => {
+                      const tenantInvitations = pendingInvitations
+                        .filter(inv => inv.tenantId === t.id)
+                        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+                      
+                      const pendingInv = tenantInvitations.find(inv => inv.status === 'pending');
+                      const revokedInv = tenantInvitations.find(inv => inv.status === 'revoked');
+                      
+                      let accessStatus = 'Sin invitación';
+                      let activeInvitation = null;
+
+                      if (t.profileId) {
+                        accessStatus = 'Cuenta vinculada';
+                      } else if (pendingInv) {
+                        activeInvitation = pendingInv;
+                        if (new Date(pendingInv.expiresAt).getTime() > Date.now()) {
+                          accessStatus = 'Invitación pendiente';
+                        } else {
+                          accessStatus = 'Invitación caducada';
+                        }
+                      } else if (revokedInv) {
+                        activeInvitation = revokedInv;
+                        accessStatus = 'Invitación revocada';
+                      }
+                      
+                      const isGenerating = isGeneratingInv === t.id;
+                      const isRevoking = isRevokingInv === t.id;
+                      const activeLink = invitationLinkData?.tenantId === t.id ? invitationLinkData.link : null;
+
+                      return (
+                        <div className="mt-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-4 shadow-inner">
+                          <h4 className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                            <Key size={14} /> {isEs ? 'Acceso del inquilino' : 'Tenant Access'}
+                          </h4>
+                          
+                          <div className="flex flex-col gap-3">
+                            <div className="flex items-center gap-2">
+                              {accessStatus === 'Cuenta vinculada' && <CheckCircle2 size={16} className="text-emerald-500" />}
+                              {accessStatus === 'Invitación pendiente' && <Clock size={16} className="text-blue-500" />}
+                              {accessStatus === 'Invitación caducada' && <Clock size={16} className="text-amber-500" />}
+                              {accessStatus === 'Invitación revocada' && <ShieldAlert size={16} className="text-red-500" />}
+                              {accessStatus === 'Sin invitación' && <ShieldAlert size={16} className="text-slate-400" />}
+                              <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                                {isEs ? accessStatus : (
+                                  accessStatus === 'Cuenta vinculada' ? 'Linked Account' :
+                                  accessStatus === 'Invitación pendiente' ? 'Pending Invitation' :
+                                  accessStatus === 'Invitación caducada' ? 'Expired Invitation' :
+                                  accessStatus === 'Invitación revocada' ? 'Revoked Invitation' : 'No Invitation'
+                                )}
+                              </span>
+                            </div>
+
+                            {accessStatus === 'Sin invitación' && (
+                              <button onClick={() => handleGenerateInvitation(t.id)} disabled={isGenerating} className="self-start text-xs font-semibold bg-blue-100 hover:bg-blue-200 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300 py-1.5 px-3 rounded-lg flex items-center gap-1.5 transition-colors">
+                                {isGenerating ? <Loader2 size={14} className="animate-spin"/> : <LinkIcon size={14} />} 
+                                {isEs ? 'Generar enlace de acceso' : 'Generate access link'}
+                              </button>
+                            )}
+
+                            {accessStatus === 'Invitación pendiente' && activeInvitation && (
+                              <div className="flex flex-wrap gap-2">
+                                {activeLink && (
+                                  <button onClick={() => handleCopyLink(activeLink)} className="text-xs font-semibold bg-slate-200 hover:bg-slate-300 text-slate-700 dark:bg-slate-700 dark:text-slate-300 py-1.5 px-3 rounded-lg flex items-center gap-1.5 transition-colors">
+                                    <LinkIcon size={14} /> {isEs ? 'Copiar enlace' : 'Copy link'}
+                                  </button>
+                                )}
+                                <button onClick={() => handleGenerateInvitation(t.id)} disabled={isGenerating || isRevoking} className="text-xs font-semibold bg-blue-100 hover:bg-blue-200 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300 py-1.5 px-3 rounded-lg flex items-center gap-1.5 transition-colors">
+                                  {isGenerating ? <Loader2 size={14} className="animate-spin"/> : <RefreshCw size={14} />} 
+                                  {isEs ? 'Generar nuevo enlace' : 'Generate new link'}
+                                </button>
+                                <button onClick={() => handleRevokeInvitation(activeInvitation.id, t.id)} disabled={isGenerating || isRevoking} className="text-xs font-semibold bg-red-100 hover:bg-red-200 text-red-700 dark:bg-red-900/40 dark:text-red-300 py-1.5 px-3 rounded-lg flex items-center gap-1.5 transition-colors">
+                                  {isRevoking ? <Loader2 size={14} className="animate-spin"/> : <X size={14} />} 
+                                  {isEs ? 'Revocar' : 'Revoke'}
+                                </button>
+                              </div>
+                            )}
+
+                            {(accessStatus === 'Invitación caducada' || accessStatus === 'Invitación revocada') && (
+                              <button onClick={() => handleGenerateInvitation(t.id)} disabled={isGenerating} className="self-start text-xs font-semibold bg-blue-100 hover:bg-blue-200 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300 py-1.5 px-3 rounded-lg flex items-center gap-1.5 transition-colors">
+                                {isGenerating ? <Loader2 size={14} className="animate-spin"/> : <RefreshCw size={14} />} 
+                                {isEs ? 'Generar nuevo enlace' : 'Generate new link'}
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })()}
+                  </div>
                   ))}
                 </div>
 
@@ -353,18 +483,7 @@ export default function CRMView() {
                             if (file) {
                               setIsUploadingDoc(true);
                               try {
-                                const path = await uploadDocument(file);
-                                const newDoc = {
-                                  id: `doc-${Date.now()}`,
-                                  name: file.name,
-                                  url: path,
-                                  date: new Date().toISOString(),
-                                  size: file.size
-                                };
-                                const updatedDocs = [...(selectedContract.documents || []), newDoc];
-                                const updated = { ...selectedContract, documents: updatedDocs };
-                                setSelectedContract(updated);
-                                updateContract(updated);
+                                await uploadContractDocument(currentContract.id, file);
                               } catch (err) {
                                 console.error("Upload error:", err);
                                 alert(isEs ? "Error al subir el archivo" : "Error uploading file");
@@ -379,41 +498,91 @@ export default function CRMView() {
                     </div>
                     
                     <div className="space-y-2">
-                      {!selectedContract.documents || selectedContract.documents.length === 0 ? (
+                      {(!currentContract.documents || currentContract.documents.length === 0) && (!currentContract.contractDocuments || currentContract.contractDocuments.length === 0) ? (
                         <div className="text-center py-6 bg-slate-50 dark:bg-slate-900 border border-dashed border-slate-200 dark:border-slate-700 rounded-lg">
                           <p className="text-sm text-slate-400">{isEs ? 'No hay documentos adjuntos' : 'No documents attached'}</p>
                         </div>
                       ) : (
-                        selectedContract.documents.map(doc => (
-                          <div key={doc.id} className="flex items-center justify-between p-3 border border-slate-100 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-750 transition-colors">
-                            <div className="flex items-center gap-3 min-w-0">
-                              <div className="w-8 h-8 rounded bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
-                                <FileText size={16} />
+                        <>
+                          {currentContract.contractDocuments?.map(doc => (
+                            <div key={doc.id} className="flex flex-col p-3 border border-slate-100 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-750 transition-colors">
+                              <div className="flex items-center justify-between mb-2">
+                                <div className="flex items-center gap-3 min-w-0">
+                                  <div className="w-8 h-8 rounded bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
+                                    <FileText size={16} />
+                                  </div>
+                                  <div className="min-w-0 flex-1">
+                                    <p className="text-sm font-semibold text-slate-700 dark:text-slate-200 truncate">{doc.name}</p>
+                                    <p className="text-[11px] text-slate-400">
+                                      {new Date(doc.createdAt).toLocaleDateString()} {doc.size ? `• ${(doc.size / 1024 / 1024).toFixed(2)} MB` : ''}
+                                    </p>
+                                  </div>
+                                </div>
+                                <DocumentActionButtons 
+                                  onView={() => setViewingDoc({ url: `storage://${doc.storagePath}`, name: doc.name })}
+                                  downloadUrl={`storage://${doc.storagePath}`}
+                                  downloadName={doc.name}
+                                  onDelete={async () => {
+                                    if(confirm(isEs ? '¿Eliminar documento?' : 'Delete document?')) {
+                                      await deleteContractDocument(doc.id, doc.storagePath);
+                                    }
+                                  }}
+                                  onDownload={() => {}} 
+                                />
                               </div>
-                              <div className="min-w-0 flex-1">
-                                <p className="text-sm font-semibold text-slate-700 dark:text-slate-200 truncate">{doc.name}</p>
-                                <p className="text-[11px] text-slate-400">
-                                  {new Date(doc.date).toLocaleDateString()} {doc.size ? `• ${(doc.size / 1024 / 1024).toFixed(2)} MB` : ''}
-                                </p>
+                              <div className="flex items-center justify-end pt-2 border-t border-slate-100 dark:border-slate-700/50 mt-1">
+                                <label className="flex items-center gap-2 cursor-pointer">
+                                  <span className={`text-[11px] font-semibold uppercase tracking-wider ${doc.sharedWithTenants ? 'text-green-600 dark:text-green-400' : 'text-slate-400'}`}>
+                                    {doc.sharedWithTenants 
+                                      ? (isEs ? 'Compartido con inquilinos' : 'Shared with tenants')
+                                      : (isEs ? 'No compartido' : 'Not shared')}
+                                  </span>
+                                  <div className={`relative w-8 h-4 rounded-full transition-colors ${doc.sharedWithTenants ? 'bg-green-500' : 'bg-slate-300 dark:bg-slate-600'}`}>
+                                    <div className={`absolute top-0.5 left-0.5 w-3 h-3 bg-white rounded-full transition-transform ${doc.sharedWithTenants ? 'translate-x-4' : ''}`}></div>
+                                  </div>
+                                  <input 
+                                    type="checkbox" 
+                                    className="hidden" 
+                                    checked={doc.sharedWithTenants} 
+                                    onChange={(e) => toggleDocumentSharing(doc.id, e.target.checked)}
+                                  />
+                                </label>
                               </div>
                             </div>
-                            <DocumentActionButtons 
-                              onView={() => setViewingDoc({ url: doc.url, name: doc.name })}
-                              downloadUrl={doc.url}
-                              downloadName={doc.name}
-                              onDelete={async () => {
-                                if(confirm(isEs ? '¿Eliminar documento?' : 'Delete document?')) {
-                                  await deleteDocument(doc.url);
-                                  const updatedDocs = selectedContract.documents.filter(d => d.id !== doc.id);
-                                  const updated = { ...selectedContract, documents: updatedDocs };
-                                  setSelectedContract(updated);
-                                  updateContract(updated);
-                                }
-                              }}
-                              onDownload={() => {}} 
-                            />
-                          </div>
-                        ))
+                          ))}
+                          
+                          {currentContract.documents?.map(doc => (
+                            <div key={doc.id} className="flex items-center justify-between p-3 border border-slate-100 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-750 transition-colors opacity-75">
+                              <div className="flex items-center gap-3 min-w-0">
+                                <div className="w-8 h-8 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 flex items-center justify-center shrink-0">
+                                  <FileText size={16} />
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                  <p className="text-sm font-semibold text-slate-700 dark:text-slate-200 truncate">{doc.name}</p>
+                                  <p className="text-[11px] text-slate-400 flex items-center gap-1">
+                                    <span className="bg-slate-200 dark:bg-slate-700 px-1 rounded text-[9px] uppercase">Legacy</span>
+                                    {new Date(doc.date).toLocaleDateString()} {doc.size ? `• ${(doc.size / 1024 / 1024).toFixed(2)} MB` : ''}
+                                  </p>
+                                </div>
+                              </div>
+                              <DocumentActionButtons 
+                                onView={() => setViewingDoc({ url: doc.url, name: doc.name })}
+                                downloadUrl={doc.url}
+                                downloadName={doc.name}
+                                onDelete={async () => {
+                                  if(confirm(isEs ? '¿Eliminar documento legacy?' : 'Delete legacy document?')) {
+                                    await deleteDocument(doc.url);
+                                    const updatedDocs = currentContract.documents!.filter(d => d.id !== doc.id);
+                                    const updated = { ...currentContract, documents: updatedDocs };
+                                    setSelectedContract(updated);
+                                    updateContract(updated);
+                                  }
+                                }}
+                                onDownload={() => {}} 
+                              />
+                            </div>
+                          ))}
+                        </>
                       )}
                     </div>
                   </div>
@@ -652,6 +821,43 @@ export default function CRMView() {
         documentUrl={viewingDoc?.url || ''}
         documentName={viewingDoc?.name || ''}
       />
+
+      {/* Invitation Link Modal */}
+      {invitationLinkData && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[200] flex items-center justify-center p-4">
+          <div className="w-full max-w-md bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 p-6 animate-in zoom-in-95">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white">
+                {isEs ? 'Enlace de acceso generado' : 'Access link generated'}
+              </h3>
+              <button onClick={() => setInvitationLinkData(null)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300">
+                <X size={20} />
+              </button>
+            </div>
+            
+            <div className="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 p-3 rounded-xl mb-4">
+              <p className="text-sm font-medium text-amber-800 dark:text-amber-300">
+                ⚠️ {isEs ? 'Este enlace es personal y funciona como una llave de acceso. Envíalo únicamente al inquilino correspondiente.' : 'This link is personal and works as an access key. Send it only to the corresponding tenant.'}
+              </p>
+            </div>
+
+            <div className="bg-slate-50 dark:bg-slate-900 p-3 rounded-lg border border-slate-200 dark:border-slate-700 mb-4 break-all font-mono text-sm text-slate-700 dark:text-slate-300">
+              {invitationLinkData.link}
+            </div>
+
+            <p className="text-xs text-slate-500 dark:text-slate-400 mb-6 text-center">
+              {isEs ? 'El enlace es válido durante 7 días.' : 'The link is valid for 7 days.'}
+            </p>
+
+            <button 
+              onClick={() => handleCopyLink(invitationLinkData.link)}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl flex items-center justify-center gap-2 transition-colors"
+            >
+              <LinkIcon size={18} /> {isEs ? 'Copiar enlace' : 'Copy link'}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

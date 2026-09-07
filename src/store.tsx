@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect, useContext, ReactNode, useRef } from 'react';
-import { Property, Tenant, Contract, Transaction, Issue } from './types';
+import { Property, Tenant, Contract, Transaction, Issue, PendingInvitation } from './types';
 import { supabase } from './lib/supabase';
 
 interface AppContextType {
@@ -14,6 +14,9 @@ interface AppContextType {
   setContracts: (contracts: Contract[]) => void;
   addContract: (contract: Omit<Contract, 'id'>) => Promise<Contract | undefined>;
   updateContract: (contract: Contract) => Promise<void>;
+  uploadContractDocument: (contractId: string, file: File) => Promise<void>;
+  toggleDocumentSharing: (documentId: string, shared: boolean) => Promise<void>;
+  deleteContractDocument: (documentId: string, storagePath: string) => Promise<void>;
   transactions: Transaction[];
   setTransactions: (transactions: Transaction[]) => void;
   addTransaction: (tx: Omit<Transaction, 'id'>) => Promise<Transaction | undefined>;
@@ -23,6 +26,10 @@ interface AppContextType {
   addIssue: (issue: Omit<Issue, 'id'>) => Promise<Issue | undefined>;
   updateIssue: (issue: Issue) => Promise<void>;
   deleteIssue: (id: string) => Promise<void>;
+  pendingInvitations: PendingInvitation[];
+  loadPendingInvitations: () => Promise<void>;
+  generateInvitation: (tenantId: string) => Promise<string | null>;
+  revokeInvitation: (invitationId: string) => Promise<boolean>;
   userName: string;
   setUserName: (name: string) => void;
   avatarUrl: string;
@@ -69,6 +76,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [contracts, setContracts] = useState<Contract[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [issues, setIssues] = useState<Issue[]>([]);
+  const [pendingInvitations, setPendingInvitations] = useState<PendingInvitation[]>([]);
   const [userName, setUserName] = useState("Carlos Hill Balsera");
   const [avatarUrl, setAvatarUrl] = useState("");
   const [theme, setThemeState] = useState<string>(() => {
@@ -117,14 +125,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
       
       isLoadingData.current = true;
       try {
-        const [propsRes, tenantsRes, contractsRes, txsRes, issuesRes, profileRes, ctRes] = await Promise.all([
+        const [propsRes, tenantsRes, contractsRes, txsRes, issuesRes, profileRes, ctRes, invRes] = await Promise.all([
           supabase.from('properties').select('*'),
           supabase.from('tenants').select('*'),
-          supabase.from('contracts').select('*'),
+          supabase.from('contracts').select('*, contract_documents(*)'),
           supabase.from('transactions').select('*'),
           supabase.from('issues').select('*'),
           supabase.from('profiles').select('*').eq('id', session.user.id).single(),
-          supabase.from('contract_tenants').select('*')
+          supabase.from('contract_tenants').select('*'),
+          supabase.from('pending_tenant_invitations').select('id, tenant_id, status, expires_at, created_at, accepted_at')
         ]);
 
         if (!active) return;
@@ -151,6 +160,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         
         if (txsRes.data) setTransactions(toCamel(txsRes.data));
         if (issuesRes.data) setIssues(toCamel(issuesRes.data));
+        if (invRes.data) setPendingInvitations(toCamel(invRes.data));
         
         loadedSession.current = session.user.id;
       } catch (e) {
@@ -179,6 +189,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         setContracts([]);
         setTransactions([]);
         setIssues([]);
+        setPendingInvitations([]);
         setUserName("Usuario");
         setAvatarUrl("");
       }
@@ -341,6 +352,77 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const uploadContractDocument = async (contractId: string, file: File): Promise<void> => {
+    try {
+      const fullUrl = await uploadDocument(file);
+      const storagePath = fullUrl.replace('storage://', '');
+
+      const data = {
+        contract_id: contractId,
+        name: file.name,
+        storage_path: storagePath,
+        size: file.size,
+        shared_with_tenants: false
+      };
+
+      const { data: insertedData, error } = await supabase.from('contract_documents').insert(data).select().single();
+      if (error) {
+        console.error("Error al subir documento de contrato:", error);
+        return;
+      }
+
+      setContracts(prev => prev.map(c => {
+        if (c.id === contractId) {
+          return {
+            ...c,
+            contractDocuments: [toCamel(insertedData), ...(c.contractDocuments || [])]
+          };
+        }
+        return c;
+      }));
+    } catch (e) {
+      console.error("Error uploadContractDocument:", e);
+    }
+  };
+
+  const toggleDocumentSharing = async (documentId: string, shared: boolean): Promise<void> => {
+    const { error } = await supabase.from('contract_documents').update({ shared_with_tenants: shared }).eq('id', documentId);
+    if (error) {
+      console.error("Error al cambiar estado compartido del documento:", error);
+      return;
+    }
+
+    setContracts(prev => prev.map(c => {
+      if (c.contractDocuments?.some(d => d.id === documentId)) {
+        return {
+          ...c,
+          contractDocuments: c.contractDocuments.map(d => d.id === documentId ? { ...d, sharedWithTenants: shared } : d)
+        };
+      }
+      return c;
+    }));
+  };
+
+  const deleteContractDocument = async (documentId: string, storagePath: string): Promise<void> => {
+    await deleteDocument('storage://' + storagePath);
+    
+    const { error } = await supabase.from('contract_documents').delete().eq('id', documentId);
+    if (error) {
+      console.error("Error al borrar registro del documento:", error);
+      return;
+    }
+
+    setContracts(prev => prev.map(c => {
+      if (c.contractDocuments?.some(d => d.id === documentId)) {
+        return {
+          ...c,
+          contractDocuments: c.contractDocuments.filter(d => d.id !== documentId)
+        };
+      }
+      return c;
+    }));
+  };
+
   const addTransaction = async (tx: Omit<Transaction, 'id'>): Promise<Transaction | undefined> => {
     const sanitized = sanitizeTransaction(tx as Transaction);
     const data = toSnake(sanitized);
@@ -473,6 +555,59 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setIssues(prev => prev.filter(i => i.id !== id));
   };
 
+  const loadPendingInvitations = async () => {
+    const { data, error } = await supabase.from('pending_tenant_invitations').select('id, tenant_id, status, expires_at, created_at, accepted_at');
+    if (!error && data) {
+      setPendingInvitations(toCamel(data));
+    }
+  };
+
+  const generateInvitation = async (tenantId: string): Promise<string | null> => {
+    try {
+      const array = new Uint8Array(32);
+      window.crypto.getRandomValues(array);
+      const tokenPlain = Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+      
+      const encoder = new TextEncoder();
+      const data = encoder.encode(tokenPlain);
+      const hashBuffer = await window.crypto.subtle.digest('SHA-256', data);
+      const tokenHash = Array.from(new Uint8Array(hashBuffer), byte => byte.toString(16).padStart(2, '0')).join('');
+
+      const { error } = await supabase.rpc('create_tenant_invitation', {
+        p_tenant_id: tenantId,
+        p_token_hash: tokenHash
+      });
+
+      if (error) {
+        console.error("Error creating invitation:", error);
+        return null;
+      }
+
+      await loadPendingInvitations();
+      return tokenPlain;
+    } catch (e) {
+      console.error("Error in generateInvitation:", e);
+      return null;
+    }
+  };
+
+  const revokeInvitation = async (invitationId: string): Promise<boolean> => {
+    try {
+      const { error } = await supabase.rpc('revoke_tenant_invitation', {
+        p_invitation_id: invitationId
+      });
+      if (error) {
+        console.error("Error revoking invitation:", error);
+        return false;
+      }
+      await loadPendingInvitations();
+      return true;
+    } catch (e) {
+      console.error("Error in revokeInvitation:", e);
+      return false;
+    }
+  };
+
   if (!isAppReady) {
     return (
       <div className="h-screen w-screen flex flex-col items-center justify-center bg-slate-50 text-slate-500">
@@ -486,9 +621,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     <AppContext.Provider value={{ 
       properties, setProperties, addProperty, updateProperty, 
       tenants, setTenants, addTenant,
-      contracts, setContracts, addContract, updateContract,
+      contracts, setContracts, addContract, updateContract, uploadContractDocument, toggleDocumentSharing, deleteContractDocument,
       transactions, setTransactions, addTransaction, getDynamicTransactions,
       issues, setIssues, addIssue, updateIssue, deleteIssue,
+      pendingInvitations, loadPendingInvitations, generateInvitation, revokeInvitation,
       userName, setUserName: updateUserName,
       avatarUrl, setAvatarUrl: updateAvatarUrl,
       theme, setTheme,
