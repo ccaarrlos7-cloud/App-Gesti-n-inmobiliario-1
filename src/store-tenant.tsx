@@ -25,6 +25,7 @@ interface TenantContextType {
   setTheme: (theme: string) => void;
   language: string;
   setLanguage: (lang: string) => void;
+  addTenantIssue: (contractId: string, title: string, description: string) => Promise<{success: boolean, error?: string}>;
 }
 
 const TenantContext = createContext<TenantContextType | undefined>(undefined);
@@ -67,6 +68,30 @@ export function TenantProvider({ children }: { children: ReactNode }) {
   const [isAppReady, setIsAppReady] = useState(false);
   const isLoadingData = useRef(false);
   const loadedSession = useRef<string | null>(null);
+
+  const addTenantIssue = async (contractId: string, title: string, description: string) => {
+    try {
+      const { data, error } = await supabase.rpc('create_tenant_issue', {
+        p_contract_id: contractId,
+        p_title: title,
+        p_description: description
+      });
+      if (error) {
+        console.error("Error creating issue:", error);
+        return { success: false, error: error.message };
+      }
+      
+      // Refresh issues
+      const issuesRes = await supabase.from('tenant_issue_view').select('*');
+      if (issuesRes.data) {
+        setIssues(toCamel(issuesRes.data));
+      }
+      return { success: true };
+    } catch (err: any) {
+      console.error("Unexpected error:", err);
+      return { success: false, error: err.message || "Error desconocido" };
+    }
+  };
 
   useEffect(() => {
     let active = true;
@@ -141,7 +166,7 @@ export function TenantProvider({ children }: { children: ReactNode }) {
 
   return (
     <TenantContext.Provider value={{ 
-      profile, contracts, issues, documents, theme, setTheme, language, setLanguage
+      profile, contracts, issues, documents, theme, setTheme, language, setLanguage, addTenantIssue
     }}>
       {children}
     </TenantContext.Provider>

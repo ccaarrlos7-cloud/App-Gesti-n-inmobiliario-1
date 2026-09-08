@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useTenantContext } from '../store-tenant';
-import { LogOut, FileText, FolderOpen, AlertCircle, MessageSquare, User, CheckCircle2, Clock, Calendar, Euro, Shield } from 'lucide-react';
+import { LogOut, FileText, FolderOpen, AlertCircle, MessageSquare, User, CheckCircle2, Clock, Calendar, Euro, Shield, Plus, X } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { formatDate, formatNumber } from '../utils';
 
@@ -11,15 +11,32 @@ import { DocumentViewerModal } from './DocumentViewerModal';
 type Tab = 'contract' | 'documents' | 'issues' | 'chat';
 
 export default function TenantApp() {
-  const { profile, contracts, issues, documents } = useTenantContext();
+  const { profile, contracts, issues, documents, addTenantIssue } = useTenantContext();
   const [activeTab, setActiveTab] = useState<Tab>('contract');
   const [viewingDoc, setViewingDoc] = useState<{url: string, name: string} | null>(null);
+  const [showIssueForm, setShowIssueForm] = useState(false);
+  const [issueForm, setIssueForm] = useState({ title: '', description: '' });
+  const [isSubmittingIssue, setIsSubmittingIssue] = useState(false);
+
+  const currentContract = contracts && contracts.length > 0 ? contracts[0] : null;
+
+  const handleCreateIssue = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!currentContract || !issueForm.title.trim() || !issueForm.description.trim()) return;
+    setIsSubmittingIssue(true);
+    const { success, error } = await addTenantIssue(currentContract.id, issueForm.title, issueForm.description);
+    setIsSubmittingIssue(false);
+    if (success) {
+      setShowIssueForm(false);
+      setIssueForm({ title: '', description: '' });
+    } else {
+      alert("Error al crear incidencia: " + (error || "Error desconocido"));
+    }
+  };
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
   };
-
-  const currentContract = contracts && contracts.length > 0 ? contracts[0] : null;
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white font-sans flex flex-col">
@@ -185,9 +202,20 @@ export default function TenantApp() {
 
           {activeTab === 'issues' && (
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
-              <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
-                <AlertCircle className="text-blue-600 dark:text-blue-400" /> Incidencias
-              </h2>
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  <AlertCircle className="text-blue-600 dark:text-blue-400" />
+                  Incidencias
+                </h2>
+                {currentContract && (
+                  <button
+                    onClick={() => setShowIssueForm(true)}
+                    className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition-colors flex items-center gap-1.5"
+                  >
+                    <Plus size={16} /> Nueva
+                  </button>
+                )}
+              </div>
 
               {!currentContract ? (
                 <div className="bg-white dark:bg-slate-800 rounded-2xl p-12 text-center border border-slate-200 dark:border-slate-700 shadow-sm">
@@ -309,6 +337,64 @@ export default function TenantApp() {
         documentUrl={viewingDoc?.url || ''}
         documentName={viewingDoc?.name || ''}
       />
+
+      {showIssueForm && (
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex flex-col justify-end sm:justify-center items-center sm:p-4">
+          <div className="bg-white dark:bg-slate-800 w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl p-6 shadow-xl animate-in slide-in-from-bottom-full sm:slide-in-from-bottom-8 duration-300">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl font-bold text-slate-900 dark:text-white">Nueva Incidencia</h3>
+              <button onClick={() => setShowIssueForm(false)} className="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-700 text-slate-500 hover:text-slate-700 dark:hover:text-slate-300">
+                <X size={18} />
+              </button>
+            </div>
+            
+            <form onSubmit={handleCreateIssue} className="space-y-4">
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Asunto</label>
+                <input 
+                  type="text" 
+                  value={issueForm.title}
+                  onChange={e => setIssueForm({...issueForm, title: e.target.value})}
+                  className="w-full border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white bg-white dark:bg-slate-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
+                  placeholder="Ej. Fuga de agua en el baño"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Descripción</label>
+                <textarea 
+                  value={issueForm.description}
+                  onChange={e => setIssueForm({...issueForm, description: e.target.value})}
+                  className="w-full border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white bg-white dark:bg-slate-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all min-h-[120px] resize-none"
+                  placeholder="Describe el problema con detalle..."
+                  required
+                />
+              </div>
+              
+              <div className="pt-4 flex gap-3">
+                <button 
+                  type="button" 
+                  onClick={() => setShowIssueForm(false)}
+                  className="flex-1 px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-semibold rounded-xl transition-colors"
+                >
+                  Cancelar
+                </button>
+                <button 
+                  type="submit" 
+                  disabled={isSubmittingIssue}
+                  className="flex-1 px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors disabled:opacity-70 flex justify-center items-center gap-2"
+                >
+                  {isSubmittingIssue ? (
+                    <><div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div> Enviando...</>
+                  ) : (
+                    'Crear Incidencia'
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
