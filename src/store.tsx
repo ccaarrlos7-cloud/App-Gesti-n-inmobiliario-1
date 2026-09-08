@@ -1,6 +1,7 @@
 import React, { createContext, useState, useEffect, useContext, ReactNode, useRef } from 'react';
 import { Property, Tenant, Contract, Transaction, Issue, PendingInvitation } from './types';
 import { supabase } from './lib/supabase';
+import { uploadDocument, deleteDocument } from './lib/documentStorage';
 
 interface AppContextType {
   properties: Property[];
@@ -10,6 +11,7 @@ interface AppContextType {
   tenants: Tenant[];
   setTenants: (tenants: Tenant[]) => void;
   addTenant: (tenant: Omit<Tenant, 'id'>) => Promise<Tenant | undefined>;
+  updateTenant: (tenant: Tenant) => Promise<void>;
   contracts: Contract[];
   setContracts: (contracts: Contract[]) => void;
   addContract: (contract: Omit<Contract, 'id'>) => Promise<Contract | undefined>;
@@ -287,10 +289,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return newTenant;
   };
 
+  const updateTenant = async (updatedTenant: Tenant): Promise<void> => {
+    const data = toSnake(updatedTenant);
+    const { error } = await supabase.from('tenants').update(data).eq('id', data.id);
+    if (error) {
+      console.error("Error al actualizar inquilino:", error);
+      return;
+    }
+    setTenants(prev => prev.map(t => t.id === updatedTenant.id ? updatedTenant : t));
+  };
+
   const addContract = async (contract: Omit<Contract, 'id'>): Promise<Contract | undefined> => {
     const sanitized = sanitizeContract(contract as Contract);
-    const { tenantIds, ...contractWithoutTenants } = sanitized;
-    const data = toSnake(contractWithoutTenants);
+    const { tenantIds, contractDocuments, ...contractData } = sanitized;
+    const data = toSnake(contractData);
     delete data.id;
     
     const { data: insertedData, error } = await supabase.from('contracts').insert(data).select().single();
@@ -323,8 +335,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     // Optimistic UI update: update local state immediately so Dashboard reflects changes instantly
     setContracts(prev => prev.map(c => c.id === sanitized.id ? sanitized : c));
 
-    const { tenantIds, ...contractWithoutTenants } = sanitized;
-    const data = toSnake(contractWithoutTenants);
+    const { tenantIds, contractDocuments, ...contractData } = sanitized;
+    const data = toSnake(contractData);
     
     const { error } = await supabase.from('contracts').update(data).eq('id', data.id);
     if (error) {
@@ -620,7 +632,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   return (
     <AppContext.Provider value={{ 
       properties, setProperties, addProperty, updateProperty, 
-      tenants, setTenants, addTenant,
+      tenants, setTenants, addTenant, updateTenant,
       contracts, setContracts, addContract, updateContract, uploadContractDocument, toggleDocumentSharing, deleteContractDocument,
       transactions, setTransactions, addTransaction, getDynamicTransactions,
       issues, setIssues, addIssue, updateIssue, deleteIssue,

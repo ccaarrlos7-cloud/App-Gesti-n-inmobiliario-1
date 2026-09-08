@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Contract, Tenant } from '../types';
-import { X, Eye, Phone, Mail, FileText, CreditCard, Building2, Users, Plus, Upload, Trash2, Download, Paperclip, FileDown, Loader2, Key, Link as LinkIcon, RefreshCw, ShieldAlert, CheckCircle2, Clock } from 'lucide-react';
+import { X, Eye, Phone, Mail, FileText, CreditCard, Building2, Users, Plus, Upload, Trash2, Download, Paperclip, FileDown, Loader2, Key, Link as LinkIcon, RefreshCw, ShieldAlert, CheckCircle2, Clock, Edit2 } from 'lucide-react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { useAppContext } from '../store';
@@ -12,9 +12,11 @@ import { uploadDocument, deleteDocument } from '../lib/documentStorage';
 
 import { DocumentViewerModal } from './DocumentViewerModal';
 import { DocumentActionButtons } from './DocumentActionButtons';
+import { EditTenantModal } from './EditTenantModal';
+import { EditContractModal } from './EditContractModal';
 
 export default function CRMView() {
-  const { properties, updateProperty, tenants, addTenant, contracts, addContract, updateContract, uploadContractDocument, toggleDocumentSharing, deleteContractDocument, language, userName, avatarUrl, pendingInvitations, generateInvitation, revokeInvitation } = useAppContext();
+  const { properties, updateProperty, tenants, addTenant, updateTenant, contracts, addContract, updateContract, uploadContractDocument, toggleDocumentSharing, deleteContractDocument, language, userName, avatarUrl, pendingInvitations, generateInvitation, revokeInvitation } = useAppContext();
   const isEs = language === 'Español';
   const [selectedContract, setSelectedContract] = useState<Contract | null>(null);
   const [viewingDoc, setViewingDoc] = useState<{url: string, name: string} | null>(null);
@@ -22,6 +24,10 @@ export default function CRMView() {
   const [paymentYear, setPaymentYear] = useState<number>(new Date().getFullYear());
   const [showNewTenantForm, setShowNewTenantForm] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [showEditTenantForm, setShowEditTenantForm] = useState(false);
+  const [tenantToEdit, setTenantToEdit] = useState<Tenant | null>(null);
+  const [showEditContractForm, setShowEditContractForm] = useState(false);
+  const [contractToEdit, setContractToEdit] = useState<Contract | null>(null);
   
   const [newTenants, setNewTenants] = useState<Partial<Tenant>[]>([{ name: '', email: '', phone: '', dni: '' }]);
   const [newContract, setNewContract] = useState<Partial<Contract>>({ propertyId: '', startDate: '', endDate: '', rentAmount: 0, deposit: 0, status: 'Activo' });
@@ -260,7 +266,16 @@ export default function CRMView() {
                         {t.name.charAt(0)}
                       </div>
                       <div className="min-w-0 flex-1">
-                        <div className="font-bold text-[15px] text-slate-900 dark:text-white truncate">{t.name}</div>
+                        <div className="flex items-center gap-2">
+                          <div className="font-bold text-[15px] text-slate-900 dark:text-white truncate">{t.name}</div>
+                          <button 
+                            onClick={() => { setTenantToEdit(t); setShowEditTenantForm(true); }} 
+                            className="text-slate-400 hover:text-blue-500 transition-colors" 
+                            title={isEs ? 'Editar inquilino' : 'Edit tenant'}
+                          >
+                            <Edit2 size={14} />
+                          </button>
+                        </div>
                         <div className="flex flex-col gap-1.5 mt-2">
                           <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-[12px] truncate">
                             <Mail size={14} className="text-slate-400" /> {t.email}
@@ -370,8 +385,15 @@ export default function CRMView() {
 
                 <div className="space-y-4">
                   <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-4 rounded-xl shadow-sm">
-                    <div className="text-[11px] text-slate-400 uppercase font-bold mb-3 flex items-center gap-1.5 tracking-wider">
-                      <FileText size={14} /> {isEs ? 'Información del Contrato' : 'Contract Information'}
+                    <div className="text-[11px] text-slate-400 uppercase font-bold mb-3 flex items-center justify-between tracking-wider">
+                      <div className="flex items-center gap-1.5"><FileText size={14} /> {isEs ? 'Información del Contrato' : 'Contract Information'}</div>
+                      <button 
+                        onClick={() => { setContractToEdit(currentContract); setShowEditContractForm(true); }} 
+                        className="text-slate-400 hover:text-blue-500 transition-colors" 
+                        title={isEs ? 'Editar contrato' : 'Edit contract'}
+                      >
+                        <Edit2 size={16} />
+                      </button>
                     </div>
                     
                     <div className="space-y-3">
@@ -814,6 +836,24 @@ export default function CRMView() {
         </div>
       )}
       <SettingsModal isOpen={showSettings} onClose={() => setShowSettings(false)} />
+      
+      <EditTenantModal 
+        isOpen={showEditTenantForm} 
+        onClose={() => { setShowEditTenantForm(false); setTenantToEdit(null); }} 
+        tenant={tenantToEdit} 
+        onSave={updateTenant} 
+        isEs={isEs} 
+      />
+
+      <EditContractModal 
+        isOpen={showEditContractForm} 
+        onClose={() => { setShowEditContractForm(false); setContractToEdit(null); }} 
+        contract={contractToEdit} 
+        tenants={tenants} 
+        onSave={updateContract} 
+        isEs={isEs} 
+      />
+
       {/* Document Viewer Modal */}
       <DocumentViewerModal 
         isOpen={!!viewingDoc}

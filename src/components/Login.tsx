@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { Building2, Mail, Lock, Loader2 } from 'lucide-react';
-import { useAppContext } from '../store';
+
 
 export default function Login() {
-  const { language } = useAppContext();
+  const [language] = useState(() => localStorage.getItem('app_language') || 'Español');
   const isEs = language === 'Español';
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
@@ -30,6 +30,9 @@ export default function Login() {
         const { error } = await supabase.auth.signUp({
           email,
           password,
+          options: {
+            emailRedirectTo: window.location.href,
+          }
         });
         if (error) throw error;
         setSuccessMsg(isEs ? 'Registro exitoso. Ya puedes iniciar sesión.' : 'Registration successful. You can now log in.');

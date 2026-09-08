@@ -5,7 +5,7 @@ import { resolveDocumentUrl } from '../lib/documentStorage';
 interface DocumentActionButtonsProps {
   onView: () => void;
   onDownload: () => void;
-  onDelete: () => void;
+  onDelete?: () => void;
   downloadUrl: string;
   downloadName: string;
 }
@@ -81,18 +81,20 @@ export function DocumentActionButtons({
         {isDownloading ? <Loader2 size={18} className="animate-spin" /> : <Download size={18} />}
       </button>
       
-      <button 
-        type="button"
-        onClick={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          onDelete();
-        }}
-        className="w-9 h-9 rounded-full flex items-center justify-center text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
-        title="Eliminar documento"
-      >
-        <Trash2 size={18} />
-      </button>
+      {onDelete && (
+        <button 
+          type="button"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onDelete();
+          }}
+          className="w-9 h-9 rounded-full flex items-center justify-center text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+          title="Eliminar documento"
+        >
+          <Trash2 size={18} />
+        </button>
+      )}
     </div>
   );
 }

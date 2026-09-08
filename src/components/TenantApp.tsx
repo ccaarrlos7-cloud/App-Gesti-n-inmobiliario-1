@@ -5,12 +5,15 @@ import { supabase } from '../lib/supabase';
 import { formatDate, formatNumber } from '../utils';
 
 import { resolveDocumentUrl } from '../lib/documentStorage';
+import { DocumentActionButtons } from './DocumentActionButtons';
+import { DocumentViewerModal } from './DocumentViewerModal';
 
 type Tab = 'contract' | 'documents' | 'issues' | 'chat';
 
 export default function TenantApp() {
   const { profile, contracts, issues, documents } = useTenantContext();
   const [activeTab, setActiveTab] = useState<Tab>('contract');
+  const [viewingDoc, setViewingDoc] = useState<{url: string, name: string} | null>(null);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -166,19 +169,12 @@ export default function TenantApp() {
                             </p>
                           </div>
                         </div>
-                        <button 
-                          onClick={async () => {
-                            try {
-                              const url = await resolveDocumentUrl(`storage://${doc.storagePath}`);
-                              window.open(url, '_blank');
-                            } catch (e) {
-                              alert("No se pudo acceder al documento. Es posible que ya no esté disponible.");
-                            }
-                          }}
-                          className="px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-sm font-semibold rounded-lg transition-colors shrink-0"
-                        >
-                          Ver / Descargar
-                        </button>
+                        <DocumentActionButtons
+                          onView={() => setViewingDoc({ url: `storage://${doc.storagePath}`, name: doc.name })}
+                          onDownload={() => {}}
+                          downloadUrl={`storage://${doc.storagePath}`}
+                          downloadName={doc.name}
+                        />
                       </div>
                     ))}
                   </div>
@@ -306,6 +302,13 @@ export default function TenantApp() {
           </button>
         </div>
       </nav>
+
+      <DocumentViewerModal 
+        isOpen={!!viewingDoc}
+        onClose={() => setViewingDoc(null)}
+        documentUrl={viewingDoc?.url || ''}
+        documentName={viewingDoc?.name || ''}
+      />
     </div>
   );
 }
