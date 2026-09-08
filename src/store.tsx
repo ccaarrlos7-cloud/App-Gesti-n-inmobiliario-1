@@ -28,6 +28,10 @@ interface AppContextType {
   addIssue: (issue: Omit<Issue, 'id'>) => Promise<Issue | undefined>;
   updateIssue: (issue: Issue) => Promise<void>;
   deleteIssue: (id: string) => Promise<void>;
+  getIssueMessages: (issueId: string) => Promise<import('./types').IssueMessage[]>;
+  addIssueMessage: (issueId: string, content: string) => Promise<boolean>;
+  getTenantChatMessages: (tenantId: string) => Promise<import('./types').TenantChatMessage[]>;
+  addTenantChatMessage: (tenantId: string, content: string) => Promise<boolean>;
   pendingInvitations: PendingInvitation[];
   loadPendingInvitations: () => Promise<void>;
   generateInvitation: (tenantId: string) => Promise<string | null>;
@@ -40,6 +44,8 @@ interface AppContextType {
   setTheme: (theme: string) => void;
   language: string;
   setLanguage: (lang: string) => void;
+  unreadChatCounts: Record<string, number>;
+  loadUnreadChatCounts: () => Promise<void>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -95,6 +101,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       return 'Español';
     }
   });
+  const [unreadChatCounts, setUnreadChatCounts] = useState<Record<string, number>>({});
 
   const setTheme = (t: string) => {
     setThemeState(t);
@@ -110,6 +117,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
     } catch {}
   };
   
+  const loadUnreadChatCounts = async () => {
+    try {
+      const { data, error } = await supabase.rpc('get_owner_unread_chat_counts');
+      if (error) throw error;
+      const counts: Record<string, number> = {};
+      data?.forEach((row: any) => {
+        counts[row.tenant_id] = Number(row.unread_count);
+      });
+      setUnreadChatCounts(counts);
+    } catch (e) {
+      console.error("Error loading unread chat counts", e);
+    }
+  };
+
   const [isAppReady, setIsAppReady] = useState(false);
   const isLoadingData = useRef(false);
   const loadedSession = useRef<string | null>(null);
@@ -139,6 +160,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         ]);
 
         if (!active) return;
+        await loadUnreadChatCounts();
 
         if (profileRes.data) {
           setUserName(profileRes.data.name || "Usuario");
@@ -194,6 +216,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         setPendingInvitations([]);
         setUserName("Usuario");
         setAvatarUrl("");
+        setUnreadChatCounts({});
       }
     });
 
@@ -567,6 +590,70 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setIssues(prev => prev.filter(i => i.id !== id));
   };
 
+  const getIssueMessages = async (issueId: string) => {
+    const { data, error } = await supabase
+      .from('issue_messages')
+      .select('*')
+      .eq('issue_id', issueId)
+      .order('created_at', { ascending: true });
+    
+    if (error) {
+      console.error("Error fetching issue messages:", error);
+      return [];
+    }
+    return toCamel(data);
+  };
+
+  const addIssueMessage = async (issueId: string, content: string) => {
+    const { data: userData } = await supabase.auth.getUser();
+    if (!userData.user) return false;
+
+    const { error } = await supabase.from('issue_messages').insert({
+      issue_id: issueId,
+      author_id: userData.user.id,
+      author_role: 'propietario',
+      content: content
+    });
+
+    if (error) {
+      console.error("Error adding issue message:", error);
+      return false;
+    }
+    return true;
+  };
+
+  const getTenantChatMessages = async (tenantId: string) => {
+    const { data, error } = await supabase
+      .from('tenant_messages')
+      .select('*')
+      .eq('tenant_id', tenantId)
+      .order('created_at', { ascending: true });
+    
+    if (error) {
+      console.error("Error fetching tenant messages:", error);
+      return [];
+    }
+    return toCamel(data);
+  };
+
+  const addTenantChatMessage = async (tenantId: string, content: string) => {
+    const { data: userData } = await supabase.auth.getUser();
+    if (!userData.user) return false;
+
+    const { error } = await supabase.from('tenant_messages').insert({
+      tenant_id: tenantId,
+      author_id: userData.user.id,
+      author_role: 'propietario',
+      content: content
+    });
+
+    if (error) {
+      console.error("Error adding tenant message:", error);
+      return false;
+    }
+    return true;
+  };
+
   const loadPendingInvitations = async () => {
     const { data, error } = await supabase.from('pending_tenant_invitations').select('id, tenant_id, status, expires_at, created_at, accepted_at');
     if (!error && data) {
@@ -635,12 +722,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
       tenants, setTenants, addTenant, updateTenant,
       contracts, setContracts, addContract, updateContract, uploadContractDocument, toggleDocumentSharing, deleteContractDocument,
       transactions, setTransactions, addTransaction, getDynamicTransactions,
-      issues, setIssues, addIssue, updateIssue, deleteIssue,
+      issues, setIssues, addIssue, updateIssue, deleteIssue, getIssueMessages, addIssueMessage,
+      getTenantChatMessages, addTenantChatMessage,
       pendingInvitations, loadPendingInvitations, generateInvitation, revokeInvitation,
       userName, setUserName: updateUserName,
       avatarUrl, setAvatarUrl: updateAvatarUrl,
       theme, setTheme,
-      language, setLanguage
+      language, setLanguage,
+      unreadChatCounts, loadUnreadChatCounts
     }}>
       {children}
     </AppContext.Provider>

@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { supabase } from '../lib/supabase';
 import { Contract, Tenant } from '../types';
-import { X, Eye, Phone, Mail, FileText, CreditCard, Building2, Users, Plus, Upload, Trash2, Download, Paperclip, FileDown, Loader2, Key, Link as LinkIcon, RefreshCw, ShieldAlert, CheckCircle2, Clock, Edit2 } from 'lucide-react';
+import { X, Eye, Phone, Mail, FileText, CreditCard, Building2, Users, Plus, Upload, Trash2, Download, Paperclip, FileDown, Loader2, Key, Link as LinkIcon, RefreshCw, ShieldAlert, CheckCircle2, Clock, Edit2, MessageSquare } from 'lucide-react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { useAppContext } from '../store';
-import { formatDate, formatNumber, getContractTruePaymentStatus } from '../utils';
+import { formatDate, formatNumber, getContractTruePaymentStatus, formatChatDate } from '../utils';
 import SettingsModal from './SettingsModal';
 import { User } from 'lucide-react';
 import FormattedNumberInput from './FormattedNumberInput';
@@ -15,8 +16,109 @@ import { DocumentActionButtons } from './DocumentActionButtons';
 import { EditTenantModal } from './EditTenantModal';
 import { EditContractModal } from './EditContractModal';
 
+function TenantChatPanel({ tenant, isEs }: { tenant: Tenant, isEs: boolean }) {
+  const { getTenantChatMessages, addTenantChatMessage, unreadChatCounts, loadUnreadChatCounts } = useAppContext();
+  const [messages, setMessages] = useState<any[]>([]);
+  const [newMessage, setNewMessage] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      supabase.rpc('mark_tenant_messages_as_read', { p_tenant_id: tenant.id, p_role: 'propietario' })
+        .then(() => loadUnreadChatCounts());
+      getTenantChatMessages(tenant.id).then(setMessages);
+    }
+  }, [isOpen, tenant.id, getTenantChatMessages, loadUnreadChatCounts]);
+
+  const handleSend = async () => {
+    if (!newMessage.trim()) return;
+    setIsSubmitting(true);
+    const success = await addTenantChatMessage(tenant.id, newMessage);
+    setIsSubmitting(false);
+    if (success) {
+      setNewMessage('');
+      getTenantChatMessages(tenant.id).then(setMessages);
+    }
+  };
+
+  return (
+    <div className="mt-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden shadow-sm">
+      <button 
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full p-4 flex items-center justify-between text-left hover:bg-slate-50 dark:hover:bg-slate-750 transition-colors"
+      >
+        <div className="flex items-center gap-2">
+          <div className="relative">
+            <MessageSquare size={16} className={isOpen ? "text-blue-500" : "text-slate-400"} />
+            {unreadChatCounts?.[tenant.id] > 0 && !isOpen && (
+              <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                {unreadChatCounts[tenant.id]}
+              </span>
+            )}
+          </div>
+          <span className="font-bold text-[13px] text-slate-700 dark:text-slate-200 uppercase tracking-wider">
+            {isEs ? 'Chat con Inquilino' : 'Tenant Chat'}
+          </span>
+        </div>
+        <span className="text-[10px] font-semibold text-slate-400 bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded-full uppercase">
+          {isOpen ? (isEs ? 'Ocultar' : 'Hide') : (isEs ? 'Abrir' : 'Open')}
+        </span>
+      </button>
+      
+      {isOpen && (
+        <div className="border-t border-slate-100 dark:border-slate-700 flex flex-col h-80">
+          <div className="flex-1 overflow-y-auto p-4 bg-slate-50 dark:bg-slate-900/50 space-y-3">
+            {messages.length === 0 ? (
+              <p className="text-center text-slate-500 py-4 text-sm">{isEs ? 'No hay mensajes.' : 'No messages.'}</p>
+            ) : (
+              messages.map(msg => (
+                <div key={msg.id} className={`flex ${msg.authorRole === 'propietario' ? 'justify-end' : 'justify-start'}`}>
+                  <div className={`max-w-[85%] rounded-2xl px-3 py-2 ${
+                    msg.authorRole === 'propietario' 
+                      ? 'bg-blue-500 text-white rounded-br-none' 
+                      : 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-bl-none'
+                  }`}>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="font-semibold text-[10px] opacity-80">
+                        {msg.authorRole === 'propietario' ? (isEs ? 'Tú' : 'You') : tenant.name}
+                      </span>
+                      <span className="text-[9px] opacity-60">
+                        {formatChatDate(msg.createdAt, isEs)}
+                      </span>
+                    </div>
+                    <p className="text-xs whitespace-pre-wrap">{msg.content}</p>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+          <div className="p-3 bg-white dark:bg-slate-800 border-t border-slate-100 dark:border-slate-700 flex gap-2">
+            <input
+              type="text"
+              value={newMessage}
+              onChange={e => setNewMessage(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && handleSend()}
+              placeholder={isEs ? "Escribe un mensaje..." : "Type a message..."}
+              className="flex-1 text-sm bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              disabled={isSubmitting}
+            />
+            <button
+              onClick={handleSend}
+              disabled={!newMessage.trim() || isSubmitting}
+              className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white p-2 rounded-lg transition-colors shrink-0"
+            >
+              <MessageSquare size={16} />
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function CRMView() {
-  const { properties, updateProperty, tenants, addTenant, updateTenant, contracts, addContract, updateContract, uploadContractDocument, toggleDocumentSharing, deleteContractDocument, language, userName, avatarUrl, pendingInvitations, generateInvitation, revokeInvitation } = useAppContext();
+  const { properties, updateProperty, tenants, addTenant, updateTenant, contracts, addContract, updateContract, uploadContractDocument, toggleDocumentSharing, deleteContractDocument, language, userName, avatarUrl, pendingInvitations, generateInvitation, revokeInvitation, getTenantChatMessages, addTenantChatMessage, unreadChatCounts } = useAppContext();
   const isEs = language === 'Español';
   const [selectedContract, setSelectedContract] = useState<Contract | null>(null);
   const [viewingDoc, setViewingDoc] = useState<{url: string, name: string} | null>(null);
@@ -182,6 +284,7 @@ export default function CRMView() {
             const titleTenant = contractTenants[0]; // primary tenant
             const othersCount = contractTenants.length - 1;
             const trueStatus = getContractTruePaymentStatus(contract.monthlyPayments);
+            const unreadCountForContract = contractTenants.reduce((sum, t) => sum + (t && unreadChatCounts?.[t.id] ? Number(unreadChatCounts[t.id]) : 0), 0);
 
             return (
               <div 
@@ -198,9 +301,16 @@ export default function CRMView() {
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-slate-900 dark:text-white text-[15px] truncate">
-                    {titleTenant?.name || (isEs ? 'Inquilino desconocido' : 'Unknown tenant')} {othersCount > 0 && <span className="text-slate-500 dark:text-slate-400 font-normal">{isEs ? `y ${othersCount} más` : `and ${othersCount} more`}</span>}
-                  </p>
+                  <div className="flex items-center gap-2">
+                    <p className="font-semibold text-slate-900 dark:text-white text-[15px] truncate">
+                      {titleTenant?.name || (isEs ? 'Inquilino desconocido' : 'Unknown tenant')} {othersCount > 0 && <span className="text-slate-500 dark:text-slate-400 font-normal">{isEs ? `y ${othersCount} más` : `and ${othersCount} more`}</span>}
+                    </p>
+                    {unreadCountForContract > 0 && (
+                      <div className="bg-red-500 text-white text-[10px] font-bold px-1.5 min-w-[1.25rem] h-5 rounded-full flex items-center justify-center shrink-0">
+                        {unreadCountForContract}
+                      </div>
+                    )}
+                  </div>
                   <p className="text-[13px] text-slate-500 dark:text-slate-400 truncate mt-0.5 flex items-center gap-1">
                     <Building2 size={12} /> {property?.title || (isEs ? 'Inmueble desconocido' : 'Unknown property')}
                   </p>
@@ -379,6 +489,7 @@ export default function CRMView() {
                         </div>
                       );
                     })()}
+                    <TenantChatPanel tenant={t} isEs={isEs} />
                   </div>
                   ))}
                 </div>
@@ -609,39 +720,6 @@ export default function CRMView() {
                     </div>
                   </div>
                 </div>
-              </div>
-              
-              <div className="p-5 border-t border-slate-200 dark:border-slate-700 shrink-0 bg-white dark:bg-slate-800 flex flex-col gap-3">
-                {property?.rentalContractUrl ? (
-                  <a href={property.rentalContractUrl} target="_blank" rel="noopener noreferrer" className="w-full bg-slate-900 hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-700 text-white p-3.5 rounded-xl text-[14px] font-semibold transition-colors shadow-sm flex items-center justify-center gap-2">
-                    <Eye size={18} /> {isEs ? 'Ver Contrato PDF' : 'View Contract PDF'}
-                  </a>
-                ) : (
-                  <button disabled className="w-full bg-slate-100 dark:bg-slate-700 text-slate-400 dark:text-slate-500 p-3.5 rounded-xl text-[14px] font-semibold flex items-center justify-center gap-2 cursor-not-allowed">
-                    <FileText size={18} /> {isEs ? 'Sin contrato adjunto' : 'No contract attached'}
-                  </button>
-                )}
-                
-                {selectedContract.status !== 'Finalizado' && (
-                  <button 
-                    onClick={() => {
-                      if (window.confirm(isEs ? '¿Estás seguro de que deseas dar por finalizado este contrato? El inmueble pasará a estar Vacío y dejará de generar ingresos automáticos de alquiler.' : 'Are you sure you want to terminate this contract? The property will become Vacant and stop generating automatic rental income.')) {
-                        const updated = { ...selectedContract, status: 'Finalizado' as const };
-                        setSelectedContract(updated);
-                        updateContract(updated);
-                        
-                        // Update property status to 'Vacío'
-                        const relatedProperty = properties.find(p => p.id === selectedContract.propertyId);
-                        if (relatedProperty) {
-                          updateProperty({ ...relatedProperty, status: 'Vacío' });
-                        }
-                      }
-                    }}
-                    className="w-full bg-white dark:bg-slate-800 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 p-3.5 rounded-xl text-[14px] font-semibold hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors flex items-center justify-center gap-2"
-                  >
-                    <X size={18} /> {isEs ? 'Terminar Contrato' : 'Terminate Contract'}
-                  </button>
-                )}
               </div>
             </div>
             );

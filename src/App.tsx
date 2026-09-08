@@ -21,8 +21,10 @@ export default function App() {
   const [currentView, setCurrentView] = useState<ViewType>('dashboard');
   const [portfolioFilter, setPortfolioFilter] = useState<PropertyStatus | 'Todos'>('Todos');
   const [resetKey, setResetKey] = useState(0);
-  const { theme, language } = useAppContext();
+  const { theme, language, unreadChatCounts } = useAppContext();
   const [session, setSession] = useState<any>(null);
+
+  const totalUnread = Object.values(unreadChatCounts || {}).reduce((sum: number, count: any) => sum + (Number(count) || 0), 0) as number;
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -100,7 +102,14 @@ export default function App() {
                 : 'text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300'}
             `}
           >
-            <item.icon size={22} className={currentView === item.id ? 'text-blue-500' : ''} />
+            <div className="relative">
+              <item.icon size={22} className={currentView === item.id ? 'text-blue-500' : ''} />
+              {item.id === 'crm' && Number(totalUnread) > 0 && (
+                <span className="absolute -top-1.5 -right-2 bg-red-500 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                  {Number(totalUnread) > 9 ? '9+' : totalUnread}
+                </span>
+              )}
+            </div>
             <span className="text-[10px] sm:text-xs font-medium text-center leading-none tracking-tight">{item.name}</span>
           </button>
         ))}

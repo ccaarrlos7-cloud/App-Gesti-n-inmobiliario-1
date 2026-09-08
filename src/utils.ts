@@ -57,3 +57,32 @@ export function getContractTruePaymentStatus(monthlyPayments: Record<string, str
   if (hasPendiente) return 'Pendiente';
   return 'Al día';
 }
+
+export function formatChatDate(dateStr: string, isEs: boolean): string {
+  if (!dateStr) return '';
+  const date = new Date(dateStr);
+  const now = new Date();
+  
+  const isToday = date.getDate() === now.getDate() && 
+                  date.getMonth() === now.getMonth() && 
+                  date.getFullYear() === now.getFullYear();
+                  
+  const yesterday = new Date(now);
+  yesterday.setDate(yesterday.getDate() - 1);
+  const isYesterday = date.getDate() === yesterday.getDate() && 
+                      date.getMonth() === yesterday.getMonth() && 
+                      date.getFullYear() === yesterday.getFullYear();
+
+  const timeString = date.toLocaleTimeString(isEs ? 'es-ES' : 'en-US', { hour: '2-digit', minute: '2-digit' });
+  
+  if (isToday) {
+    return `${isEs ? 'Hoy' : 'Today'} · ${timeString}`;
+  } else if (isYesterday) {
+    return `${isEs ? 'Ayer' : 'Yesterday'} · ${timeString}`;
+  } else {
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}/${month}/${year} · ${timeString}`;
+  }
+}

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { PropertyStatus, Property, Transaction } from '../types';
-import { Search, AlertTriangle, CheckCircle, ChevronLeft, FileText, X, Edit, Plus, TrendingUp, TrendingDown, DollarSign, AlertCircle, Trash2, Upload, Download, Paperclip , Eye} from 'lucide-react';
+import { Search, AlertTriangle, CheckCircle, ChevronLeft, FileText, X, Edit, Plus, TrendingUp, TrendingDown, DollarSign, AlertCircle, Trash2, Upload, Download, Paperclip, Eye, MessageSquare } from 'lucide-react';
 import { useAppContext } from '../store';
 import PropertyFields from './PropertyFields';
 import { formatDate, formatNumber } from '../utils';
@@ -12,7 +12,7 @@ import { DocumentViewerModal } from './DocumentViewerModal';
 import { DocumentActionButtons } from './DocumentActionButtons';
 
 export default function PortfolioView({ initialTab = 'Todos' }: { initialTab?: PropertyStatus | 'Todos' }) {
-  const { properties, setProperties, addProperty, updateProperty, contracts, tenants, getDynamicTransactions, addTransaction, issues, addIssue, updateIssue, deleteIssue, language, userName, avatarUrl } = useAppContext();
+  const { properties, setProperties, addProperty, updateProperty, contracts, tenants, getDynamicTransactions, addTransaction, issues, addIssue, updateIssue, deleteIssue, getIssueMessages, addIssueMessage, language, userName, avatarUrl } = useAppContext();
   const isEs = language === 'Español';
   const allTxs = getDynamicTransactions();
   const [activeTab, setActiveTab] = useState<PropertyStatus | 'Todos'>(initialTab);
@@ -153,6 +153,30 @@ export default function PortfolioView({ initialTab = 'Todos' }: { initialTab?: P
   const [editingIssueId, setEditingIssueId] = useState<string | null>(null);
   const [issueForm, setIssueForm] = useState({ title: '', description: '', status: 'Abierta' as const, propertyId: '', cost: 0, generateTransaction: false });
   const [showIssueForm, setShowIssueForm] = useState(false);
+
+  const [issueMessages, setIssueMessages] = useState<any[]>([]);
+  const [newMessage, setNewMessage] = useState('');
+  const [isSubmittingMessage, setIsSubmittingMessage] = useState(false);
+
+  useEffect(() => {
+    if (editingIssueId && showIssueForm) {
+      getIssueMessages(editingIssueId).then(setIssueMessages);
+    } else {
+      setIssueMessages([]);
+      setNewMessage('');
+    }
+  }, [editingIssueId, showIssueForm]);
+
+  const handleSendMessage = async () => {
+    if (!editingIssueId || !newMessage.trim()) return;
+    setIsSubmittingMessage(true);
+    const success = await addIssueMessage(editingIssueId, newMessage);
+    setIsSubmittingMessage(false);
+    if (success) {
+      setNewMessage('');
+      getIssueMessages(editingIssueId).then(setIssueMessages);
+    }
+  };
 
   const handleSaveIssue = () => {
     if (!issueForm.title.trim() || !issueForm.propertyId) return;
@@ -934,6 +958,51 @@ export default function PortfolioView({ initialTab = 'Todos' }: { initialTab?: P
                   </button>
                 </div>
               </div>
+
+              {editingIssueId && (
+                <div className="pt-4 border-t border-slate-200 dark:border-slate-700">
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+                    <MessageSquare size={16} className="text-blue-500" />
+                    {isEs ? 'Mensajes / Historial' : 'Messages / History'}
+                  </h3>
+                  
+                  <div className="space-y-3 mb-4 max-h-[300px] overflow-y-auto pr-2">
+                    {issueMessages.length === 0 ? (
+                      <p className="text-xs text-center text-slate-500 py-4">{isEs ? 'No hay mensajes.' : 'No messages.'}</p>
+                    ) : (
+                      issueMessages.map(msg => (
+                        <div key={msg.id} className={`flex flex-col ${msg.authorRole === 'propietario' ? 'items-end' : 'items-start'}`}>
+                          <div className={`max-w-[85%] rounded-2xl px-4 py-2 ${msg.authorRole === 'propietario' ? 'bg-blue-600 text-white rounded-tr-sm' : 'bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-white rounded-tl-sm'}`}>
+                            <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                          </div>
+                          <span className="text-[10px] text-slate-400 mt-1 px-1">
+                            {msg.authorRole === 'propietario' ? 'Tú' : 'Inquilino'} • {new Date(msg.createdAt).toLocaleString(isEs ? 'es-ES' : 'en-US', {hour: '2-digit', minute:'2-digit', day: '2-digit', month: 'short'})}
+                          </span>
+                        </div>
+                      ))
+                    )}
+                  </div>
+
+                  <div className="flex gap-2">
+                    <input 
+                      type="text" 
+                      value={newMessage}
+                      onChange={e => setNewMessage(e.target.value)}
+                      onKeyDown={e => e.key === 'Enter' && handleSendMessage()}
+                      placeholder={isEs ? "Añadir mensaje..." : "Add message..."}
+                      className="flex-1 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white bg-slate-50 dark:bg-slate-900 focus:border-blue-500 outline-none"
+                    />
+                    <button 
+                      type="button" 
+                      onClick={handleSendMessage}
+                      disabled={isSubmittingMessage || !newMessage.trim()}
+                      className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-lg text-sm font-semibold transition-colors"
+                    >
+                      {isEs ? 'Enviar' : 'Send'}
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
             <div className="p-5 border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 flex justify-between gap-3 shrink-0 rounded-b-2xl">
               {editingIssueId ? (

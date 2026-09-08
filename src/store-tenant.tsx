@@ -26,6 +26,12 @@ interface TenantContextType {
   language: string;
   setLanguage: (lang: string) => void;
   addTenantIssue: (contractId: string, title: string, description: string) => Promise<{success: boolean, error?: string}>;
+  getTenantIssueMessages: (issueId: string) => Promise<import('./types').IssueMessage[]>;
+  addTenantIssueMessage: (issueId: string, content: string) => Promise<{success: boolean, error?: string}>;
+  getTenantChatMessages: () => Promise<import('./types').TenantChatMessage[]>;
+  addTenantChatMessage: (content: string) => Promise<{success: boolean, error?: string}>;
+  unreadChatCount: number;
+  loadUnreadChatCount: () => Promise<void>;
 }
 
 const TenantContext = createContext<TenantContextType | undefined>(undefined);
@@ -68,6 +74,21 @@ export function TenantProvider({ children }: { children: ReactNode }) {
   const [isAppReady, setIsAppReady] = useState(false);
   const isLoadingData = useRef(false);
   const loadedSession = useRef<string | null>(null);
+  const [unreadChatCount, setUnreadChatCount] = useState(0);
+
+  const loadUnreadChatCount = async () => {
+    if (!profile) return;
+    try {
+      const { data, error } = await supabase.rpc('get_tenant_unread_chat_count', {
+        p_tenant_id: profile.id
+      });
+      if (!error && data !== null) {
+        setUnreadChatCount(Number(data));
+      }
+    } catch (e) {
+      console.error("Error loading tenant unread chat count", e);
+    }
+  };
 
   const addTenantIssue = async (contractId: string, title: string, description: string) => {
     try {
@@ -93,6 +114,75 @@ export function TenantProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const getTenantIssueMessages = async (issueId: string) => {
+    const { data, error } = await supabase
+      .from('issue_messages')
+      .select('*')
+      .eq('issue_id', issueId)
+      .order('created_at', { ascending: true });
+    
+    if (error) {
+      console.error("Error fetching issue messages:", error);
+      return [];
+    }
+    return toCamel(data);
+  };
+
+  const addTenantIssueMessage = async (issueId: string, content: string) => {
+    try {
+      const { error } = await supabase.rpc('add_tenant_issue_message', {
+        p_issue_id: issueId,
+        p_content: content
+      });
+      
+      if (error) {
+        console.error("Error adding message:", error);
+        return { success: false, error: error.message };
+      }
+      return { success: true };
+    } catch (err: any) {
+      console.error("Unexpected error:", err);
+      return { success: false, error: err.message || "Error desconocido" };
+    }
+  };
+
+  const getTenantChatMessages = async () => {
+    if (!profile) return [];
+    
+    // The tenant ID is in profile.id (from the tenants table view we fetch)
+    const { data, error } = await supabase
+      .from('tenant_messages')
+      .select('*')
+      .eq('tenant_id', profile.id)
+      .order('created_at', { ascending: true });
+    
+    if (error) {
+      console.error("Error fetching chat messages:", error);
+      return [];
+    }
+    return toCamel(data);
+  };
+
+  const addTenantChatMessage = async (content: string) => {
+    if (!profile) return { success: false, error: "No profile loaded" };
+    
+    try {
+      const { error } = await supabase.rpc('add_tenant_chat_message', {
+        p_tenant_id: profile.id,
+        p_content: content
+      });
+      
+      if (error) {
+        console.error("Error adding chat message:", error);
+        return { success: false, error: error.message };
+      }
+      return { success: true };
+    } catch (err: any) {
+      console.error("Unexpected error:", err);
+      return { success: false, error: err.message || "Error desconocido" };
+    }
+  };
+
   useEffect(() => {
     let active = true;
 
@@ -106,6 +196,17 @@ export function TenantProvider({ children }: { children: ReactNode }) {
       
       isLoadingData.current = true;
       try {
+        const profileResSingle = await supabase.from('tenant_self_view').select('*').single();
+        const loadedProfile = profileResSingle.data ? toCamel(profileResSingle.data) : null;
+        
+        if (loadedProfile) {
+          const { data, error } = await supabase.rpc('get_tenant_unread_chat_count', {
+            p_tenant_id: loadedProfile.id
+          });
+          if (!error && data !== null) {
+            setUnreadChatCount(Number(data));
+          }
+        }
         const [profileRes, contractsRes, issuesRes, documentsRes] = await Promise.all([
           supabase.from('tenant_self_view').select('*').single(),
           supabase.from('tenant_contract_view').select('*'),
@@ -115,7 +216,9 @@ export function TenantProvider({ children }: { children: ReactNode }) {
 
         if (!active) return;
 
-        if (profileRes.data) setProfile(toCamel(profileRes.data));
+        if (profileRes.data) {
+          setProfile(toCamel(profileRes.data));
+        }
         if (contractsRes.data) setContracts(toCamel(contractsRes.data));
         if (issuesRes.data) setIssues(toCamel(issuesRes.data));
         if (documentsRes.data) setDocuments(toCamel(documentsRes.data));
@@ -166,7 +269,13 @@ export function TenantProvider({ children }: { children: ReactNode }) {
 
   return (
     <TenantContext.Provider value={{ 
-      profile, contracts, issues, documents, theme, setTheme, language, setLanguage, addTenantIssue
+      profile, contracts, issues, documents, theme, setTheme, language, setLanguage, addTenantIssue,
+      getTenantIssueMessages,
+      addTenantIssueMessage,
+      getTenantChatMessages,
+      addTenantChatMessage,
+      unreadChatCount,
+      loadUnreadChatCount
     }}>
       {children}
     </TenantContext.Provider>

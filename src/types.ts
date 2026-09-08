@@ -122,6 +122,25 @@ export interface Issue {
   createdAt: string;
 }
 
+export interface IssueMessage {
+  id: string;
+  issueId: string;
+  authorId: string;
+  authorRole: 'propietario' | 'inquilino';
+  content: string;
+  createdAt: string;
+}
+
+export interface TenantChatMessage {
+  id: string;
+  tenantId: string;
+  authorId: string;
+  authorRole: 'propietario' | 'inquilino';
+  content: string;
+  createdAt: string;
+}
+
+
 export interface Transaction {
   id: string;
   propertyId: string;
