@@ -171,7 +171,7 @@ export default function CRMView() {
     doc.text(`${isEs ? 'Vigencia' : 'Term'}: ${formatDate(selectedContract.startDate)} ${isEs ? 'a' : 'to'} ${formatDate(selectedContract.endDate)}`, 14, 52);
     doc.text(`${isEs ? 'Renta Mensual' : 'Monthly Rent'}: ${formatNumber(selectedContract.rentAmount)} €`, 14, 60);
     doc.text(`${isEs ? 'Fianza' : 'Deposit'}: ${formatNumber(selectedContract.deposit)} €`, 14, 68);
-    doc.text(`${isEs ? 'Estado General' : 'General Status'}: ${getPaymentStatusLabel(getContractTruePaymentStatus(selectedContract.monthlyPayments))}`, 14, 76);
+    doc.text(`${isEs ? 'Estado General' : 'General Status'}: ${getPaymentStatusLabel(getContractTruePaymentStatus(selectedContract))}`, 14, 76);
     
     // Inquilinos
     autoTable(doc, {
@@ -283,7 +283,7 @@ export default function CRMView() {
             const contractTenants = getTenantsInfo(contract.tenantIds);
             const titleTenant = contractTenants[0]; // primary tenant
             const othersCount = contractTenants.length - 1;
-            const trueStatus = getContractTruePaymentStatus(contract.monthlyPayments);
+            const trueStatus = getContractTruePaymentStatus(contract);
             const unreadCountForContract = contractTenants.reduce((sum, t) => sum + (t && unreadChatCounts?.[t.id] ? Number(unreadChatCounts[t.id]) : 0), 0);
 
             return (
@@ -530,9 +530,9 @@ export default function CRMView() {
                       <div className="flex justify-between items-center pt-2 border-t border-slate-100 dark:border-slate-700">
                         <span className="text-[13px] text-slate-500 dark:text-slate-400">{isEs ? 'Estado General' : 'General Status'}</span>
                         <div className={`px-2 py-0.5 rounded text-[11px] font-bold uppercase
-                          ${getContractTruePaymentStatus(selectedContract.monthlyPayments) === 'Al día' ? 'bg-emerald-100 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300' : 
-                            getContractTruePaymentStatus(selectedContract.monthlyPayments) === 'Pendiente' ? 'bg-amber-100 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300' : 'bg-red-100 dark:bg-red-950/40 text-red-800 dark:text-red-300'}`}>
-                          {getPaymentStatusLabel(getContractTruePaymentStatus(selectedContract.monthlyPayments))}
+                          ${getContractTruePaymentStatus(selectedContract) === 'Al día' ? 'bg-emerald-100 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300' : 
+                            getContractTruePaymentStatus(selectedContract) === 'Pendiente' ? 'bg-amber-100 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300' : 'bg-red-100 dark:bg-red-950/40 text-red-800 dark:text-red-300'}`}>
+                          {getPaymentStatusLabel(getContractTruePaymentStatus(selectedContract))}
                         </div>
                       </div>
                     </div>
@@ -581,9 +581,9 @@ export default function CRMView() {
                                   const newStatus = e.target.value as 'Al día' | 'Pendiente' | 'Deuda';
                                   const newMonthlyPayments = { ...(selectedContract.monthlyPayments || {}), [monthKey]: newStatus };
                                   
-                                  const newGeneralStatus = getContractTruePaymentStatus(newMonthlyPayments);
-                                  
-                                  const updated = { ...selectedContract, monthlyPayments: newMonthlyPayments, paymentStatus: newGeneralStatus };
+                                  const tempContract = { ...selectedContract, monthlyPayments: newMonthlyPayments };
+                                  const newGeneralStatus = getContractTruePaymentStatus(tempContract);
+                                  const updated = { ...tempContract, paymentStatus: newGeneralStatus };
                                   setSelectedContract(updated);
                                   updateContract(updated);
                                 }}

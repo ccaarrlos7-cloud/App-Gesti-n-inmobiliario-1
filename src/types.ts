@@ -18,6 +18,9 @@ export interface TenantContractView {
   endDate: string;
   rentAmount: number;
   deposit: number;
+  rentalContractUrl?: string;
+  status?: string;
+  monthlyPayments?: Record<string, string>;
 }
 
 export interface TenantDocumentView {

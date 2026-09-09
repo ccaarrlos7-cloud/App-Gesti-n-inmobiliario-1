@@ -1,7 +1,5 @@
 import { useState } from 'react';
-import { ArrowUpRight, ArrowDownRight, X, AlertCircle, User, FileDown, Bell, CalendarClock, AlertTriangle } from 'lucide-react';
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
+import { ArrowUpRight, ArrowDownRight, X, AlertCircle, User, Bell, CalendarClock, AlertTriangle } from 'lucide-react';
 import { yearlyAnalytics } from '../data';
 import { ViewType } from '../App';
 import { PropertyStatus } from '../types';
@@ -24,53 +22,6 @@ export default function DashboardView({ onNavigate }: { onNavigate?: (view: View
     ? ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
     : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   
-  const exportDashboardPDF = () => {
-    const doc = new jsPDF();
-    
-    // Header
-    doc.setFontSize(20);
-    doc.text(isEs ? `Resumen Financiero y de Estado (${year})` : `Financial & Status Summary (${year})`, 14, 22);
-    
-    // KPIs
-    doc.setFontSize(11);
-    doc.setTextColor(100);
-    doc.text(`${isEs ? 'Ocupación actual' : 'Current occupancy'}: ${ocupacion}%`, 14, 32);
-    doc.text(`${isEs ? 'Inmuebles totales' : 'Total properties'}: ${totalProps} (${occupiedProperties.length} ${isEs ? 'ocupados' : 'occupied'}, ${vaciosCount} ${isEs ? 'vacíos' : 'vacant'})`, 14, 38);
-    
-    doc.text(`${isEs ? 'Ingresos totales del año' : 'Total annual income'}: ${formatNumber(totalIngresosAnual)} €`, 14, 46);
-    doc.text(`${isEs ? 'Gastos totales del año' : 'Total annual expenses'}: ${formatNumber(totalGastosAnual)} €`, 14, 52);
-    doc.text(`${isEs ? 'Beneficio neto' : 'Net profit'}: ${formatNumber(beneficioAnual)} €`, 14, 58);
-    
-    // Rendimiento Mensual Table
-    autoTable(doc, {
-      startY: 68,
-      head: [[isEs ? 'Mes' : 'Month', isEs ? 'Ingresos (€)' : 'Income (€)', isEs ? 'Gastos (€)' : 'Expenses (€)', isEs ? 'Beneficio (€)' : 'Profit (€)']],
-      body: dataYear.map(m => [
-        m.name, 
-        formatNumber(m.Ingresos), 
-        formatNumber(m.Gastos), 
-        formatNumber(m.Ingresos - m.Gastos)
-      ]),
-      theme: 'grid',
-      headStyles: { fillColor: [59, 130, 246] },
-    });
-    
-    // Inmuebles Table
-    autoTable(doc, {
-      startY: (doc as any).lastAutoTable.finalY + 15,
-      head: [[isEs ? 'Propiedad' : 'Property', isEs ? 'Dirección' : 'Address', isEs ? 'Estado' : 'Status', isEs ? 'Renta (€)' : 'Rent (€)']],
-      body: properties.map(p => [
-        p.title,
-        p.address,
-        p.status,
-        formatNumber(p.price || 0)
-      ]),
-      theme: 'grid',
-      headStyles: { fillColor: [51, 65, 85] },
-    });
-    
-    doc.save(isEs ? `resumen_financiero_${year}.pdf` : `financial_summary_${year}.pdf`);
-  };
 
   const dataYear = monthsStr.map((m, i) => {
     const prefix = `${year}-${(i + 1).toString().padStart(2, '0')}`;
@@ -101,7 +52,7 @@ export default function DashboardView({ onNavigate }: { onNavigate?: (view: View
 
   const getPropertyTitle = (id: string) => properties.find(p => p.id === id)?.title || (isEs ? 'Desconocido' : 'Unknown');
 
-  const paymentAlerts = contracts.filter(c => c.status === 'Activo' && getContractTruePaymentStatus(c.monthlyPayments) === 'Deuda').map(c => {
+  const paymentAlerts = contracts.filter(c => c.status === 'Activo' && getContractTruePaymentStatus(c) === 'Deuda').map(c => {
     const property = properties.find(p => p.id === c.propertyId);
     const tenantIds = c.tenantIds || [];
     const tenantNames = tenantIds.map(tId => tenants.find(t => t.id === tId)?.name || (isEs ? 'Desconocido' : 'Unknown')).join(', ');
@@ -163,10 +114,7 @@ export default function DashboardView({ onNavigate }: { onNavigate?: (view: View
         </div>
         
         <div className="flex items-center gap-3">
-          <button onClick={exportDashboardPDF} className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-colors shadow-sm">
-            <FileDown size={16} /> <span className="hidden sm:inline">{isEs ? 'Exportar PDF' : 'Export PDF'}</span>
-          </button>
-          
+
           <button onClick={() => setShowSettings(true)} className="w-10 h-10 rounded-full flex items-center justify-center bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors overflow-hidden shrink-0">
             {avatarUrl ? (
               <img src={avatarUrl} alt={userName} className="w-full h-full object-cover" />

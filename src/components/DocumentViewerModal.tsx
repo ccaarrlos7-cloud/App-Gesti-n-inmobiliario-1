@@ -12,6 +12,8 @@ interface DocumentViewerModalProps {
 export function DocumentViewerModal({ isOpen, onClose, documentUrl, documentName }: DocumentViewerModalProps) {
   const [resolvedUrl, setResolvedUrl] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
+  
+  const isEs = (localStorage.getItem('app_language') || 'Español') === 'Español';
 
   // Lock body scroll when modal is open
   useEffect(() => {
@@ -69,13 +71,13 @@ export function DocumentViewerModal({ isOpen, onClose, documentUrl, documentName
                 className="flex items-center gap-2 px-3 py-1.5 text-sm font-semibold text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700 dark:hover:bg-slate-700 transition-colors"
               >
                 <Download size={16} />
-                <span className="hidden sm:inline">Descargar</span>
+                <span className="hidden sm:inline">{isEs ? 'Descargar' : 'Download'}</span>
               </a>
             )}
             <button 
               onClick={onClose}
               className="p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-200 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-800 rounded-full transition-colors"
-              aria-label="Cerrar"
+              aria-label={isEs ? 'Cerrar' : 'Close'}
             >
               <X size={20} />
             </button>
@@ -87,7 +89,7 @@ export function DocumentViewerModal({ isOpen, onClose, documentUrl, documentName
           {isLoading ? (
             <div className="flex flex-col items-center gap-3 text-slate-500">
               <Loader2 className="animate-spin" size={32} />
-              <p>Cargando documento...</p>
+              <p>{isEs ? 'Cargando documento...' : 'Loading document...'}</p>
             </div>
           ) : !resolvedUrl ? (
             <div className="text-center text-red-500 flex flex-col items-center gap-3">
@@ -113,7 +115,7 @@ export function DocumentViewerModal({ isOpen, onClose, documentUrl, documentName
                 download={documentName}
                 className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors"
               >
-                <Download size={16} /> Descargar archivo
+                <Download size={16} /> {isEs ? 'Descargar archivo' : 'Download file'}
               </a>
             </div>
           )}

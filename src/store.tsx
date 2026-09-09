@@ -473,14 +473,35 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   const getDynamicTransactions = () => {
-    const dynamicTxs: Transaction[] = [...transactions];
     const years = [2025, 2026];
+    
+    // Filtramos las transacciones manuales de 'Alquiler' en los años calculados
+    // para que la ÚNICA fuente de ingresos por alquiler sea el CRM.
+    // Esto evita duplicados y lógica paralela.
+    const dynamicTxs: Transaction[] = transactions.filter(t => {
+      if (t.category === 'Alquiler' && years.some(y => t.date.startsWith(y.toString()))) {
+        return false;
+      }
+      return true;
+    });
+
+    const currentYear = new Date().getFullYear();
+    const currentMonth = new Date().getMonth() + 1;
 
     years.forEach(year => {
-      // For each property, generate 12 months of community and IBI (divided by 12)
+      // Determinar hasta qué mes computar los gastos automáticos para el año actual
+      // (No anticipar gastos futuros)
+      let maxExpenseMonth = 12;
+      if (year === currentYear) {
+        maxExpenseMonth = currentMonth;
+      } else if (year > currentYear) {
+        maxExpenseMonth = 0;
+      }
+
+      // For each property, generate up to maxExpenseMonth of community and IBI
       properties.forEach(p => {
         if (p.communityFees && p.communityFees > 0) {
-          for (let m = 1; m <= 12; m++) {
+          for (let m = 1; m <= maxExpenseMonth; m++) {
             dynamicTxs.push({
               id: `auto-comm-${p.id}-${year}-${m}`,
               propertyId: p.id,
@@ -494,7 +515,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         }
         if (p.ibi && p.ibi > 0) {
           const monthlyIbi = p.ibi / 12;
-          for (let m = 1; m <= 12; m++) {
+          for (let m = 1; m <= maxExpenseMonth; m++) {
             dynamicTxs.push({
               id: `auto-ibi-${p.id}-${year}-${m}`,
               propertyId: p.id,
@@ -507,7 +528,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           }
         }
         if (p.hasMortgage && p.mortgageInstallment && p.mortgageInstallment > 0) {
-          for (let m = 1; m <= 12; m++) {
+          for (let m = 1; m <= maxExpenseMonth; m++) {
             dynamicTxs.push({
               id: `auto-mort-${p.id}-${year}-${m}`,
               propertyId: p.id,
@@ -521,35 +542,30 @@ export function AppProvider({ children }: { children: ReactNode }) {
         }
       });
 
-      // For each contract, only generate Rent if explicitly marked as 'Al día' in monthlyPayments and within contract validity dates
+      // Generar ingresos de Alquiler exclusivamente basados en el control de pagos del CRM
       contracts.forEach(c => {
-        if (c.status === 'Activo') {
-          const startMonth = c.startDate ? c.startDate.slice(0, 7) : '';
-          const endMonth = c.endDate ? c.endDate.slice(0, 7) : '';
+        const startMonth = c.startDate ? c.startDate.slice(0, 7) : '';
+        const endMonth = c.endDate ? c.endDate.slice(0, 7) : '';
 
-          for (let m = 1; m <= 12; m++) {
-            const datePrefix = `${year}-${m.toString().padStart(2, '0')}`;
-            
-            // 1. Validar que el mes esté dentro de las fechas de vigencia del contrato
-            const isWithinContract = (!startMonth || datePrefix >= startMonth) && (!endMonth || datePrefix <= endMonth);
-            
-            // 2. Validar que el mes esté EXPLÍCITAMENTE pagado ('Al día') en el control mensual
-            const isPaid = c.monthlyPayments?.[datePrefix] === 'Al día';
+        for (let m = 1; m <= 12; m++) {
+          const datePrefix = `${year}-${m.toString().padStart(2, '0')}`;
+          
+          // 1. Validar que el mes esté dentro de las fechas de vigencia del contrato
+          const isWithinContract = (!startMonth || datePrefix >= startMonth) && (!endMonth || datePrefix <= endMonth);
+          
+          // 2. Validar que el mes esté EXPLÍCITAMENTE pagado ('Al día') en el control mensual
+          const isPaid = c.monthlyPayments?.[datePrefix] === 'Al día';
 
-            if (isWithinContract && isPaid) {
-              const existingManualRent = transactions.find(t => t.propertyId === c.propertyId && t.category === 'Alquiler' && t.date.startsWith(datePrefix));
-              if (!existingManualRent) {
-                dynamicTxs.push({
-                  id: `auto-rent-${c.id}-${year}-${m}`,
-                  propertyId: c.propertyId,
-                  type: 'ingreso',
-                  category: 'Alquiler',
-                  amount: c.rentAmount,
-                  date: `${datePrefix}-01`,
-                  description: 'Alquiler (Auto - Al día)'
-                });
-              }
-            }
+          if (isWithinContract && isPaid) {
+            dynamicTxs.push({
+              id: `auto-rent-${c.id}-${year}-${m}`,
+              propertyId: c.propertyId,
+              type: 'ingreso',
+              category: 'Alquiler',
+              amount: c.rentAmount,
+              date: `${datePrefix}-01`,
+              description: 'Alquiler (Auto - Al día)'
+            });
           }
         }
       });
