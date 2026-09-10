@@ -66,6 +66,8 @@ export interface Property {
   mortgageInstallment?: number;
   communityFees?: number;
   ibi?: number;
+  annualInsurance?: number;
+  annualOtherExpenses?: number;
   purchaseDocumentUrl?: string;
   mortgageDocumentUrl?: string;
   rentalContractUrl?: string;

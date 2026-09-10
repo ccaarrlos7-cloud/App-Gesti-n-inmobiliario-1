@@ -157,9 +157,11 @@ export function SettingsModalBase({
              <h2 className="font-bold text-[16px] text-slate-900 dark:text-white ml-2">{isEs ? 'Política de Privacidad' : 'Privacy Policy'}</h2>
            </div>
            <div className="p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] overflow-y-auto prose prose-sm text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 flex-1">
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">{isEs ? 'POLÍTICA DE PRIVACIDAD DE GESTINMO' : 'GESTINMO PRIVACY POLICY'}</h3>
-              <p className="mb-4"><strong>{isEs ? 'Última actualización: 1 de septiembre de 2026' : 'Last updated: September 1, 2026'}</strong></p>
-              <p className="mb-6">{isEs ? 'En GestInmo nos comprometemos a proteger la privacidad y la seguridad de los datos personales de nuestros usuarios. Esta Política de Privacidad explica qué información podemos recopilar, para qué la utilizamos, cómo la protegemos y cuáles son los derechos de los usuarios.' : 'At GestInmo, we are committed to protecting the privacy and security of our users\' personal data. This Privacy Policy explains what information we may collect, what we use it for, how we protect it, and what users\' rights are.'}</p>
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">{isEs ? 'POLÍTICA DE PRIVACIDAD' : 'PRIVACY POLICY'}</h3>
+              <p className="mb-4"><strong>{isEs ? 'Última actualización: Septiembre de 2026' : 'Last updated: September 2026'}</strong></p>
+              <p className="mb-4">{isEs ? 'GestInmo garantiza la seguridad y privacidad de los datos personales. Esta aplicación ha sido desarrollada como herramienta de gestión privada y no comparte información con terceros no autorizados.' : 'GestInmo guarantees the security and privacy of personal data. This application has been developed as a private management tool and does not share information with unauthorized third parties.'}</p>
+              <p className="mb-4">{isEs ? 'Los datos introducidos o recopilados a través de esta plataforma (incluyendo datos de contacto, contratos de alquiler, recibos y documentos adjuntos) son accesibles únicamente por el propietario administrador y los inquilinos vinculados a sus respectivos contratos.' : 'The data entered or collected through this platform (including contact details, rental contracts, receipts and attached documents) are accessible only by the managing owner and the tenants linked to their respective contracts.'}</p>
+              <p className="mb-6">{isEs ? 'Como usuario, usted tiene derecho a consultar, rectificar o eliminar su información de perfil. Cualquier consulta relacionada con sus datos, por favor, póngase en contacto a través de la sección de Ayuda y Soporte.' : 'As a user, you have the right to view, rectify or delete your profile information. For any queries regarding your data, please contact through the Help & Support section.'}</p>
            </div>
         </div>
       </div>
@@ -177,7 +179,40 @@ export function SettingsModalBase({
              <h2 className="font-bold text-[16px] text-slate-900 dark:text-white ml-2">{isEs ? 'Manual de Uso' : 'User Manual'}</h2>
            </div>
            <div className="p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] overflow-y-auto prose prose-sm text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 flex-1">
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">{isEs ? 'Manual de Usuario' : 'User Guide'}</h3>
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">{isEs ? 'Manual del Inquilino' : 'Tenant Guide'}</h3>
+              
+              <h4 className="font-bold text-slate-800 dark:text-slate-200 mt-6 mb-2">{isEs ? '1. Inicio' : '1. Home'}</h4>
+              <ul className="list-disc pl-5 mb-4 space-y-1">
+                <li>{isEs ? 'En la pantalla principal puedes consultar tu inmueble asignado.' : 'On the main screen you can check your assigned property.'}</li>
+                <li>{isEs ? 'Visualiza la renta mensual, el importe de la fianza, y las fechas de inicio y finalización de tu contrato.' : 'View the monthly rent, deposit amount, and the start and end dates of your contract.'}</li>
+                <li>{isEs ? 'Comprueba rápidamente tu "Estado del pago" (Al día, Pendiente o En deuda).' : 'Quickly check your "Payment status" (Up to date, Pending or Debt).'}</li>
+              </ul>
+
+              <h4 className="font-bold text-slate-800 dark:text-slate-200 mt-6 mb-2">{isEs ? '2. Documentos' : '2. Documents'}</h4>
+              <ul className="list-disc pl-5 mb-4 space-y-1">
+                <li>{isEs ? 'Accede a la pestaña "Documentos" para ver tu contrato de alquiler y cualquier otro documento compartido por el propietario.' : 'Go to the "Documents" tab to view your rental contract and any other document shared by the landlord.'}</li>
+                <li>{isEs ? 'Usa los botones junto a cada archivo para visualizarlo o descargarlo a tu dispositivo.' : 'Use the buttons next to each file to view or download it to your device.'}</li>
+              </ul>
+
+              <h4 className="font-bold text-slate-800 dark:text-slate-200 mt-6 mb-2">{isEs ? '3. Incidencias' : '3. Issues'}</h4>
+              <ul className="list-disc pl-5 mb-4 space-y-1">
+                <li>{isEs ? 'Para crear una nueva incidencia (por ejemplo, una avería), ve a la pestaña "Incidencias" y pulsa en "Nueva".' : 'To create a new issue (e.g. a breakdown), go to the "Issues" tab and click "New".'}</li>
+                <li>{isEs ? 'Podrás consultar todas tus incidencias pasadas y su estado.' : 'You can check all your past issues and their status.'}</li>
+                <li>{isEs ? 'Pulsa sobre cualquier incidencia para ver el historial y comunicarte con el propietario al respecto.' : 'Click on any issue to see the history and communicate with the landlord about it.'}</li>
+              </ul>
+
+              <h4 className="font-bold text-slate-800 dark:text-slate-200 mt-6 mb-2">{isEs ? '4. Chat' : '4. Chat'}</h4>
+              <ul className="list-disc pl-5 mb-4 space-y-1">
+                <li>{isEs ? 'La pestaña "Chat" te permite comunicarte de forma directa con tu propietario para asuntos generales.' : 'The "Chat" tab allows you to communicate directly with your landlord for general matters.'}</li>
+                <li>{isEs ? 'El indicador rojo sobre el icono del chat te avisará cuando tengas mensajes no leídos.' : 'The red indicator over the chat icon will alert you when you have unread messages.'}</li>
+              </ul>
+
+              <h4 className="font-bold text-slate-800 dark:text-slate-200 mt-6 mb-2">{isEs ? '5. Perfil y configuración' : '5. Profile & Settings'}</h4>
+              <ul className="list-disc pl-5 mb-4 space-y-1">
+                <li>{isEs ? 'Toca tu foto o icono de usuario en la esquina superior derecha para abrir tu Perfil.' : 'Tap your photo or user icon in the top right corner to open your Profile.'}</li>
+                <li>{isEs ? 'Puedes cambiar el idioma de la plataforma y el tema (claro u oscuro).' : 'You can change the platform language and theme (light or dark).'}</li>
+                <li>{isEs ? 'Utiliza el botón "Cerrar sesión" en la parte inferior de la configuración para salir de la aplicación de forma segura.' : 'Use the "Sign Out" button at the bottom of the settings to safely exit the application.'}</li>
+              </ul>
            </div>
         </div>
       </div>
@@ -462,6 +497,8 @@ export default function SettingsModal({ isOpen, onClose }: { isOpen: boolean, on
       setTheme={context.setTheme}
       language={context.language}
       setLanguage={context.setLanguage}
+      properties={context.properties}
+      tenants={context.tenants}
       isTenant={false}
       onExportData={() => {
         const currentYear = new Date().getFullYear();

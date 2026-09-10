@@ -78,7 +78,7 @@ export default function PropertyFields({ data, onChange }: Props) {
         <div className="space-y-3">
           <div>
             <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">
-              {isEs ? 'Nombre / Alias' : 'Name / Alias'}
+              {isEs ? 'Nombre / Alias' : 'Name / Alias'} <span className="text-red-500">*</span>
             </label>
             <input 
               type="text" 
@@ -90,7 +90,7 @@ export default function PropertyFields({ data, onChange }: Props) {
           </div>
           <div>
             <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">
-              {isEs ? 'Dirección' : 'Address'}
+              {isEs ? 'Dirección' : 'Address'} <span className="text-red-500">*</span>
             </label>
             <input 
               type="text" 
@@ -114,24 +114,26 @@ export default function PropertyFields({ data, onChange }: Props) {
             </div>
             <div>
               <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">
-                {isEs ? 'Ciudad' : 'City'}
+                {isEs ? 'Ciudad' : 'City'} <span className="text-red-500">*</span>
               </label>
               <input 
                 type="text" 
                 className="w-full border border-slate-200 dark:border-slate-700 rounded px-3 py-2 text-sm bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white" 
                 value={data.city || ''} 
                 onChange={e => update('city', e.target.value)} 
+                required
               />
             </div>
              <div>
               <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">
-                {isEs ? 'Provincia' : 'Province'}
+                {isEs ? 'Provincia' : 'Province'} <span className="text-red-500">*</span>
               </label>
               <input 
                 type="text" 
                 className="w-full border border-slate-200 dark:border-slate-700 rounded px-3 py-2 text-sm bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white" 
                 value={data.province || ''} 
                 onChange={e => update('province', e.target.value)} 
+                required
               />
             </div>
           </div>
@@ -145,7 +147,7 @@ export default function PropertyFields({ data, onChange }: Props) {
         <div className="grid grid-cols-2 gap-3">
           <div>
             <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">
-              {isEs ? 'Tipo de inmueble' : 'Property Type'}
+              {isEs ? 'Tipo de inmueble' : 'Property Type'} <span className="text-red-500">*</span>
             </label>
             <select 
               className="w-full border border-slate-200 dark:border-slate-700 rounded px-3 py-2 text-sm bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white" 
@@ -162,7 +164,7 @@ export default function PropertyFields({ data, onChange }: Props) {
           </div>
           <div>
             <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">
-              {isEs ? 'Estado' : 'Status'}
+              {isEs ? 'Estado' : 'Status'} <span className="text-red-500">*</span>
             </label>
             <select 
               className="w-full border border-slate-200 dark:border-slate-700 rounded px-3 py-2 text-sm bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white" 
@@ -251,24 +253,26 @@ export default function PropertyFields({ data, onChange }: Props) {
           )}
           <div>
             <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">
-              {isEs ? 'Fecha de Compra' : 'Purchase Date'}
+              {isEs ? 'Fecha de Compra' : 'Purchase Date'} <span className="text-red-500">*</span>
             </label>
             <input 
               type="date" 
               className="w-full border border-slate-200 dark:border-slate-700 rounded px-3 py-2 text-sm bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white" 
               value={data.purchaseDate || ''} 
               onChange={e => update('purchaseDate', e.target.value)} 
+              required
             />
           </div>
           <div>
             <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">
-              {isEs ? 'Valor de Compra (€)' : 'Purchase Price (€)'}
+              {isEs ? 'Valor de Compra (€)' : 'Purchase Price (€)'} <span className="text-red-500">*</span>
             </label>
             <FormattedNumberInput 
               decimals={2}
               className="w-full border border-slate-200 dark:border-slate-700 rounded px-3 py-2 text-sm bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white" 
               value={data.purchasePrice ?? ''} 
               onChange={val => update('purchasePrice', val)} 
+              required
             />
           </div>
            <div>
@@ -314,13 +318,14 @@ export default function PropertyFields({ data, onChange }: Props) {
           {data.hasMortgage && (
             <div>
               <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">
-                {isEs ? 'Cuota Hipoteca Mensual (€)' : 'Monthly Mortgage Payment (€)'}
+                {isEs ? 'Cuota Hipoteca Mensual (€)' : 'Monthly Mortgage Payment (€)'} <span className="text-red-500">*</span>
               </label>
               <FormattedNumberInput 
                 decimals={2}
                 className="w-full border border-slate-200 dark:border-slate-700 rounded px-3 py-2 text-sm bg-white dark:bg-slate-900 text-slate-900 dark:text-white" 
                 value={data.mortgageInstallment ?? ''} 
                 onChange={val => update('mortgageInstallment', val)} 
+                required={!!data.hasMortgage}
               />
             </div>
           )}
@@ -348,6 +353,30 @@ export default function PropertyFields({ data, onChange }: Props) {
               className="w-full border border-slate-200 dark:border-slate-700 rounded px-3 py-2 text-sm bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white" 
               value={data.ibi ?? ''} 
               onChange={val => update('ibi', val)} 
+              placeholder="0" 
+            />
+          </div>
+          <div>
+            <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">
+              {isEs ? 'Seguro (€/año)' : 'Insurance (€/yr)'}
+            </label>
+            <FormattedNumberInput 
+              decimals={2}
+              className="w-full border border-slate-200 dark:border-slate-700 rounded px-3 py-2 text-sm bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white" 
+              value={data.annualInsurance ?? ''} 
+              onChange={val => update('annualInsurance', val)} 
+              placeholder="0" 
+            />
+          </div>
+          <div>
+            <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">
+              {isEs ? 'Otros Gastos Anuales (€/año)' : 'Other Annual Expenses (€/yr)'}
+            </label>
+            <FormattedNumberInput 
+              decimals={2}
+              className="w-full border border-slate-200 dark:border-slate-700 rounded px-3 py-2 text-sm bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white" 
+              value={data.annualOtherExpenses ?? ''} 
+              onChange={val => update('annualOtherExpenses', val)} 
               placeholder="0" 
             />
           </div>

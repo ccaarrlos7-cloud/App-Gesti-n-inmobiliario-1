@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTenantContext } from '../store-tenant';
-import { LogOut, FileText, FolderOpen, AlertCircle, MessageSquare, User, CheckCircle2, Clock, Calendar, Euro, Shield, Plus, X } from 'lucide-react';
+import { Building2, FileText, FolderOpen, AlertCircle, MessageSquare, User, CheckCircle2, Clock, Calendar, Euro, Shield, Plus, X } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { formatDate, formatNumber, formatChatDate, getContractTruePaymentStatus } from '../utils';
 
@@ -12,7 +12,7 @@ import { SettingsModalBase } from './SettingsModal';
 type Tab = 'home' | 'documents' | 'issues' | 'chat';
 
 export default function TenantApp() {
-  const { profile, contracts, issues, documents, addTenantIssue, getTenantIssueMessages, addTenantIssueMessage, getTenantChatMessages, addTenantChatMessage, unreadChatCount, loadUnreadChatCount, theme, language } = useTenantContext();
+  const { profile, contracts, issues, documents, addTenantIssue, getTenantIssueMessages, addTenantIssueMessage, getTenantChatMessages, addTenantChatMessage, unreadChatCount, loadUnreadChatCount, theme, setTheme, language, setLanguage } = useTenantContext();
   const isEs = language === 'Español';
   const [activeTab, setActiveTab] = useState<Tab>('home');
   const [viewingDoc, setViewingDoc] = useState<{url: string, name: string} | null>(null);
@@ -118,24 +118,24 @@ export default function TenantApp() {
   return (
     <div className="h-[100dvh] overflow-hidden bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white font-sans flex flex-col pt-[env(safe-area-inset-top)] transition-colors">
       {/* Header */}
-      <header className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 py-3 sm:py-4 px-4 sm:px-6 flex justify-between items-center shrink-0 z-10 transition-colors">
+      <header className="min-h-[64px] py-3 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 flex flex-wrap gap-3 items-center justify-between px-4 sm:px-8 shrink-0 z-10 transition-colors">
         <div className="flex items-center gap-3">
-          <button 
-            onClick={() => setShowSettings(true)}
-            className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-sm hover:bg-blue-700 transition-colors"
-          >
-            <User size={20} className="text-white" />
-          </button>
+          <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center shadow-sm shrink-0">
+            <Building2 size={18} className="text-white" />
+          </div>
           <div>
-            <h1 className="text-lg font-bold leading-tight">{isEs ? 'Portal del Inquilino' : 'Tenant Portal'}</h1>
-            <p className="text-sm text-slate-500 dark:text-slate-400 font-medium transition-colors">
+            <h1 className="text-[17px] font-bold leading-tight text-slate-900 dark:text-white">{isEs ? 'Portal del Inquilino' : 'Tenant Portal'}</h1>
+            <p className="text-[12px] text-slate-500 dark:text-slate-400 font-medium transition-colors leading-tight">
               {profile?.name || (isEs ? 'Inquilino' : 'Tenant')}
             </p>
           </div>
         </div>
-        <button onClick={handleLogout} className="text-red-500 flex items-center gap-2 hover:bg-red-50 dark:hover:bg-red-900/20 p-2 rounded-xl transition-colors font-medium">
-          <LogOut size={20} />
-          <span className="hidden sm:inline">{isEs ? 'Salir' : 'Sign Out'}</span>
+        <button
+          onClick={() => setShowSettings(true)}
+          className="w-10 h-10 rounded-full flex items-center justify-center bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors overflow-hidden shrink-0"
+          aria-label={isEs ? 'Perfil y configuración' : 'Profile and settings'}
+        >
+          <User size={20} className="text-slate-500 dark:text-slate-300" />
         </button>
       </header>
 
@@ -606,9 +606,9 @@ export default function TenantApp() {
           onClose={() => setShowSettings(false)}
           userName={profile.name}
           theme={theme}
-          setTheme={useTenantContext().setTheme}
+          setTheme={setTheme}
           language={language}
-          setLanguage={useTenantContext().setLanguage}
+          setLanguage={setLanguage}
           isTenant={true}
         />
       )}

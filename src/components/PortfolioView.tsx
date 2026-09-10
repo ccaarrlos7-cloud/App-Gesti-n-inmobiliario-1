@@ -12,7 +12,7 @@ import { DocumentViewerModal } from './DocumentViewerModal';
 import { DocumentActionButtons } from './DocumentActionButtons';
 
 export default function PortfolioView({ initialTab = 'Todos' }: { initialTab?: PropertyStatus | 'Todos' }) {
-  const { properties, setProperties, addProperty, updateProperty, contracts, tenants, getDynamicTransactions, addTransaction, issues, addIssue, updateIssue, deleteIssue, getIssueMessages, addIssueMessage, language, userName, avatarUrl } = useAppContext();
+  const { properties, setProperties, addProperty, updateProperty, deleteProperty, contracts, tenants, getDynamicTransactions, addTransaction, issues, addIssue, updateIssue, deleteIssue, getIssueMessages, addIssueMessage, language, userName, avatarUrl } = useAppContext();
   const isEs = language === 'Español';
   const allTxs = getDynamicTransactions();
   const [activeTab, setActiveTab] = useState<PropertyStatus | 'Todos'>(initialTab);
@@ -34,6 +34,12 @@ export default function PortfolioView({ initialTab = 'Todos' }: { initialTab?: P
   const [newTx, setNewTx] = useState<Partial<Transaction>>({
     type: 'gasto', category: '', amount: 0, date: new Date().toISOString().split('T')[0], description: ''
   });
+  
+  const [formError, setFormError] = useState<string>('');
+  
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState('');
+  const [deleteError, setDeleteError] = useState('');
 
   const tabKeys: (PropertyStatus | 'Todos')[] = ['Todos', 'Ocupado', 'Vacío', 'En Reforma', 'En Venta'];
 
@@ -75,8 +81,33 @@ export default function PortfolioView({ initialTab = 'Todos' }: { initialTab?: P
     setViewMode('info');
   };
 
-  const handleAdd = (e: React.FormEvent) => {
+  const validateProperty = (p: Partial<Property>): string | null => {
+    if (!p.title?.trim()) return isEs ? 'El Nombre / Alias es obligatorio.' : 'Name / Alias is required.';
+    if (!p.address?.trim()) return isEs ? 'La Dirección es obligatoria.' : 'Address is required.';
+    if (!p.city?.trim()) return isEs ? 'La Ciudad es obligatoria.' : 'City is required.';
+    if (!p.province?.trim()) return isEs ? 'La Provincia es obligatoria.' : 'Province is required.';
+    if (!p.type) return isEs ? 'El Tipo de inmueble es obligatorio.' : 'Property type is required.';
+    if (!p.status) return isEs ? 'El Estado es obligatorio.' : 'Status is required.';
+    if (!p.purchaseDate) return isEs ? 'La Fecha de compra es obligatoria y debe ser válida.' : 'Purchase date is required and must be valid.';
+    
+    if (p.purchasePrice === undefined || p.purchasePrice < 0) return isEs ? 'El Valor de compra es obligatorio y no puede ser negativo.' : 'Purchase price is required and cannot be negative.';
+    if (p.hasMortgage && (p.mortgageInstallment === undefined || p.mortgageInstallment <= 0)) {
+      return isEs ? 'Si tiene hipoteca, la cuota de la hipoteca es obligatoria.' : 'If it has a mortgage, the mortgage installment is required.';
+    }
+    
+    return null; // Valid
+  };
+
+  const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
+    setFormError('');
+    
+    const validationError = validateProperty(newProp);
+    if (validationError) {
+      setFormError(validationError);
+      return;
+    }
+    
     const property: Omit<Property, 'id'> = {
       title: newProp.title || '',
       address: newProp.address || '',
@@ -100,11 +131,53 @@ export default function PortfolioView({ initialTab = 'Todos' }: { initialTab?: P
       mortgageInstallment: Math.max(0, Number(newProp.mortgageInstallment) || 0),
       communityFees: Math.max(0, Number(newProp.communityFees) || 0),
       ibi: Math.max(0, Number(newProp.ibi) || 0),
+      annualInsurance: Math.max(0, Number(newProp.annualInsurance) || 0),
+      annualOtherExpenses: Math.max(0, Number(newProp.annualOtherExpenses) || 0),
       image: newProp.image || 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=500&auto=format&fit=crop&q=60'
     };
-    addProperty(property);
+    
+    const { success, error } = await addProperty(property);
+    
+    if (!success) {
+      setFormError(error || (isEs ? 'Error al guardar el inmueble.' : 'Error saving property.'));
+      return;
+    }
+    
     setIsModalOpen(false);
     setNewProp({ title: '', address: '', price: 0, status: 'Vacío', type: 'Piso', notes: '', hasMortgage: false });
+    setFormError('');
+  };
+
+  const handleDeleteProperty = () => {
+    if (!selectedProperty) return;
+    
+    const hasActiveContract = contracts.some(c => 
+      c.propertyId === selectedProperty.id && c.status === 'active'
+    );
+    
+    if (hasActiveContract) {
+      alert(isEs ? "Este inmueble no se puede eliminar porque tiene un contrato activo. Finaliza el contrato antes de eliminar el inmueble." : "This property cannot be deleted because it has an active contract. End the contract before deleting the property.");
+      return;
+    }
+    
+    setShowDeleteConfirm(true);
+  };
+  
+  const confirmDeleteProperty = async () => {
+    if (!selectedProperty || deleteConfirmText !== selectedProperty.title) return;
+    
+    setDeleteError('');
+    const { success, error } = await deleteProperty(selectedProperty.id);
+    if (!success) {
+      setDeleteError(error || (isEs ? 'Error al eliminar el inmueble.' : 'Error deleting property.'));
+      return;
+    }
+    
+    setShowDeleteConfirm(false);
+    setDeleteConfirmText('');
+    setSelectedProperty(null);
+    setViewMode('info');
+    alert(isEs ? "Inmueble eliminado correctamente." : "Property deleted successfully.");
   };
 
   const handleUpdate = (e: React.FormEvent) => {
@@ -803,8 +876,11 @@ export default function PortfolioView({ initialTab = 'Todos' }: { initialTab?: P
                        <form id="edit-property-form" onSubmit={handleUpdate} className="flex-1 overflow-y-auto">
                           <PropertyFields data={selectedProperty} onChange={(d) => setSelectedProperty(d as Property)} />
                        </form>
-                       <div className="pt-4 border-t border-slate-200 dark:border-slate-700 mt-4 shrink-0">
-                         <button type="submit" form="edit-property-form" className="w-full bg-blue-600 hover:bg-blue-700 transition-colors text-white py-3 rounded-xl font-semibold text-sm shadow-sm">
+                       <div className="pt-4 border-t border-slate-200 dark:border-slate-700 mt-4 shrink-0 flex gap-3">
+                         <button type="button" onClick={handleDeleteProperty} className="px-4 bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/40 transition-colors py-3 rounded-xl font-semibold text-sm shadow-sm flex items-center justify-center border border-red-200 dark:border-red-800/40" title={isEs ? 'Eliminar inmueble' : 'Delete property'}>
+                           <Trash2 size={18} />
+                         </button>
+                         <button type="submit" form="edit-property-form" className="flex-1 bg-blue-600 hover:bg-blue-700 transition-colors text-white py-3 rounded-xl font-semibold text-sm shadow-sm">
                            {isEs ? 'Guardar Cambios' : 'Save Changes'}
                          </button>
                        </div>
@@ -879,6 +955,15 @@ export default function PortfolioView({ initialTab = 'Todos' }: { initialTab?: P
               </button>
             </div>
             <div className="p-5 overflow-y-auto flex-1 bg-slate-50/50 dark:bg-slate-900/50">
+              {formError && (
+                <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 rounded-xl flex items-center gap-3">
+                  <AlertCircle size={18} className="text-red-500 shrink-0" />
+                  <p className="text-sm font-semibold text-red-600 dark:text-red-400">{formError}</p>
+                </div>
+              )}
+              <div className="mb-4 text-[12px] text-slate-500 font-medium">
+                <span className="text-red-500 font-bold">*</span> {isEs ? 'Campos obligatorios' : 'Required fields'}
+              </div>
               <form id="add-property-form" onSubmit={handleAdd}>
                 <PropertyFields data={newProp} onChange={setNewProp} />
               </form>
@@ -1020,7 +1105,66 @@ export default function PortfolioView({ initialTab = 'Todos' }: { initialTab?: P
           </div>
         </div>
       )}
-      <SettingsModal isOpen={showSettings} onClose={() => setShowSettings(false)} />
+      {showSettings && (
+        <SettingsModal 
+          isOpen={showSettings} 
+          onClose={() => setShowSettings(false)} 
+        />
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && selectedProperty && (
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[200] flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200 shadow-2xl p-6">
+            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">{isEs ? '¿Eliminar este inmueble?' : 'Delete this property?'}</h3>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
+              {isEs ? 'Esta acción no se puede deshacer.' : 'This action cannot be undone.'}
+            </p>
+            
+            {deleteError && (
+              <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 rounded-xl flex items-center gap-3">
+                <AlertCircle size={18} className="text-red-500 shrink-0" />
+                <p className="text-sm font-semibold text-red-600 dark:text-red-400">{deleteError}</p>
+              </div>
+            )}
+            
+            <p className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+              {isEs ? 'Para confirmar, escribe el nombre del inmueble:' : 'To confirm, type the property name:'}
+            </p>
+            <div className="bg-slate-100 dark:bg-slate-900 p-3 rounded-lg mb-4 text-center font-bold text-slate-800 dark:text-slate-200">
+              {selectedProperty.title}
+            </div>
+            
+            <input 
+              type="text" 
+              className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:border-red-500 outline-none mb-6"
+              value={deleteConfirmText}
+              onChange={(e) => setDeleteConfirmText(e.target.value)}
+              placeholder={selectedProperty.title}
+            />
+            
+            <div className="flex gap-3 justify-end">
+              <button 
+                onClick={() => { setShowDeleteConfirm(false); setDeleteConfirmText(''); setDeleteError(''); }} 
+                className="px-4 py-2 text-slate-600 dark:text-slate-400 font-semibold text-sm hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg"
+              >
+                {isEs ? 'Cancelar' : 'Cancel'}
+              </button>
+              <button 
+                onClick={confirmDeleteProperty}
+                disabled={deleteConfirmText !== selectedProperty.title}
+                className={`px-5 py-2 font-semibold text-sm rounded-lg shadow-sm transition-colors ${
+                  deleteConfirmText === selectedProperty.title 
+                  ? 'bg-red-600 hover:bg-red-700 text-white' 
+                  : 'bg-red-600/50 text-white/50 cursor-not-allowed'
+                }`}
+              >
+                {isEs ? 'Eliminar inmueble' : 'Delete property'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       {/* Document Viewer Modal */}
       <DocumentViewerModal 
         isOpen={!!viewingDoc}

@@ -6,8 +6,9 @@ import { uploadDocument, deleteDocument } from './lib/documentStorage';
 interface AppContextType {
   properties: Property[];
   setProperties: (props: Property[]) => void;
-  addProperty: (prop: Omit<Property, 'id'>) => Promise<Property | undefined>;
+  addProperty: (prop: Omit<Property, 'id'>) => Promise<{ success: boolean, error?: string, property?: Property }>;
   updateProperty: (prop: Property) => Promise<void>;
+  deleteProperty: (id: string) => Promise<{ success: boolean, error?: string }>;
   tenants: Tenant[];
   setTenants: (tenants: Tenant[]) => void;
   addTenant: (tenant: Omit<Tenant, 'id'>) => Promise<Tenant | undefined>;
@@ -239,6 +240,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     mortgageInstallment: p.mortgageInstallment !== undefined ? Math.max(0, Number(p.mortgageInstallment) || 0) : undefined,
     communityFees: p.communityFees !== undefined ? Math.max(0, Number(p.communityFees) || 0) : undefined,
     ibi: p.ibi !== undefined ? Math.max(0, Number(p.ibi) || 0) : undefined,
+    annualInsurance: p.annualInsurance !== undefined ? Math.max(0, Number(p.annualInsurance) || 0) : undefined,
+    annualOtherExpenses: p.annualOtherExpenses !== undefined ? Math.max(0, Number(p.annualOtherExpenses) || 0) : undefined,
   });
 
   const sanitizeContract = (c: Contract): Contract => ({
@@ -252,7 +255,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     amount: Math.max(0, Number(tx.amount) || 0),
   });
 
-  const addProperty = async (property: Omit<Property, 'id'>): Promise<Property | undefined> => {
+  const addProperty = async (property: Omit<Property, 'id'>): Promise<{ success: boolean, error?: string, property?: Property }> => {
     const sanitized = sanitizeProperty(property as Property); // As if it was full to sanitize numbers
     const data = toSnake(sanitized);
     delete data.id; // Ensure no frontend ID is sent
@@ -260,12 +263,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const { data: insertedData, error } = await supabase.from('properties').insert(data).select().single();
     if (error) {
       console.error("Error al añadir propiedad:", error);
-      return;
+      return { success: false, error: error.message || JSON.stringify(error) };
     }
     
     const newProperty = toCamel(insertedData);
     setProperties(prev => [newProperty, ...prev]);
-    return newProperty;
+    return { success: true, property: newProperty };
   };
 
   const updateProperty = async (updatedProp: Property): Promise<void> => {
@@ -279,6 +282,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
     
     setProperties(prev => prev.map(p => p.id === sanitized.id ? sanitized : p));
+  };
+
+  const deleteProperty = async (id: string): Promise<{ success: boolean, error?: string }> => {
+    const { error } = await supabase.from('properties').delete().eq('id', id);
+    if (error) {
+      console.error("Error al eliminar propiedad:", error);
+      return { success: false, error: error.message || JSON.stringify(error) };
+    }
+    setProperties(prev => prev.filter(p => p.id !== id));
+    return { success: true };
   };
 
   const updateUserName = async (name: string) => {
@@ -500,8 +513,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
       // For each property, generate up to maxExpenseMonth of community and IBI
       properties.forEach(p => {
+        let minExpenseMonth = 1;
+        if (p.purchaseDate && p.purchaseDate.includes('-')) {
+          const [pYearStr, pMonthStr] = p.purchaseDate.split('-');
+          const purchaseYear = parseInt(pYearStr, 10);
+          const purchaseMonth = parseInt(pMonthStr, 10);
+
+          if (year < purchaseYear) return;
+          if (year === purchaseYear) {
+            minExpenseMonth = purchaseMonth;
+          }
+        }
+
         if (p.communityFees && p.communityFees > 0) {
-          for (let m = 1; m <= maxExpenseMonth; m++) {
+          for (let m = minExpenseMonth; m <= maxExpenseMonth; m++) {
             dynamicTxs.push({
               id: `auto-comm-${p.id}-${year}-${m}`,
               propertyId: p.id,
@@ -515,7 +540,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         }
         if (p.ibi && p.ibi > 0) {
           const monthlyIbi = p.ibi / 12;
-          for (let m = 1; m <= maxExpenseMonth; m++) {
+          for (let m = minExpenseMonth; m <= maxExpenseMonth; m++) {
             dynamicTxs.push({
               id: `auto-ibi-${p.id}-${year}-${m}`,
               propertyId: p.id,
@@ -527,8 +552,36 @@ export function AppProvider({ children }: { children: ReactNode }) {
             });
           }
         }
+        if (p.annualInsurance && p.annualInsurance > 0) {
+          const monthlyInsurance = p.annualInsurance / 12;
+          for (let m = minExpenseMonth; m <= maxExpenseMonth; m++) {
+            dynamicTxs.push({
+              id: `auto-ins-${p.id}-${year}-${m}`,
+              propertyId: p.id,
+              type: 'gasto',
+              category: 'Seguro',
+              amount: monthlyInsurance,
+              date: `${year}-${m.toString().padStart(2, '0')}-01`,
+              description: 'Proporción Seguro (Auto)'
+            });
+          }
+        }
+        if (p.annualOtherExpenses && p.annualOtherExpenses > 0) {
+          const monthlyOther = p.annualOtherExpenses / 12;
+          for (let m = minExpenseMonth; m <= maxExpenseMonth; m++) {
+            dynamicTxs.push({
+              id: `auto-oth-${p.id}-${year}-${m}`,
+              propertyId: p.id,
+              type: 'gasto',
+              category: 'Otros gastos',
+              amount: monthlyOther,
+              date: `${year}-${m.toString().padStart(2, '0')}-01`,
+              description: 'Proporción Otros Gastos (Auto)'
+            });
+          }
+        }
         if (p.hasMortgage && p.mortgageInstallment && p.mortgageInstallment > 0) {
-          for (let m = 1; m <= maxExpenseMonth; m++) {
+          for (let m = minExpenseMonth; m <= maxExpenseMonth; m++) {
             dynamicTxs.push({
               id: `auto-mort-${p.id}-${year}-${m}`,
               propertyId: p.id,
@@ -734,7 +787,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   return (
     <AppContext.Provider value={{ 
-      properties, setProperties, addProperty, updateProperty, 
+      properties, setProperties, addProperty, updateProperty, deleteProperty, 
       tenants, setTenants, addTenant, updateTenant,
       contracts, setContracts, addContract, updateContract, uploadContractDocument, toggleDocumentSharing, deleteContractDocument,
       transactions, setTransactions, addTransaction, getDynamicTransactions,
