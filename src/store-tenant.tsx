@@ -1,6 +1,7 @@
 import React, { createContext, useState, useEffect, useContext, ReactNode, useRef } from 'react';
 import { TenantSelfView, TenantContractView, TenantIssueView, TenantDocumentView } from './types';
 import { supabase } from './lib/supabase';
+import { Building2, Loader2 } from 'lucide-react';
 
 // Helper to convert snake_case to camelCase
 const toCamel = (obj: any): any => {
@@ -260,9 +261,28 @@ export function TenantProvider({ children }: { children: ReactNode }) {
 
   if (!isAppReady) {
     return (
-      <div className="h-screen w-screen flex flex-col items-center justify-center bg-slate-50 text-slate-500">
-        <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4"></div>
-        <p className="font-semibold animate-pulse">Conectando a tu portal...</p>
+      <div className="h-screen min-h-[100dvh] max-h-[100dvh] w-full overflow-hidden relative flex flex-col items-center justify-center font-sans bg-slate-900 text-white">
+        {/* Background Image & Overlay */}
+        <div className="absolute inset-0 z-0 h-full w-full">
+          <img 
+            src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=2075&q=80" 
+            alt="Loading Background"
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/70 to-black/80 backdrop-blur-md"></div>
+        </div>
+        
+        {/* Loading Content */}
+        <div className="relative z-10 flex flex-col items-center animate-pulse">
+          <div className="flex items-center gap-3 mb-8">
+            <div className="w-14 h-14 bg-[#FACC15] rounded-2xl flex items-center justify-center text-slate-900 shadow-xl shadow-[#FACC15]/10">
+              <Building2 className="w-8 h-8" />
+            </div>
+            <span className="text-3xl font-bold">Gesti<span className="text-[#FACC15]">Casa</span></span>
+          </div>
+          <Loader2 className="w-8 h-8 text-[#FACC15] animate-spin drop-shadow-lg" />
+          <p className="mt-4 text-slate-300 font-medium tracking-wide">Conectando a tu portal...</p>
+        </div>
       </div>
     );
   }
