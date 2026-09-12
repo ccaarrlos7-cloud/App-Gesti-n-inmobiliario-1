@@ -58,3 +58,22 @@ export async function resolveDocumentUrl(identifier: string): Promise<string> {
 
   return data.signedUrl;
 }
+
+/**
+ * Uploads a property image to the public 'properties' bucket and returns its public URL.
+ */
+export async function uploadPropertyImage(file: File): Promise<string> {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.user?.id) throw new Error("No authenticated user");
+
+  const sanitizedName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, '_');
+  const path = `${session.user.id}/${Date.now()}_${sanitizedName}`;
+
+  const { error } = await supabase.storage.from('properties').upload(path, file);
+  if (error) {
+    throw error;
+  }
+
+  const { data } = supabase.storage.from('properties').getPublicUrl(path);
+  return data.publicUrl;
+}

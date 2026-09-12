@@ -180,7 +180,7 @@ export default function PortfolioView({ initialTab = 'Todos' }: { initialTab?: P
     alert(isEs ? "Inmueble eliminado correctamente." : "Property deleted successfully.");
   };
 
-  const handleUpdate = (e: React.FormEvent) => {
+  const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedProperty) return;
     const sanitized: Property = {
@@ -197,7 +197,11 @@ export default function PortfolioView({ initialTab = 'Todos' }: { initialTab?: P
       communityFees: selectedProperty.communityFees !== undefined ? Math.max(0, Number(selectedProperty.communityFees) || 0) : undefined,
       ibi: selectedProperty.ibi !== undefined ? Math.max(0, Number(selectedProperty.ibi) || 0) : undefined,
     };
-    updateProperty(sanitized);
+    const result = await updateProperty(sanitized);
+    if (result && !result.success) {
+      alert((isEs ? "Error al guardar el inmueble: " : "Error saving property: ") + result.error);
+      return;
+    }
     setSelectedProperty(sanitized);
     setViewMode('info');
   };

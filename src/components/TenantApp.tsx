@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useTenantContext } from '../store-tenant';
 import { Building2, FileText, FolderOpen, AlertCircle, MessageSquare, User, CheckCircle2, Clock, Calendar, Euro, Shield, Plus, X } from 'lucide-react';
 import { supabase } from '../lib/supabase';
@@ -26,6 +26,13 @@ export default function TenantApp() {
   const [chatMessages, setChatMessages] = useState<any[]>([]);
   const [newChatMessage, setNewChatMessage] = useState('');
   const [isSubmittingChatMessage, setIsSubmittingChatMessage] = useState(false);
+  const chatMessagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (chatMessagesEndRef.current && activeTab === 'chat') {
+      chatMessagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [chatMessages, activeTab]);
   const [showSettings, setShowSettings] = useState(false);
 
   useEffect(() => {
@@ -119,24 +126,21 @@ export default function TenantApp() {
     <div className="h-[100dvh] overflow-hidden bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white font-sans flex flex-col pt-[env(safe-area-inset-top)] transition-colors">
       {/* Header */}
       <header className="min-h-[64px] py-3 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 flex flex-wrap gap-3 items-center justify-between px-4 sm:px-8 shrink-0 z-10 transition-colors">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center shadow-sm shrink-0">
-            <Building2 size={18} className="text-white" />
-          </div>
-          <div>
-            <h1 className="text-[17px] font-bold leading-tight text-slate-900 dark:text-white">{isEs ? 'Portal del Inquilino' : 'Tenant Portal'}</h1>
-            <p className="text-[12px] text-slate-500 dark:text-slate-400 font-medium transition-colors leading-tight">
-              {profile?.name || (isEs ? 'Inquilino' : 'Tenant')}
-            </p>
-          </div>
+        <h1 className="text-[20px] font-bold text-slate-900 dark:text-white hidden sm:block">{profile?.name || (isEs ? 'Inquilino' : 'Tenant')}</h1>
+        
+        <div className="relative flex-1 min-w-[150px] sm:min-w-[200px] sm:mx-4">
+          <h1 className="text-[20px] font-bold text-slate-900 dark:text-white sm:hidden">{profile?.name || (isEs ? 'Inquilino' : 'Tenant')}</h1>
         </div>
-        <button
-          onClick={() => setShowSettings(true)}
-          className="w-10 h-10 rounded-full flex items-center justify-center bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors overflow-hidden shrink-0"
-          aria-label={isEs ? 'Perfil y configuración' : 'Profile and settings'}
-        >
-          <User size={20} className="text-slate-500 dark:text-slate-300" />
-        </button>
+        
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setShowSettings(true)}
+            className="w-10 h-10 rounded-full flex items-center justify-center bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors overflow-hidden shrink-0"
+            aria-label={isEs ? 'Perfil y configuración' : 'Profile and settings'}
+          >
+            <User size={20} className="text-slate-500 dark:text-slate-300" />
+          </button>
+        </div>
       </header>
 
       {/* Main Content Area */}
@@ -384,6 +388,7 @@ export default function TenantApp() {
                     ))}
                   </div>
                 )}
+                <div ref={chatMessagesEndRef} />
               </div>
               <div className="flex gap-2 shrink-0">
                 <input

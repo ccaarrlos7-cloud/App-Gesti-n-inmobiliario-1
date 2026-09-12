@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Property } from '../types';
 import { useAppContext } from '../store';
 import FormattedNumberInput from './FormattedNumberInput';
-import { uploadDocument, deleteDocument, resolveDocumentUrl } from '../lib/documentStorage';
+import { uploadDocument, deleteDocument, resolveDocumentUrl, uploadPropertyImage } from '../lib/documentStorage';
 
 interface Props {
   data: Partial<Property>;
@@ -397,26 +397,43 @@ export default function PropertyFields({ data, onChange }: Props) {
               multiple 
               accept="image/*" 
               className="w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 dark:file:bg-blue-900/30 file:text-blue-700 dark:file:text-blue-300 hover:file:bg-blue-100 mb-3"
-              onChange={(e) => {
+              onChange={async (e) => {
                 const files = e.target.files;
-                if (!files) return;
-                const newGallery = [...(data.gallery || [])];
+                if (!files || files.length === 0) return;
                 
-                Array.from(files).forEach((file: File) => {
-                  const reader = new FileReader();
-                  reader.onload = (event) => {
-                    if (event.target?.result) {
-                      newGallery.push(event.target.result as string);
-                      if (newGallery.length === 1 && !data.image) {
-                        update('image', event.target.result as string);
-                      }
-                      update('gallery', newGallery);
-                    }
-                  };
-                  reader.readAsDataURL(file);
-                });
+                setIsUploading('gallery');
+                try {
+                  const newGallery = [...(data.gallery || [])];
+                  let firstUploadUrl = '';
+                  
+                  for (let i = 0; i < files.length; i++) {
+                    const url = await uploadPropertyImage(files[i]);
+                    newGallery.push(url);
+                    if (i === 0) firstUploadUrl = url;
+                  }
+                  
+                  const updates: Partial<Property> = { gallery: newGallery };
+                  if (newGallery.length === files.length && !data.image) {
+                    updates.image = firstUploadUrl;
+                  }
+                  onChange({ ...data, ...updates });
+                } catch (error) {
+                  console.error("Error uploading photos:", error);
+                  alert(isEs ? "Error al subir algunas fotos. Revisa tu conexión y vuelve a intentarlo." : "Error uploading photos. Please check your connection and try again.");
+                } finally {
+                  setIsUploading(null);
+                }
+                
+                // Clear the input so the same files can be selected again if needed
+                e.target.value = '';
               }}
             />
+            {isUploading === 'gallery' && (
+              <div className="flex items-center gap-2 text-sm text-blue-600 mb-3 font-medium">
+                <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                {isEs ? 'Subiendo fotos...' : 'Uploading photos...'}
+              </div>
+            )}
             
             {(data.gallery?.length || 0) > 0 && (
               <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 mb-2">

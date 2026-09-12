@@ -7,7 +7,7 @@ interface AppContextType {
   properties: Property[];
   setProperties: (props: Property[]) => void;
   addProperty: (prop: Omit<Property, 'id'>) => Promise<{ success: boolean, error?: string, property?: Property }>;
-  updateProperty: (prop: Property) => Promise<void>;
+  updateProperty: (prop: Property) => Promise<{ success: boolean, error?: string }>;
   deleteProperty: (id: string) => Promise<{ success: boolean, error?: string }>;
   tenants: Tenant[];
   setTenants: (tenants: Tenant[]) => void;
@@ -271,17 +271,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return { success: true, property: newProperty };
   };
 
-  const updateProperty = async (updatedProp: Property): Promise<void> => {
+  const updateProperty = async (updatedProp: Property): Promise<{ success: boolean, error?: string }> => {
     const sanitized = sanitizeProperty(updatedProp);
     const data = toSnake(sanitized);
     
     const { error } = await supabase.from('properties').update(data).eq('id', data.id);
     if (error) {
       console.error("Error al actualizar propiedad:", error);
-      return;
+      return { success: false, error: error.message || JSON.stringify(error) };
     }
     
     setProperties(prev => prev.map(p => p.id === sanitized.id ? sanitized : p));
+    return { success: true };
   };
 
   const deleteProperty = async (id: string): Promise<{ success: boolean, error?: string }> => {
@@ -780,7 +781,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return (
       <div className="h-screen w-screen flex flex-col items-center justify-center bg-slate-50 text-slate-500">
         <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4"></div>
-        <p className="font-semibold animate-pulse">Conectando a Supabase...</p>
+        <p className="font-semibold animate-pulse">Cargando tus datos...</p>
       </div>
     );
   }

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabase';
 import { Contract, Tenant } from '../types';
 import { X, Eye, Phone, Mail, FileText, CreditCard, Building2, Users, Plus, Upload, Trash2, Download, Paperclip, FileDown, Loader2, Key, Link as LinkIcon, RefreshCw, ShieldAlert, CheckCircle2, Clock, Edit2, MessageSquare } from 'lucide-react';
@@ -22,6 +22,30 @@ function TenantChatPanel({ tenant, isEs }: { tenant: Tenant, isEs: boolean }) {
   const [newMessage, setNewMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
+  const wasAtBottomRef = useRef(true);
+
+  const handleScroll = () => {
+    const container = chatContainerRef.current;
+    if (container) {
+      const isAtBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 50;
+      wasAtBottomRef.current = isAtBottom;
+    }
+  };
+
+  useEffect(() => {
+    if (isOpen) {
+      wasAtBottomRef.current = true;
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (chatContainerRef.current && isOpen) {
+      if (wasAtBottomRef.current) {
+        chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+      }
+    }
+  }, [messages, isOpen]);
 
   useEffect(() => {
     if (isOpen) {
@@ -33,6 +57,7 @@ function TenantChatPanel({ tenant, isEs }: { tenant: Tenant, isEs: boolean }) {
 
   const handleSend = async () => {
     if (!newMessage.trim()) return;
+    wasAtBottomRef.current = true;
     setIsSubmitting(true);
     const success = await addTenantChatMessage(tenant.id, newMessage);
     setIsSubmitting(false);
@@ -68,7 +93,11 @@ function TenantChatPanel({ tenant, isEs }: { tenant: Tenant, isEs: boolean }) {
       
       {isOpen && (
         <div className="border-t border-slate-100 dark:border-slate-700 flex flex-col h-80">
-          <div className="flex-1 overflow-y-auto p-4 bg-slate-50 dark:bg-slate-900/50 space-y-3">
+          <div 
+            ref={chatContainerRef} 
+            onScroll={handleScroll}
+            className="flex-1 overflow-y-auto p-4 bg-slate-50 dark:bg-slate-900/50 space-y-3"
+          >
             {messages.length === 0 ? (
               <p className="text-center text-slate-500 py-4 text-sm">{isEs ? 'No hay mensajes.' : 'No messages.'}</p>
             ) : (
