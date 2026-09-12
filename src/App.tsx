@@ -98,12 +98,12 @@ export default function App() {
             className={`
               flex flex-col items-center justify-center gap-1 p-1 sm:p-2 min-w-[3.5rem] flex-1
               ${currentView === item.id 
-                ? 'text-blue-500' 
+                ? 'text-slate-900 dark:text-white' 
                 : 'text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300'}
             `}
           >
             <div className="relative">
-              <item.icon size={22} className={currentView === item.id ? 'text-blue-500' : ''} />
+              <item.icon size={22} className={currentView === item.id ? 'text-[#eab308] dark:text-[#FACC15]' : ''} />
               {item.id === 'crm' && Number(totalUnread) > 0 && (
                 <span className="absolute -top-1.5 -right-2 bg-red-500 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
                   {Number(totalUnread) > 9 ? '9+' : totalUnread}

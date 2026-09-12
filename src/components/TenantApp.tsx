@@ -126,10 +126,18 @@ export default function TenantApp() {
     <div className="h-[100dvh] overflow-hidden bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white font-sans flex flex-col pt-[env(safe-area-inset-top)] transition-colors">
       {/* Header */}
       <header className="min-h-[64px] py-3 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 flex flex-wrap gap-3 items-center justify-between px-4 sm:px-8 shrink-0 z-10 transition-colors">
-        <h1 className="text-[20px] font-bold text-slate-900 dark:text-white hidden sm:block">{profile?.name || (isEs ? 'Inquilino' : 'Tenant')}</h1>
+        <div className="hidden sm:flex items-center gap-3">
+          <div className="w-9 h-9 bg-[#FACC15] rounded-xl flex items-center justify-center text-slate-900 shadow-md shadow-[#FACC15]/20">
+            <Building2 size={18} />
+          </div>
+          <h1 className="text-[20px] font-bold text-slate-900 dark:text-white">{profile?.name || (isEs ? 'Inquilino' : 'Tenant')}</h1>
+        </div>
         
-        <div className="relative flex-1 min-w-[150px] sm:min-w-[200px] sm:mx-4">
-          <h1 className="text-[20px] font-bold text-slate-900 dark:text-white sm:hidden">{profile?.name || (isEs ? 'Inquilino' : 'Tenant')}</h1>
+        <div className="relative flex-1 min-w-[150px] sm:hidden flex items-center gap-2">
+          <div className="w-8 h-8 bg-[#FACC15] rounded-xl flex items-center justify-center text-slate-900 shadow-sm">
+            <Building2 size={16} />
+          </div>
+          <h1 className="text-[20px] font-bold text-slate-900 dark:text-white truncate">{profile?.name || (isEs ? 'Inquilino' : 'Tenant')}</h1>
         </div>
         
         <div className="flex items-center gap-3">
@@ -168,7 +176,7 @@ export default function TenantApp() {
                 <div className="flex flex-col gap-4 sm:gap-6 pb-6">
                   {/* Property Card */}
                   <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-center transition-colors">
-                    <p className="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider mb-1 transition-colors">{isEs ? 'Propiedad' : 'Property'}</p>
+                    <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1 transition-colors">{isEs ? 'Propiedad' : 'Property'}</p>
                     <h3 className="text-xl sm:text-2xl font-bold leading-tight text-slate-900 dark:text-white mb-1 transition-colors">{currentContract.propertyTitle || (isEs ? 'Propiedad vinculada' : 'Linked property')}</h3>
                     <p className="text-sm text-slate-500 dark:text-slate-400 transition-colors line-clamp-1">{currentContract.propertyAddress}</p>
                   </div>
@@ -177,13 +185,13 @@ export default function TenantApp() {
                   <div className="grid grid-cols-2 gap-4">
                     {/* Renta mensual */}
                     <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col items-center justify-center text-center transition-colors h-28">
-                      <Euro size={20} className="text-blue-500 dark:text-blue-400 mb-2" />
+                      <Euro size={20} className="text-[#FACC15] dark:text-[#FACC15] mb-2 drop-shadow-sm" />
                       <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 transition-colors">{isEs ? 'Renta mensual' : 'Monthly rent'}</p>
                       <p className="text-lg font-bold text-slate-900 dark:text-white mt-0.5 truncate w-full">{formatNumber(currentContract.rentAmount)} €</p>
                     </div>
                     {/* Fianza */}
                     <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col items-center justify-center text-center transition-colors h-28">
-                      <Shield size={20} className="text-blue-500 dark:text-blue-400 mb-2" />
+                      <Shield size={20} className="text-[#FACC15] dark:text-[#FACC15] mb-2 drop-shadow-sm" />
                       <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 transition-colors">{isEs ? 'Fianza' : 'Deposit'}</p>
                       <p className="text-lg font-bold text-slate-900 dark:text-white mt-0.5 truncate w-full">{formatNumber(currentContract.deposit)} €</p>
                     </div>
@@ -252,7 +260,7 @@ export default function TenantApp() {
           {activeTab === 'documents' && (
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
               <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
-                <FolderOpen className="text-blue-600 dark:text-blue-400" /> {isEs ? 'Documentos Compartidos' : 'Shared Documents'}
+                <FolderOpen className="text-[#FACC15] dark:text-[#FACC15]" /> {isEs ? 'Documentos Compartidos' : 'Shared Documents'}
               </h2>
               
               {!allDocuments || allDocuments.length === 0 ? (
@@ -271,7 +279,7 @@ export default function TenantApp() {
                     {allDocuments.map((doc) => (
                       <div key={doc.id} className="flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-750 transition-colors">
                         <div className="flex items-center gap-4 min-w-0">
-                          <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 transition-colors">
+                          <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 transition-colors">
                             <FileText size={20} />
                           </div>
                           <div className="min-w-0">
@@ -299,13 +307,13 @@ export default function TenantApp() {
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2 transition-colors">
-                  <AlertCircle className="text-blue-600 dark:text-blue-400" />
+                  <AlertCircle className="text-[#FACC15] dark:text-[#FACC15]" />
                   {isEs ? 'Incidencias' : 'Issues'}
                 </h2>
                 {currentContract && (
                   <button
                     onClick={() => setShowIssueForm(true)}
-                    className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition-colors flex items-center gap-1.5"
+                    className="px-3 py-1.5 bg-[#FACC15] hover:bg-[#eab308] text-slate-900 text-sm font-bold rounded-lg transition-colors flex items-center gap-1.5 shadow-sm"
                   >
                     <Plus size={16} /> {isEs ? 'Nueva' : 'New'}
                   </button>
@@ -329,7 +337,7 @@ export default function TenantApp() {
                     <div 
                       key={issue.id} 
                       onClick={() => setViewingIssue(issue)}
-                      className="bg-white dark:bg-slate-800 rounded-2xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center cursor-pointer hover:border-blue-400 dark:hover:border-blue-500 transition-colors"
+                      className="bg-white dark:bg-slate-800 rounded-2xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center cursor-pointer hover:border-[#FACC15] dark:hover:border-[#FACC15] transition-colors"
                     >
                       <div>
                         <h4 className="font-bold text-lg mb-1">{issue.title}</h4>
@@ -341,11 +349,11 @@ export default function TenantApp() {
                       <div className="shrink-0">
                         <span className={`px-3 py-1.5 rounded-lg text-sm font-bold border flex items-center gap-1.5 transition-colors
                           ${issue.status === 'Abierta' ? 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800' : 
-                            issue.status === 'En progreso' ? 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800' :
+                            issue.status === 'En progreso' ? 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800' :
                             'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800'
                           }`}
                         >
-                          <div className={`w-2 h-2 rounded-full ${issue.status === 'Abierta' ? 'bg-amber-500' : issue.status === 'En progreso' ? 'bg-blue-500' : 'bg-emerald-500'}`}></div>
+                          <div className={`w-2 h-2 rounded-full ${issue.status === 'Abierta' ? 'bg-amber-500' : issue.status === 'En progreso' ? 'bg-[#FACC15]' : 'bg-emerald-500'}`}></div>
                           {isEs ? issue.status : (issue.status === 'Abierta' ? 'Open' : issue.status === 'En progreso' ? 'In progress' : 'Resolved')}
                         </span>
                       </div>
@@ -371,7 +379,7 @@ export default function TenantApp() {
                       <div key={msg.id} className={`flex ${msg.authorRole === 'inquilino' ? 'justify-end' : 'justify-start'}`}>
                         <div className={`max-w-[85%] rounded-2xl px-4 py-3 transition-colors ${
                           msg.authorRole === 'inquilino' 
-                            ? 'bg-blue-500 text-white rounded-br-none' 
+                            ? 'bg-[#DBEAFE] dark:bg-[#1E293B] text-[#1E293B] dark:text-[#DBEAFE] rounded-br-none' 
                             : 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-bl-none'
                         }`}>
                           <div className="flex items-center gap-2 mb-1">
@@ -397,13 +405,13 @@ export default function TenantApp() {
                   onChange={e => setNewChatMessage(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && handleSendChatMessage()}
                   placeholder={isEs ? "Escribe un mensaje..." : "Type a message..."}
-                  className="flex-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+                  className="flex-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#FACC15] transition-colors"
                   disabled={isSubmittingChatMessage}
                 />
                 <button
                   onClick={handleSendChatMessage}
                   disabled={!newChatMessage.trim() || isSubmittingChatMessage}
-                  className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:hover:bg-blue-600 text-white p-3 rounded-xl transition-colors flex items-center justify-center shrink-0"
+                  className="bg-[#FACC15] hover:bg-[#eab308] disabled:opacity-50 disabled:hover:bg-[#FACC15] text-slate-900 p-3 rounded-xl transition-colors flex items-center justify-center shrink-0 shadow-sm"
                 >
                   <MessageSquare size={20} />
                 </button>
@@ -421,7 +429,7 @@ export default function TenantApp() {
             onClick={() => setActiveTab('home')}
             className={`flex flex-col items-center justify-center w-full py-2 px-1 rounded-xl transition-all ${
               activeTab === 'home' 
-                ? 'text-blue-600 dark:text-blue-400 font-bold' 
+                ? 'text-slate-900 dark:text-[#FACC15] font-bold'
                 : 'text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 font-medium'
             }`}
           >
@@ -433,7 +441,7 @@ export default function TenantApp() {
             onClick={() => setActiveTab('documents')}
             className={`flex flex-col items-center justify-center w-full py-2 px-1 rounded-xl transition-all ${
               activeTab === 'documents' 
-                ? 'text-blue-600 dark:text-blue-400 font-bold' 
+                ? 'text-slate-900 dark:text-[#FACC15] font-bold'
                 : 'text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 font-medium'
             }`}
           >
@@ -445,7 +453,7 @@ export default function TenantApp() {
             onClick={() => setActiveTab('issues')}
             className={`flex flex-col items-center justify-center w-full py-2 px-1 rounded-xl transition-all ${
               activeTab === 'issues' 
-                ? 'text-blue-600 dark:text-blue-400 font-bold' 
+                ? 'text-slate-900 dark:text-[#FACC15] font-bold'
                 : 'text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 font-medium'
             }`}
           >
@@ -457,7 +465,7 @@ export default function TenantApp() {
             onClick={() => setActiveTab('chat')}
             className={`flex flex-col items-center justify-center w-full py-2 px-1 rounded-xl transition-all ${
               activeTab === 'chat' 
-                ? 'text-blue-600 dark:text-blue-400 font-bold' 
+                ? 'text-slate-900 dark:text-[#FACC15] font-bold'
                 : 'text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 font-medium'
             }`}
           >
@@ -498,7 +506,7 @@ export default function TenantApp() {
                   type="text" 
                   value={issueForm.title}
                   onChange={e => setIssueForm({...issueForm, title: e.target.value})}
-                  className="w-full border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white bg-white dark:bg-slate-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
+                  className="w-full border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white bg-white dark:bg-slate-900 focus:border-slate-500 focus:ring-2 focus:ring-[#FACC15]/20 outline-none transition-all"
                   placeholder={isEs ? "Ej. Fuga de agua en el baño" : "E.g. Water leak in bathroom"}
                   required
                 />
@@ -508,7 +516,7 @@ export default function TenantApp() {
                 <textarea 
                   value={issueForm.description}
                   onChange={e => setIssueForm({...issueForm, description: e.target.value})}
-                  className="w-full border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white bg-white dark:bg-slate-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all min-h-[120px] resize-none"
+                  className="w-full border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white bg-white dark:bg-slate-900 focus:border-slate-500 focus:ring-2 focus:ring-[#FACC15]/20 outline-none transition-all min-h-[120px] resize-none"
                   placeholder={isEs ? "Describe el problema con detalle..." : "Describe the issue in detail..."}
                   required
                 />
@@ -525,7 +533,7 @@ export default function TenantApp() {
                 <button 
                   type="submit" 
                   disabled={isSubmittingIssue}
-                  className="flex-1 px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors disabled:opacity-70 flex justify-center items-center gap-2"
+                  className="flex-1 px-4 py-3 bg-[#FACC15] hover:bg-[#eab308] text-slate-900 font-bold rounded-xl transition-colors disabled:opacity-70 flex justify-center items-center gap-2 shadow-sm"
                 >
                   {isSubmittingIssue ? (
                     <><div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div> {isEs ? 'Enviando...' : 'Sending...'}</>
@@ -545,7 +553,7 @@ export default function TenantApp() {
           <div className="bg-white dark:bg-slate-800 w-full sm:max-w-xl rounded-t-2xl sm:rounded-2xl shadow-xl animate-in slide-in-from-bottom-full sm:slide-in-from-bottom-8 duration-300 flex flex-col max-h-[90vh] transition-colors">
             <div className="p-5 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-800/80 shrink-0 transition-colors">
               <h3 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2 transition-colors">
-                <MessageSquare size={20} className="text-blue-500" />
+                <MessageSquare size={20} className="text-[#FACC15]" />
                 {viewingIssue.title}
               </h3>
               <button onClick={() => setViewingIssue(null)} className="w-8 h-8 flex items-center justify-center rounded-full bg-slate-200 dark:bg-slate-700 text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors">
@@ -568,7 +576,7 @@ export default function TenantApp() {
                 ) : (
                   issueMessages.map(msg => (
                     <div key={msg.id} className={`flex flex-col ${msg.authorRole === 'inquilino' ? 'items-end' : 'items-start'}`}>
-                      <div className={`max-w-[85%] rounded-2xl px-4 py-3 transition-colors ${msg.authorRole === 'inquilino' ? 'bg-blue-600 text-white rounded-tr-sm' : 'bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-900 dark:text-white rounded-tl-sm'}`}>
+                      <div className={`max-w-[85%] rounded-2xl px-4 py-3 transition-colors ${msg.authorRole === 'inquilino' ? 'bg-[#DBEAFE] dark:bg-[#1E293B] text-[#1E293B] dark:text-[#DBEAFE] rounded-tr-sm' : 'bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-900 dark:text-white rounded-tl-sm'}`}>
                         <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
                       </div>
                       <span className="text-[10px] text-slate-400 mt-1 px-1 transition-colors">
@@ -588,13 +596,13 @@ export default function TenantApp() {
                   onChange={e => setNewMessage(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && handleSendMessage()}
                   placeholder={isEs ? "Añadir una respuesta..." : "Add a reply..."}
-                  className="flex-1 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white bg-slate-50 dark:bg-slate-900 focus:border-blue-500 outline-none transition-colors"
+                  className="flex-1 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white bg-slate-50 dark:bg-slate-900 focus:border-slate-500 outline-none transition-colors"
                 />
                 <button 
                   type="button" 
                   onClick={handleSendMessage}
                   disabled={isSubmittingMessage || !newMessage.trim()}
-                  className="px-5 py-3 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-xl text-sm font-semibold transition-colors flex items-center justify-center"
+                  className="px-5 py-3 bg-[#FACC15] hover:bg-[#eab308] disabled:opacity-50 text-slate-900 rounded-xl text-sm font-bold transition-colors flex items-center justify-center shadow-sm"
                 >
                   {isSubmittingMessage ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div> : (isEs ? 'Enviar' : 'Send')}
                 </button>

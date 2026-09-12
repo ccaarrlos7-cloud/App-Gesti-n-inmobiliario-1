@@ -90,7 +90,7 @@ export function EditContractModal({ isOpen, onClose, contract, tenants, onSave, 
                       type="checkbox" 
                       checked={selectedTenantIds.includes(t.id)}
                       onChange={() => toggleTenantSelection(t.id)}
-                      className="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500"
+                      className="w-4 h-4 text-slate-900 dark:text-white rounded border-slate-300 focus:ring-slate-400 dark:focus:ring-slate-500"
                     />
                     <div className="flex flex-col">
                       <span className="text-[14px] font-semibold text-slate-900 dark:text-white leading-tight">{t.name}</span>
@@ -117,7 +117,7 @@ export function EditContractModal({ isOpen, onClose, contract, tenants, onSave, 
                     required
                     value={formData.startDate || ''} 
                     onChange={e => setFormData({...formData, startDate: e.target.value})}
-                    className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-[14px] text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500" 
+                    className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-[14px] text-slate-900 dark:text-white focus:ring-2 focus:ring-slate-400 dark:focus:ring-slate-500" 
                   />
                 </div>
                 <div>
@@ -129,7 +129,7 @@ export function EditContractModal({ isOpen, onClose, contract, tenants, onSave, 
                     required
                     value={formData.endDate || ''} 
                     onChange={e => setFormData({...formData, endDate: e.target.value})}
-                    className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-[14px] text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500" 
+                    className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-[14px] text-slate-900 dark:text-white focus:ring-2 focus:ring-slate-400 dark:focus:ring-slate-500" 
                   />
                 </div>
               </div>
@@ -146,7 +146,7 @@ export function EditContractModal({ isOpen, onClose, contract, tenants, onSave, 
                     step="0.01"
                     value={formData.rentAmount || ''} 
                     onChange={e => setFormData({...formData, rentAmount: Number(e.target.value)})}
-                    className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-[14px] text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500" 
+                    className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-[14px] text-slate-900 dark:text-white focus:ring-2 focus:ring-slate-400 dark:focus:ring-slate-500" 
                   />
                 </div>
                 <div>
@@ -159,7 +159,7 @@ export function EditContractModal({ isOpen, onClose, contract, tenants, onSave, 
                     step="0.01"
                     value={formData.deposit || ''} 
                     onChange={e => setFormData({...formData, deposit: Number(e.target.value)})}
-                    className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-[14px] text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500" 
+                    className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-[14px] text-slate-900 dark:text-white focus:ring-2 focus:ring-slate-400 dark:focus:ring-slate-500" 
                   />
                 </div>
               </div>
@@ -171,7 +171,7 @@ export function EditContractModal({ isOpen, onClose, contract, tenants, onSave, 
                 <select 
                   value={formData.status || 'Activo'} 
                   onChange={e => setFormData({...formData, status: e.target.value as 'Activo' | 'Finalizado' | 'Pendiente de firma'})}
-                  className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-[14px] text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500" 
+                  className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-[14px] text-slate-900 dark:text-white focus:ring-2 focus:ring-slate-400 dark:focus:ring-slate-500" 
                 >
                   <option value="Activo">{isEs ? 'Activo' : 'Active'}</option>
                   <option value="Pendiente de firma">{isEs ? 'Pendiente de firma' : 'Pending Signature'}</option>
@@ -195,7 +195,7 @@ export function EditContractModal({ isOpen, onClose, contract, tenants, onSave, 
             type="submit"
             form="edit-contract-form"
             disabled={isSaving}
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg text-[14px] font-bold transition-colors disabled:opacity-70"
+            className="flex items-center gap-2 bg-[#FACC15] hover:bg-[#eab308] text-slate-900 px-5 py-2 rounded-lg text-[14px] font-bold transition-colors disabled:opacity-70"
           >
             <Save size={16} />
             {isSaving ? (isEs ? 'Guardando...' : 'Saving...') : (isEs ? 'Guardar Cambios' : 'Save Changes')}

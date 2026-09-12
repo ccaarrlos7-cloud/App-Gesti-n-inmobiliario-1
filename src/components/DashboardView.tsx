@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowUpRight, ArrowDownRight, X, AlertCircle, User, Bell, CalendarClock, AlertTriangle } from 'lucide-react';
+import { ArrowUpRight, ArrowDownRight, X, AlertCircle, User, Bell, CalendarClock, AlertTriangle, Building2 } from 'lucide-react';
 import { yearlyAnalytics } from '../data';
 import { ViewType } from '../App';
 import { PropertyStatus } from '../types';
@@ -106,11 +106,19 @@ export default function DashboardView({ onNavigate }: { onNavigate?: (view: View
 
   return (
     <div className="flex flex-col h-full bg-slate-50 dark:bg-slate-900 transition-colors">
-      <header className="min-h-[64px] py-3 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 flex flex-wrap gap-3 items-center justify-between px-4 sm:px-8 shrink-0">
-        <h1 className="text-[20px] font-bold text-slate-900 dark:text-white hidden sm:block">{userName}</h1>
+      <header className="min-h-[64px] py-3 bg-white dark:bg-slate-800 border-b border-slate-100 dark:border-slate-700 flex flex-wrap gap-3 items-center justify-between px-4 sm:px-8 shrink-0 shadow-sm">
+        <div className="hidden sm:flex items-center gap-3">
+          <div className="w-9 h-9 bg-[#FACC15] rounded-xl flex items-center justify-center text-slate-900 shadow-md shadow-[#FACC15]/20">
+            <Building2 size={18} />
+          </div>
+          <h1 className="text-[20px] font-bold text-slate-900 dark:text-white">{userName}</h1>
+        </div>
         
-        <div className="relative flex-1 min-w-[150px] sm:min-w-[200px] sm:mx-4">
-          <h1 className="text-[20px] font-bold text-slate-900 dark:text-white sm:hidden">{userName}</h1>
+        <div className="relative flex-1 min-w-[150px] sm:hidden flex items-center gap-2">
+          <div className="w-8 h-8 bg-[#FACC15] rounded-xl flex items-center justify-center text-slate-900 shadow-sm">
+            <Building2 size={16} />
+          </div>
+          <h1 className="text-[20px] font-bold text-slate-900 dark:text-white truncate">{userName}</h1>
         </div>
         
         <div className="flex items-center gap-3">
@@ -130,52 +138,62 @@ export default function DashboardView({ onNavigate }: { onNavigate?: (view: View
           <h2 className="text-[15px] font-semibold text-slate-900 dark:text-white mb-2.5">
             {isEs ? `Resumen de ${monthsStr[new Date().getMonth()]}` : `Summary for ${monthsStr[new Date().getMonth()]}`}
           </h2>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-3 sm:gap-4">
             <div 
               onClick={() => setShowIncomeModal(true)}
-              className="bg-white dark:bg-slate-800 p-3.5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col cursor-pointer hover:border-emerald-300 dark:hover:border-emerald-500 transition-colors"
+              className="bg-white dark:bg-slate-800 p-4 sm:p-5 rounded-2xl shadow-lg shadow-slate-200/40 dark:shadow-none ring-1 ring-slate-100 dark:ring-slate-700 flex flex-col cursor-pointer hover:ring-[#FACC15] dark:hover:ring-[#FACC15] transition-all duration-300 group"
             >
-              <div className="text-slate-500 dark:text-slate-400 text-[11px] font-semibold uppercase mb-1">{isEs ? 'Ingresos' : 'Income'}</div>
-              <div className="text-lg font-bold text-slate-900 dark:text-white my-0.5">{formatNumber(ingresosMes)} €</div>
-              <div className="text-[11px] text-emerald-500 flex items-center gap-1">
-                <ArrowUpRight size={12} /> {isEs ? 'Ver desglose' : 'View breakdown'}
+              <div className="flex justify-between items-start mb-2">
+                <div className="text-slate-500 dark:text-slate-400 text-[11px] font-bold uppercase tracking-wider">{isEs ? 'Ingresos' : 'Income'}</div>
+                <div className="bg-emerald-50 dark:bg-emerald-950/30 text-emerald-500 p-1.5 rounded-full group-hover:scale-110 transition-transform">
+                  <ArrowUpRight size={14} strokeWidth={2.5} />
+                </div>
+              </div>
+              <div className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">{formatNumber(ingresosMes)} €</div>
+              <div className="text-[11px] text-slate-400 font-medium mt-1 group-hover:text-emerald-500 transition-colors">
+                {isEs ? 'Ver desglose' : 'View breakdown'}
               </div>
             </div>
             
             <div 
               onClick={() => setShowExpenseModal(true)}
-              className="bg-white dark:bg-slate-800 p-3.5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col cursor-pointer hover:border-amber-300 dark:hover:border-amber-500 transition-colors"
+              className="bg-white dark:bg-slate-800 p-4 sm:p-5 rounded-2xl shadow-lg shadow-slate-200/40 dark:shadow-none ring-1 ring-slate-100 dark:ring-slate-700 flex flex-col cursor-pointer hover:ring-[#FACC15] dark:hover:ring-[#FACC15] transition-all duration-300 group"
             >
-              <div className="text-slate-500 dark:text-slate-400 text-[11px] font-semibold uppercase mb-1">{isEs ? 'Gastos' : 'Expenses'}</div>
-              <div className="text-lg font-bold text-slate-900 dark:text-white my-0.5">{formatNumber(gastosMes)} €</div>
-              <div className="text-[11px] text-amber-500 flex items-center gap-1">
-                <ArrowDownRight size={12} /> {isEs ? 'Ver desglose' : 'View breakdown'}
+              <div className="flex justify-between items-start mb-2">
+                <div className="text-slate-500 dark:text-slate-400 text-[11px] font-bold uppercase tracking-wider">{isEs ? 'Gastos' : 'Expenses'}</div>
+                <div className="bg-rose-50 dark:bg-rose-950/30 text-rose-500 p-1.5 rounded-full group-hover:scale-110 transition-transform">
+                  <ArrowDownRight size={14} strokeWidth={2.5} />
+                </div>
+              </div>
+              <div className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">{formatNumber(gastosMes)} €</div>
+              <div className="text-[11px] text-slate-400 font-medium mt-1 group-hover:text-rose-500 transition-colors">
+                {isEs ? 'Ver desglose' : 'View breakdown'}
               </div>
             </div>
 
-            <div className="bg-white dark:bg-slate-800 p-3.5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col">
-              <div className="text-slate-500 dark:text-slate-400 text-[11px] font-semibold uppercase mb-1">{isEs ? 'Ocupación' : 'Occupancy'}</div>
-              <div className="flex items-baseline gap-1.5 my-0.5">
-                <span className="text-lg font-bold text-slate-900 dark:text-white">{ocupacion}%</span>
-                <span className="text-[11px] text-slate-400 font-medium">({occupiedProperties.length} {isEs ? 'de' : 'of'} {totalProps})</span>
+            <div className="bg-white dark:bg-slate-800 p-4 sm:p-5 rounded-2xl shadow-lg shadow-slate-200/40 dark:shadow-none ring-1 ring-slate-100 dark:ring-slate-700 flex flex-col">
+              <div className="text-slate-500 dark:text-slate-400 text-[11px] font-bold uppercase tracking-wider mb-2">{isEs ? 'Ocupación' : 'Occupancy'}</div>
+              <div className="flex items-baseline gap-1.5 mb-2 mt-auto">
+                <span className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">{ocupacion}%</span>
+                <span className="text-[11px] text-slate-400 font-medium">({occupiedProperties.length}/{totalProps})</span>
               </div>
-              <div className="w-full bg-slate-100 dark:bg-slate-700 h-1.5 rounded-full mt-2 overflow-hidden">
-                <div className="bg-blue-500 h-full rounded-full transition-all" style={{ width: `${ocupacion}%` }} />
+              <div className="w-full bg-slate-100 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden">
+                <div className="bg-slate-900 dark:bg-slate-400 h-full rounded-full transition-all" style={{ width: `${ocupacion}%` }} />
               </div>
             </div>
 
             <div 
               onClick={() => onNavigate?.('portfolio')}
-              className="bg-white dark:bg-slate-800 p-3.5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col cursor-pointer hover:border-red-300 dark:hover:border-red-500 transition-colors"
+              className="bg-white dark:bg-slate-800 p-4 sm:p-5 rounded-2xl shadow-lg shadow-slate-200/40 dark:shadow-none ring-1 ring-slate-100 dark:ring-slate-700 flex flex-col cursor-pointer hover:ring-[#FACC15] dark:hover:ring-[#FACC15] transition-all duration-300 group"
             >
-              <div className="text-slate-500 dark:text-slate-400 text-[11px] font-semibold uppercase mb-1">{isEs ? 'Incidencias' : 'Issues'}</div>
-              <div className="text-lg font-bold text-slate-900 dark:text-white my-0.5">{openIssuesCount}</div>
+              <div className="text-slate-500 dark:text-slate-400 text-[11px] font-bold uppercase tracking-wider mb-2">{isEs ? 'Incidencias' : 'Issues'}</div>
+              <div className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight mb-2 mt-auto">{openIssuesCount}</div>
               {openIssuesCount > 0 ? (
-                <div className="text-[11px] font-bold text-red-500 flex items-center gap-1 mt-auto">
-                  <AlertCircle size={12} /> {isEs ? 'Requiere atención' : 'Requires attention'}
+                <div className="text-[11px] font-bold text-rose-500 flex items-center gap-1">
+                  <AlertCircle size={12} strokeWidth={2.5} /> {isEs ? 'Requiere atención' : 'Requires attention'}
                 </div>
               ) : (
-                <div className="text-[11px] font-bold text-emerald-500 flex items-center gap-1 mt-auto">
+                <div className="text-[11px] font-bold text-emerald-500 flex items-center gap-1">
                   {isEs ? 'Todo en orden' : 'All good'}
                 </div>
               )}
@@ -185,18 +203,21 @@ export default function DashboardView({ onNavigate }: { onNavigate?: (view: View
 
         <section className="shrink-0">
           <h2 className="text-[15px] font-semibold text-slate-900 dark:text-white mb-2.5">{isEs ? `Resumen Anual (${year})` : `Annual Summary (${year})`}</h2>
-          <div className="bg-slate-900 dark:bg-slate-800 text-white p-4 rounded-xl border border-slate-800 dark:border-slate-700 shadow-sm flex flex-col">
-            <div className="text-slate-400 text-[11px] font-semibold uppercase mb-1">{isEs ? 'Beneficio Neto' : 'Net Profit'}</div>
-            <div className="text-2xl font-bold">{formatNumber(beneficioAnual)} €</div>
+          <div className="bg-slate-900 dark:bg-slate-950 text-white p-5 sm:p-6 rounded-2xl shadow-xl shadow-slate-900/20 flex flex-col relative overflow-hidden">
+            {/* Decorative element */}
+            <div className="absolute -right-10 -top-10 w-32 h-32 bg-[#FACC15] rounded-full blur-[60px] opacity-20 pointer-events-none"></div>
             
-            <div className="flex justify-between items-center mt-4 pt-3 border-t border-slate-800 dark:border-slate-700">
+            <div className="text-slate-400 text-[12px] font-bold uppercase tracking-wider mb-2">{isEs ? 'Beneficio Neto' : 'Net Profit'}</div>
+            <div className="text-3xl sm:text-4xl font-black text-[#FACC15] tracking-tight">{formatNumber(beneficioAnual)} €</div>
+            
+            <div className="flex justify-between items-center mt-6 pt-4 border-t border-slate-700/50">
               <div>
-                <div className="text-[10px] text-slate-400 uppercase font-semibold mb-0.5">{isEs ? 'Ingresos Totales' : 'Total Income'}</div>
-                <div className="font-semibold text-[13px] text-emerald-400">{formatNumber(totalIngresosAnual)} €</div>
+                <div className="text-[11px] text-slate-500 uppercase font-bold mb-1">{isEs ? 'Ingresos Totales' : 'Total Income'}</div>
+                <div className="font-bold text-[14px] text-emerald-400">{formatNumber(totalIngresosAnual)} €</div>
               </div>
               <div className="text-right">
-                <div className="text-[10px] text-slate-400 uppercase font-semibold mb-0.5">{isEs ? 'Gastos Totales' : 'Total Expenses'}</div>
-                <div className="font-semibold text-[13px] text-red-400">{formatNumber(totalGastosAnual)} €</div>
+                <div className="text-[11px] text-slate-500 uppercase font-bold mb-1">{isEs ? 'Gastos Totales' : 'Total Expenses'}</div>
+                <div className="font-bold text-[14px] text-slate-300">{formatNumber(totalGastosAnual)} €</div>
               </div>
             </div>
           </div>
@@ -207,7 +228,7 @@ export default function DashboardView({ onNavigate }: { onNavigate?: (view: View
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-base font-semibold text-slate-900 dark:text-white">{isEs ? 'Rendimiento Anual' : 'Annual Performance'}</h3>
               <select 
-                className="border border-slate-200 dark:border-slate-700 rounded text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer"
+                className="border border-slate-200 dark:border-slate-700 rounded text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#FACC15] cursor-pointer"
                 value={year}
                 onChange={(e) => setYear(Number(e.target.value) as 2025 | 2026)}
               >
@@ -231,8 +252,8 @@ export default function DashboardView({ onNavigate }: { onNavigate?: (view: View
                     contentStyle={{ borderRadius: '8px', border: '1px solid #e2e8f0', backgroundColor: '#1e293b', color: '#fff', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', fontSize: 12 }}
                   />
                   <Legend iconType="circle" wrapperStyle={{ paddingTop: '20px', fontSize: 12 }} />
-                  <Bar name={isEs ? 'Ingresos' : 'Income'} dataKey="Ingresos" fill="#3b82f6" radius={[4, 4, 0, 0]} barSize={24} />
-                  <Bar name={isEs ? 'Gastos' : 'Expenses'} dataKey="Gastos" fill="#94a3b8" radius={[4, 4, 0, 0]} barSize={24} />
+                  <Bar name={isEs ? 'Ingresos' : 'Income'} dataKey="Ingresos" fill="#FACC15" radius={[4, 4, 0, 0]} barSize={24} />
+                  <Bar name={isEs ? 'Gastos' : 'Expenses'} dataKey="Gastos" fill="#1e293b" radius={[4, 4, 0, 0]} barSize={24} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -241,10 +262,10 @@ export default function DashboardView({ onNavigate }: { onNavigate?: (view: View
           {/* Notifications Panel */}
           <div className="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-col h-full lg:max-h-[500px]">
             <div className="flex items-center gap-2 mb-4 shrink-0">
-              <Bell className="text-blue-600 dark:text-blue-400" size={18} />
+              <Bell className="text-slate-700 dark:text-slate-400" size={18} />
               <h3 className="text-base font-semibold text-slate-900 dark:text-white">{isEs ? 'Avisos y Tareas' : 'Alerts & Tasks'}</h3>
               {notifications.length > 0 && (
-                <span className="bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 text-[10px] font-bold px-2 py-0.5 rounded-full ml-auto">
+                <span className="bg-[#FACC15] text-slate-900 text-[10px] font-bold px-2 py-0.5 rounded-full ml-auto shadow-sm">
                   {notifications.length}
                 </span>
               )}
@@ -258,15 +279,15 @@ export default function DashboardView({ onNavigate }: { onNavigate?: (view: View
                 </div>
               ) : (
                 notifications.map((notif) => (
-                  <div key={notif.id} onClick={notif.onClick} className={`p-3 rounded-xl border ${notif.onClick ? 'cursor-pointer hover:opacity-80 transition-opacity ' : ''}${notif.type === 'error' ? 'bg-red-50/50 dark:bg-red-950/30 border-red-100 dark:border-red-900/40' : 'bg-amber-50/50 dark:bg-amber-950/30 border-amber-100 dark:border-amber-900/40'} flex gap-3 items-start`}>
-                    <div className={`mt-0.5 shrink-0 ${notif.type === 'error' ? 'text-red-500' : 'text-amber-500'}`}>
-                      {notif.icon === 'calendar' ? <CalendarClock size={16} /> : <AlertTriangle size={16} />}
+                  <div key={notif.id} onClick={notif.onClick} className={`p-3.5 rounded-xl border ${notif.onClick ? 'cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 ' : ''}${notif.type === 'error' ? 'bg-rose-50/50 dark:bg-rose-950/20 border-rose-100/50 dark:border-rose-900/30' : 'bg-amber-50/50 dark:bg-amber-950/20 border-amber-100/50 dark:border-amber-900/30'} flex gap-3 items-start`}>
+                    <div className={`mt-0.5 shrink-0 p-1.5 rounded-full ${notif.type === 'error' ? 'bg-rose-100 text-rose-600 dark:bg-rose-900/50 dark:text-rose-400' : 'bg-amber-100 text-amber-600 dark:bg-amber-900/50 dark:text-amber-400'}`}>
+                      {notif.icon === 'calendar' ? <CalendarClock size={14} strokeWidth={2.5} /> : <AlertTriangle size={14} strokeWidth={2.5} />}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className={`text-[13px] font-bold truncate ${notif.type === 'error' ? 'text-red-900 dark:text-red-300' : 'text-amber-900 dark:text-amber-300'}`}>
+                      <p className={`text-[13px] font-bold truncate ${notif.type === 'error' ? 'text-rose-900 dark:text-rose-300' : 'text-amber-900 dark:text-amber-300'}`}>
                         {notif.title}
                       </p>
-                      <p className={`text-[11px] mt-0.5 truncate ${notif.type === 'error' ? 'text-red-700/80 dark:text-red-400/80' : 'text-amber-700/80 dark:text-amber-400/80'}`}>
+                      <p className={`text-[12px] mt-0.5 truncate font-medium ${notif.type === 'error' ? 'text-rose-700/80 dark:text-rose-400/80' : 'text-amber-700/80 dark:text-amber-400/80'}`}>
                         {notif.description}
                       </p>
                     </div>
@@ -280,11 +301,11 @@ export default function DashboardView({ onNavigate }: { onNavigate?: (view: View
 
       {/* Income Modal */}
       {showIncomeModal && (
-        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-[2px] z-[110] flex items-end sm:items-center justify-center sm:p-4" onClick={() => setShowIncomeModal(false)}>
-          <div className="bg-white dark:bg-slate-800 w-full sm:max-w-md sm:rounded-2xl rounded-t-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh] animate-in slide-in-from-bottom-8 sm:slide-in-from-bottom-0 sm:zoom-in-95 duration-200" onClick={e => e.stopPropagation()}>
-            <div className="p-4 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-800/80 shrink-0">
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[110] flex items-end sm:items-center justify-center sm:p-4 transition-all duration-300" onClick={() => setShowIncomeModal(false)}>
+          <div className="bg-white dark:bg-slate-800 w-full sm:max-w-md sm:rounded-2xl rounded-t-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh] animate-in slide-in-from-bottom-8 sm:slide-in-from-bottom-0 sm:zoom-in-95 duration-200 ring-1 ring-slate-200/50 dark:ring-slate-700" onClick={e => e.stopPropagation()}>
+            <div className="p-5 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-800/80 shrink-0">
               <h3 className="font-bold text-slate-900 dark:text-white text-[16px]">{isEs ? 'Desglose de Ingresos' : 'Income Breakdown'}</h3>
-              <button onClick={() => setShowIncomeModal(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 bg-white dark:bg-slate-700 rounded-full p-1 border border-slate-200 dark:border-slate-600 shadow-sm"><X size={18}/></button>
+              <button onClick={() => setShowIncomeModal(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-full p-1.5 transition-colors"><X size={18}/></button>
             </div>
             <div className="p-4 overflow-auto flex-1 divide-y divide-slate-100 dark:divide-slate-700">
               {ingresosDetalle.map(t => (
@@ -307,11 +328,11 @@ export default function DashboardView({ onNavigate }: { onNavigate?: (view: View
 
       {/* Expenses Modal */}
       {showExpenseModal && (
-        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-[2px] z-[110] flex items-end sm:items-center justify-center sm:p-4" onClick={() => setShowExpenseModal(false)}>
-          <div className="bg-white dark:bg-slate-800 w-full sm:max-w-md sm:rounded-2xl rounded-t-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh] animate-in slide-in-from-bottom-8 sm:slide-in-from-bottom-0 sm:zoom-in-95 duration-200" onClick={e => e.stopPropagation()}>
-            <div className="p-4 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-800/80 shrink-0">
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[110] flex items-end sm:items-center justify-center sm:p-4 transition-all duration-300" onClick={() => setShowExpenseModal(false)}>
+          <div className="bg-white dark:bg-slate-800 w-full sm:max-w-md sm:rounded-2xl rounded-t-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh] animate-in slide-in-from-bottom-8 sm:slide-in-from-bottom-0 sm:zoom-in-95 duration-200 ring-1 ring-slate-200/50 dark:ring-slate-700" onClick={e => e.stopPropagation()}>
+            <div className="p-5 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-800/80 shrink-0">
               <h3 className="font-bold text-slate-900 dark:text-white text-[16px]">{isEs ? 'Desglose de Gastos' : 'Expense Breakdown'}</h3>
-              <button onClick={() => setShowExpenseModal(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 bg-white dark:bg-slate-700 rounded-full p-1 border border-slate-200 dark:border-slate-600 shadow-sm"><X size={18}/></button>
+              <button onClick={() => setShowExpenseModal(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-full p-1.5 transition-colors"><X size={18}/></button>
             </div>
             <div className="p-4 overflow-auto flex-1 divide-y divide-slate-100 dark:divide-slate-700">
               {gastosDetalle.map(g => (

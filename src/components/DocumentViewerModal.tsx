@@ -113,7 +113,7 @@ export function DocumentViewerModal({ isOpen, onClose, documentUrl, documentName
               <a 
                 href={resolvedUrl} 
                 download={documentName}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-[#FACC15] hover:bg-[#eab308] text-white font-semibold rounded-lg transition-colors"
               >
                 <Download size={16} /> {isEs ? 'Descargar archivo' : 'Download file'}
               </a>

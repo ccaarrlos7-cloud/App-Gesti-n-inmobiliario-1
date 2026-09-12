@@ -318,7 +318,7 @@ export default function PortfolioView({ initialTab = 'Todos' }: { initialTab?: P
           <input 
             type="text" 
             placeholder={isEs ? "Buscar..." : "Search..."}
-            className="pl-9 pr-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg w-full bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="pl-9 pr-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg w-full bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-1 focus:ring-slate-400 dark:focus:ring-slate-500"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -326,7 +326,7 @@ export default function PortfolioView({ initialTab = 'Todos' }: { initialTab?: P
         <div className="flex items-center gap-3">
           <button 
             onClick={() => setIsModalOpen(true)}
-            className="bg-blue-600 hover:bg-blue-700 text-white p-2 sm:px-4 sm:py-2 rounded-lg font-medium text-sm transition-colors flex items-center justify-center shadow-sm shrink-0"
+            className="bg-[#FACC15] hover:bg-[#eab308] text-slate-900 p-2 sm:px-4 sm:py-2 rounded-lg font-medium text-sm transition-colors flex items-center justify-center shadow-sm shrink-0"
           >
             <Plus size={20} className="sm:hidden" />
             <span className="hidden sm:inline">{isEs ? '+ Añadir Inmueble' : '+ Add Property'}</span>
@@ -436,7 +436,7 @@ export default function PortfolioView({ initialTab = 'Todos' }: { initialTab?: P
                  {viewMode === 'info' && (
                    <button 
                      onClick={() => setViewMode('edit')}
-                     className="absolute bottom-4 right-4 bg-white/95 dark:bg-slate-800/95 shadow-sm backdrop-blur px-3 py-1.5 rounded-full text-[12px] font-bold text-blue-600 dark:text-blue-400 flex items-center gap-1.5"
+                     className="absolute bottom-4 right-4 bg-white/95 dark:bg-slate-800/95 shadow-sm backdrop-blur px-3 py-1.5 rounded-full text-[12px] font-bold text-slate-900 dark:text-white dark:text-[#FACC15] flex items-center gap-1.5"
                    >
                      <Edit size={14} /> {isEs ? 'Modificar' : 'Edit'}
                    </button>
@@ -445,8 +445,8 @@ export default function PortfolioView({ initialTab = 'Todos' }: { initialTab?: P
                
                {['info', 'finanzas'].includes(viewMode) && (
                  <div className="flex border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
-                   <button onClick={() => setViewMode('info')} className={`flex-1 py-3 text-[13px] ${viewMode === 'info' ? 'font-bold text-blue-600 dark:text-blue-400 border-b-2 border-blue-600' : 'font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'}`}>{isEs ? 'Info' : 'Info'}</button>
-                   <button onClick={() => setViewMode('finanzas')} className={`flex-1 py-3 text-[13px] ${viewMode === 'finanzas' ? 'font-bold text-blue-600 dark:text-blue-400 border-b-2 border-blue-600' : 'font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'}`}>{isEs ? 'Finanzas' : 'Finances'}</button>
+                   <button onClick={() => setViewMode('info')} className={`flex-1 py-3 text-[13px] ${viewMode === 'info' ? 'font-bold text-slate-900 dark:text-white border-b-2 border-[#FACC15]' : 'font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'}`}>{isEs ? 'Info' : 'Info'}</button>
+                   <button onClick={() => setViewMode('finanzas')} className={`flex-1 py-3 text-[13px] ${viewMode === 'finanzas' ? 'font-bold text-slate-900 dark:text-white border-b-2 border-[#FACC15]' : 'font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'}`}>{isEs ? 'Finanzas' : 'Finances'}</button>
                  </div>
                )}
 
@@ -515,7 +515,7 @@ export default function PortfolioView({ initialTab = 'Todos' }: { initialTab?: P
                              {/* Contrato Alquiler */}
                              <div className="flex items-center justify-between p-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
                                <div className="flex items-center gap-2">
-                                 <FileText size={16} className="text-blue-500" />
+                                 <FileText size={16} className="text-[#FACC15]" />
                                  <span className="font-semibold text-slate-700 dark:text-slate-300">{isEs ? 'Contrato Alquiler' : 'Rental Contract'}</span>
                                </div>
                                {selectedProperty.rentalContractUrl ? (
@@ -533,7 +533,7 @@ export default function PortfolioView({ initialTab = 'Todos' }: { initialTab?: P
                                      onDownload={() => {}}
                                    />
                                ) : (
-                                 <label className="text-xs text-blue-600 hover:text-blue-700 cursor-pointer flex items-center gap-1">
+                                 <label className="text-xs text-slate-900 dark:text-white hover:text-[#eab308] cursor-pointer flex items-center gap-1">
                                    <Upload size={14} /> {isEs ? 'Subir' : 'Upload'}
                                    <input type="file" className="hidden" accept=".pdf,.png,.jpg,.jpeg" onChange={(e) => {
                                       const file = e.target.files?.[0];
@@ -575,7 +575,7 @@ export default function PortfolioView({ initialTab = 'Todos' }: { initialTab?: P
                                      onDownload={() => {}}
                                    />
                                ) : (
-                                 <label className="text-xs text-blue-600 hover:text-blue-700 cursor-pointer flex items-center gap-1">
+                                 <label className="text-xs text-slate-900 dark:text-white hover:text-[#eab308] cursor-pointer flex items-center gap-1">
                                    <Upload size={14} /> {isEs ? 'Subir' : 'Upload'}
                                    <input type="file" className="hidden" accept=".pdf,.png,.jpg,.jpeg" onChange={(e) => {
                                       const file = e.target.files?.[0];
@@ -605,7 +605,7 @@ export default function PortfolioView({ initialTab = 'Todos' }: { initialTab?: P
                                  </div>
                                  {selectedProperty.mortgageDocumentUrl ? (
                                    <div className="flex items-center gap-2">
-                                     <a href={selectedProperty.mortgageDocumentUrl} download="Documento_Hipoteca" className="text-blue-600 dark:text-blue-400 font-semibold hover:underline">
+                                     <a href={selectedProperty.mortgageDocumentUrl} download="Documento_Hipoteca" className="text-slate-900 dark:text-white dark:text-[#FACC15] font-semibold hover:underline">
                                        <Download size={14} />
                                      </a>
                                      <button onClick={() => {
@@ -617,7 +617,7 @@ export default function PortfolioView({ initialTab = 'Todos' }: { initialTab?: P
                                      </button>
                                    </div>
                                  ) : (
-                                   <label className="text-xs text-blue-600 hover:text-blue-700 cursor-pointer flex items-center gap-1">
+                                   <label className="text-xs text-slate-900 dark:text-white hover:text-[#eab308] cursor-pointer flex items-center gap-1">
                                      <Upload size={14} /> {isEs ? 'Subir' : 'Upload'}
                                      <input type="file" className="hidden" accept=".pdf,.png,.jpg,.jpeg" onChange={(e) => {
                                         const file = e.target.files?.[0];
@@ -651,7 +651,7 @@ export default function PortfolioView({ initialTab = 'Todos' }: { initialTab?: P
                                setIssueForm({ title: '', description: '', status: 'Abierta', propertyId: selectedProperty.id, cost: 0, generateTransaction: false });
                                setShowIssueForm(true);
                              }}
-                             className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 bg-blue-50 dark:bg-blue-900/30 px-2 py-1 rounded"
+                             className="text-xs font-semibold text-slate-900 dark:text-white dark:text-[#FACC15] hover:text-[#eab308] bg-slate-100 dark:bg-slate-800 dark:bg-slate-800/50 px-2 py-1 rounded"
                            >
                              {isEs ? '+ Añadir Incidencia' : '+ Add Issue'}
                            </button>
@@ -665,7 +665,7 @@ export default function PortfolioView({ initialTab = 'Todos' }: { initialTab?: P
                              {propertyIssues.map(issue => (
                                <div key={issue.id} onClick={() => handleEditIssue(issue)} className="bg-white dark:bg-slate-800 border border-red-200 dark:border-red-900/40 shadow-sm p-4 rounded-xl relative hover:border-red-300 dark:hover:border-red-700 transition-colors cursor-pointer group">
                                  <div className="flex justify-between items-start mb-2">
-                                   <h4 className="font-bold text-slate-900 dark:text-white text-sm group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">{issue.title}</h4>
+                                   <h4 className="font-bold text-slate-900 dark:text-white text-sm group-hover:text-[#FACC15] dark:group-hover:text-[#FACC15] transition-colors">{issue.title}</h4>
                                  </div>
                                  <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed mb-3">{issue.description}</p>
                                  <div className="flex items-center justify-between text-[11px] font-semibold">
@@ -690,7 +690,7 @@ export default function PortfolioView({ initialTab = 'Todos' }: { initialTab?: P
                        {contract ? (
                          <button 
                            onClick={() => setViewMode('contract')} 
-                           className="w-full bg-slate-900 hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-700 transition-colors text-white py-3.5 rounded-xl font-semibold flex items-center justify-center gap-2 shadow-sm text-[14px]"
+                           className="w-full bg-slate-900 hover:bg-slate-800 dark:bg-[#FACC15] dark:hover:bg-[#eab308] transition-colors text-white py-3.5 rounded-xl font-semibold flex items-center justify-center gap-2 shadow-sm text-[14px]"
                          >
                            <FileText size={18} /> {isEs ? 'Ver Contrato Activo' : 'View Active Contract'}
                          </button>
@@ -736,7 +736,7 @@ export default function PortfolioView({ initialTab = 'Todos' }: { initialTab?: P
                               <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">{isEs ? 'Documento / Factura (Opcional)' : 'Document / Invoice (Optional)'}</label>
                               <input 
                                 type="file" 
-                                className="w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 dark:file:bg-blue-900/30 file:text-blue-700 dark:file:text-blue-300 hover:file:bg-blue-100 border border-slate-200 dark:border-slate-700 rounded p-2 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white"
+                                className="w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-slate-100 dark:bg-slate-800 dark:file:bg-slate-800/50 file:text-slate-700 dark:file:text-slate-400 hover:file:bg-slate-200 dark:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded p-2 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white"
                                 onChange={(e) => {
                                   const file = e.target.files?.[0];
                                   if (file) {
@@ -751,7 +751,7 @@ export default function PortfolioView({ initialTab = 'Todos' }: { initialTab?: P
                                 }}
                               />
                             </div>
-                            <button type="submit" className="w-full bg-slate-900 hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-semibold text-sm p-2.5 rounded-lg transition-colors flex items-center justify-center gap-2">
+                            <button type="submit" className="w-full bg-[#FACC15] hover:bg-[#eab308] text-slate-900 font-semibold text-sm p-2.5 rounded-lg transition-colors flex items-center justify-center gap-2">
                               {isEs ? 'Guardar Registro' : 'Save Entry'}
                             </button>
                           </form>
@@ -853,7 +853,7 @@ export default function PortfolioView({ initialTab = 'Todos' }: { initialTab?: P
                                     <div className="font-semibold text-slate-900 dark:text-white text-[14px] leading-tight flex items-center gap-1.5">
                                       {tx.category}
                                       {tx.document && (
-                                        <a href={tx.document} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-600" title={isEs ? "Ver documento" : "View document"}>
+                                        <a href={tx.document} target="_blank" rel="noopener noreferrer" className="text-[#FACC15] hover:text-[#FACC15]" title={isEs ? "Ver documento" : "View document"}>
                                           <Paperclip size={12} />
                                         </a>
                                       )}
@@ -884,7 +884,7 @@ export default function PortfolioView({ initialTab = 'Todos' }: { initialTab?: P
                          <button type="button" onClick={handleDeleteProperty} className="px-4 bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/40 transition-colors py-3 rounded-xl font-semibold text-sm shadow-sm flex items-center justify-center border border-red-200 dark:border-red-800/40" title={isEs ? 'Eliminar inmueble' : 'Delete property'}>
                            <Trash2 size={18} />
                          </button>
-                         <button type="submit" form="edit-property-form" className="flex-1 bg-blue-600 hover:bg-blue-700 transition-colors text-white py-3 rounded-xl font-semibold text-sm shadow-sm">
+                         <button type="submit" form="edit-property-form" className="flex-1 bg-[#FACC15] hover:bg-[#eab308] transition-colors text-slate-900 py-3 rounded-xl font-semibold text-sm shadow-sm">
                            {isEs ? 'Guardar Cambios' : 'Save Changes'}
                          </button>
                        </div>
@@ -893,7 +893,7 @@ export default function PortfolioView({ initialTab = 'Todos' }: { initialTab?: P
 
                   {viewMode === 'contract' && (
                      <div className="animate-in fade-in slide-in-from-right-4 duration-300 h-full flex flex-col">
-                       <button onClick={() => setViewMode('info')} className="flex items-center gap-1.5 text-blue-500 dark:text-blue-400 hover:text-blue-600 font-semibold mb-6 text-[14px]">
+                       <button onClick={() => setViewMode('info')} className="flex items-center gap-1.5 text-[#FACC15] dark:text-[#FACC15] hover:text-[#FACC15] font-semibold mb-6 text-[14px]">
                          <ChevronLeft size={18} /> {isEs ? 'Volver al inmueble' : 'Back to property'}
                        </button>
                        <h3 className="text-[18px] font-bold text-slate-900 dark:text-white mb-5">{isEs ? 'Detalles del Contrato' : 'Contract Details'}</h3>
@@ -974,7 +974,7 @@ export default function PortfolioView({ initialTab = 'Todos' }: { initialTab?: P
             </div>
             <div className="p-5 border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 flex justify-end gap-3 shrink-0">
               <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 text-slate-600 dark:text-slate-400 font-semibold text-sm hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg">{isEs ? 'Cancelar' : 'Cancel'}</button>
-              <button type="submit" form="add-property-form" className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm rounded-lg shadow-sm">{isEs ? 'Guardar Inmueble' : 'Save Property'}</button>
+              <button type="submit" form="add-property-form" className="px-5 py-2 bg-[#FACC15] hover:bg-[#eab308] text-slate-900 font-semibold text-sm rounded-lg shadow-sm">{isEs ? 'Guardar Inmueble' : 'Save Property'}</button>
             </div>
           </div>
         </div>
@@ -997,7 +997,7 @@ export default function PortfolioView({ initialTab = 'Todos' }: { initialTab?: P
                   type="text" 
                   value={issueForm.title}
                   onChange={(e) => setIssueForm({...issueForm, title: e.target.value})}
-                  className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white bg-white dark:bg-slate-800 focus:border-blue-500 outline-none"
+                  className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white bg-white dark:bg-slate-800 focus:border-slate-500 outline-none"
                   placeholder={isEs ? "Ej. Limpieza general necesaria" : "E.g. General cleaning needed"}
                   required
                 />
@@ -1007,7 +1007,7 @@ export default function PortfolioView({ initialTab = 'Todos' }: { initialTab?: P
                 <select
                   value={issueForm.propertyId}
                   onChange={(e) => setIssueForm({...issueForm, propertyId: e.target.value})}
-                  className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white focus:border-blue-500 outline-none bg-white dark:bg-slate-800"
+                  className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white focus:border-slate-500 outline-none bg-white dark:bg-slate-800"
                 >
                   {properties.map(p => (
                     <option key={p.id} value={p.id}>{p.title}</option>
@@ -1020,7 +1020,7 @@ export default function PortfolioView({ initialTab = 'Todos' }: { initialTab?: P
                 <textarea 
                   value={issueForm.description}
                   onChange={(e) => setIssueForm({...issueForm, description: e.target.value})}
-                  className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white bg-white dark:bg-slate-800 focus:border-blue-500 outline-none min-h-[100px] resize-none"
+                  className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white bg-white dark:bg-slate-800 focus:border-slate-500 outline-none min-h-[100px] resize-none"
                   placeholder={isEs ? "Detalles sobre la incidencia..." : "Details regarding the issue..."}
                 ></textarea>
               </div>
@@ -1051,7 +1051,7 @@ export default function PortfolioView({ initialTab = 'Todos' }: { initialTab?: P
               {editingIssueId && (
                 <div className="pt-4 border-t border-slate-200 dark:border-slate-700">
                   <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
-                    <MessageSquare size={16} className="text-blue-500" />
+                    <MessageSquare size={16} className="text-[#FACC15]" />
                     {isEs ? 'Mensajes / Historial' : 'Messages / History'}
                   </h3>
                   
@@ -1061,7 +1061,7 @@ export default function PortfolioView({ initialTab = 'Todos' }: { initialTab?: P
                     ) : (
                       issueMessages.map(msg => (
                         <div key={msg.id} className={`flex flex-col ${msg.authorRole === 'propietario' ? 'items-end' : 'items-start'}`}>
-                          <div className={`max-w-[85%] rounded-2xl px-4 py-2 ${msg.authorRole === 'propietario' ? 'bg-blue-600 text-white rounded-tr-sm' : 'bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-white rounded-tl-sm'}`}>
+                          <div className={`max-w-[85%] rounded-2xl px-4 py-2 ${msg.authorRole === 'propietario' ? 'bg-[#DBEAFE] dark:bg-[#1E293B] text-[#1E293B] dark:text-[#DBEAFE] rounded-tr-sm' : 'bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-white rounded-tl-sm'}`}>
                             <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
                           </div>
                           <span className="text-[10px] text-slate-400 mt-1 px-1">
@@ -1079,13 +1079,13 @@ export default function PortfolioView({ initialTab = 'Todos' }: { initialTab?: P
                       onChange={e => setNewMessage(e.target.value)}
                       onKeyDown={e => e.key === 'Enter' && handleSendMessage()}
                       placeholder={isEs ? "Añadir mensaje..." : "Add message..."}
-                      className="flex-1 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white bg-slate-50 dark:bg-slate-900 focus:border-blue-500 outline-none"
+                      className="flex-1 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white bg-slate-50 dark:bg-slate-900 focus:border-slate-500 outline-none"
                     />
                     <button 
                       type="button" 
                       onClick={handleSendMessage}
                       disabled={isSubmittingMessage || !newMessage.trim()}
-                      className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-lg text-sm font-semibold transition-colors"
+                      className="px-4 py-2 bg-[#FACC15] hover:bg-[#eab308] disabled:opacity-50 text-slate-900 rounded-lg text-sm font-semibold transition-colors"
                     >
                       {isEs ? 'Enviar' : 'Send'}
                     </button>
@@ -1103,7 +1103,7 @@ export default function PortfolioView({ initialTab = 'Todos' }: { initialTab?: P
               )}
               <div className="flex gap-3">
                 <button type="button" onClick={() => setShowIssueForm(false)} className="px-4 py-2 text-slate-600 dark:text-slate-400 font-semibold text-sm hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg">{isEs ? 'Cancelar' : 'Cancel'}</button>
-                <button onClick={handleSaveIssue} disabled={!issueForm.title.trim()} className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm rounded-lg shadow-sm disabled:opacity-50">{isEs ? 'Guardar Incidencia' : 'Save Issue'}</button>
+                <button onClick={handleSaveIssue} disabled={!issueForm.title.trim()} className="px-5 py-2 bg-[#FACC15] hover:bg-[#eab308] text-slate-900 font-semibold text-sm rounded-lg shadow-sm disabled:opacity-50">{isEs ? 'Guardar Incidencia' : 'Save Issue'}</button>
               </div>
             </div>
           </div>

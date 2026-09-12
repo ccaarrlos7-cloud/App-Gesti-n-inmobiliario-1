@@ -53,7 +53,7 @@ export function EditTenantModal({ isOpen, onClose, tenant, onSave, isEs }: EditT
         
         <form onSubmit={handleSubmit} className="p-5 space-y-4">
           {hasProfile && (
-            <div className="bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 p-3 rounded-lg text-[13px] flex items-start gap-2 border border-blue-100 dark:border-blue-800">
+            <div className="bg-slate-100 dark:bg-slate-800 dark:bg-slate-800/40 text-slate-700 dark:text-slate-400 p-3 rounded-lg text-[13px] flex items-start gap-2 border border-slate-200 dark:border-slate-700">
               <AlertCircle size={16} className="mt-0.5 shrink-0" />
               <span>
                 {isEs 
@@ -72,7 +72,7 @@ export function EditTenantModal({ isOpen, onClose, tenant, onSave, isEs }: EditT
               required
               value={formData.name || ''} 
               onChange={e => setFormData({...formData, name: e.target.value})}
-              className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-[14px] text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500" 
+              className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-[14px] text-slate-900 dark:text-white focus:ring-2 focus:ring-slate-400 dark:focus:ring-slate-500" 
             />
           </div>
           <div>
@@ -85,7 +85,7 @@ export function EditTenantModal({ isOpen, onClose, tenant, onSave, isEs }: EditT
               disabled={hasProfile}
               value={formData.email || ''} 
               onChange={e => setFormData({...formData, email: e.target.value})}
-              className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-[14px] text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed" 
+              className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-[14px] text-slate-900 dark:text-white focus:ring-2 focus:ring-slate-400 dark:focus:ring-slate-500 disabled:opacity-50 disabled:cursor-not-allowed" 
             />
           </div>
           <div className="grid grid-cols-2 gap-3">
@@ -97,7 +97,7 @@ export function EditTenantModal({ isOpen, onClose, tenant, onSave, isEs }: EditT
                 type="tel" 
                 value={formData.phone || ''} 
                 onChange={e => setFormData({...formData, phone: e.target.value})}
-                className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-[14px] text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500" 
+                className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-[14px] text-slate-900 dark:text-white focus:ring-2 focus:ring-slate-400 dark:focus:ring-slate-500" 
               />
             </div>
             <div>
@@ -108,7 +108,7 @@ export function EditTenantModal({ isOpen, onClose, tenant, onSave, isEs }: EditT
                 type="text" 
                 value={formData.dni || ''} 
                 onChange={e => setFormData({...formData, dni: e.target.value})}
-                className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-[14px] text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500" 
+                className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-[14px] text-slate-900 dark:text-white focus:ring-2 focus:ring-slate-400 dark:focus:ring-slate-500" 
               />
             </div>
           </div>
@@ -124,7 +124,7 @@ export function EditTenantModal({ isOpen, onClose, tenant, onSave, isEs }: EditT
             <button 
               type="submit"
               disabled={isSaving}
-              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg text-[14px] font-bold transition-colors disabled:opacity-70"
+              className="flex items-center gap-2 bg-[#FACC15] hover:bg-[#eab308] text-slate-900 px-5 py-2 rounded-lg text-[14px] font-bold transition-colors disabled:opacity-70"
             >
               <Save size={16} />
               {isSaving ? (isEs ? 'Guardando...' : 'Saving...') : (isEs ? 'Guardar Cambios' : 'Save Changes')}

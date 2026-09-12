@@ -312,7 +312,7 @@ export default function PropertyFields({ data, onChange }: Props) {
         
         <div className="bg-slate-100 dark:bg-slate-800 p-3 rounded-lg border border-slate-200 dark:border-slate-700 mt-4">
           <label className="flex items-center gap-2 text-[13px] font-bold text-slate-800 dark:text-slate-200 mb-3 cursor-pointer">
-            <input type="checkbox" className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500" checked={!!data.hasMortgage} onChange={e => update('hasMortgage', e.target.checked)} />
+            <input type="checkbox" className="w-4 h-4 rounded text-[#eab308] dark:text-[#FACC15] focus:ring-[#FACC15]" checked={!!data.hasMortgage} onChange={e => update('hasMortgage', e.target.checked)} />
             {isEs ? 'El inmueble tiene hipoteca' : 'Property has a mortgage'}
           </label>
           {data.hasMortgage && (
@@ -396,7 +396,7 @@ export default function PropertyFields({ data, onChange }: Props) {
               type="file" 
               multiple 
               accept="image/*" 
-              className="w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 dark:file:bg-blue-900/30 file:text-blue-700 dark:file:text-blue-300 hover:file:bg-blue-100 mb-3"
+              className="w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-slate-100 dark:file:bg-slate-800 file:text-slate-700 dark:file:text-slate-300 hover:file:bg-slate-200 mb-3"
               onChange={async (e) => {
                 const files = e.target.files;
                 if (!files || files.length === 0) return;
@@ -429,8 +429,8 @@ export default function PropertyFields({ data, onChange }: Props) {
               }}
             />
             {isUploading === 'gallery' && (
-              <div className="flex items-center gap-2 text-sm text-blue-600 mb-3 font-medium">
-                <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+              <div className="flex items-center gap-2 text-sm text-[#eab308] dark:text-[#FACC15] mb-3 font-medium">
+                <div className="w-4 h-4 border-2 border-[#FACC15] border-t-transparent rounded-full animate-spin"></div>
                 {isEs ? 'Subiendo fotos...' : 'Uploading photos...'}
               </div>
             )}
@@ -438,11 +438,11 @@ export default function PropertyFields({ data, onChange }: Props) {
             {(data.gallery?.length || 0) > 0 && (
               <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 mb-2">
                 {data.gallery?.map((img, idx) => (
-                  <div key={idx} className={`relative aspect-square rounded-lg overflow-hidden border-2 cursor-pointer ${data.image === img ? 'border-blue-500 shadow-sm' : 'border-transparent'}`} onClick={() => update('image', img)}>
+                  <div key={idx} className={`relative aspect-square rounded-lg overflow-hidden border-2 cursor-pointer ${data.image === img ? 'border-slate-500 shadow-sm' : 'border-transparent'}`} onClick={() => update('image', img)}>
                     <img src={img} alt={`Gallery ${idx}`} className="w-full h-full object-cover" />
                     {data.image === img && (
-                      <div className="absolute inset-0 bg-blue-500/20 flex flex-col items-center justify-center">
-                        <div className="bg-blue-500 text-white text-[10px] px-2 py-0.5 rounded-full font-bold shadow-sm">{isEs ? 'Principal' : 'Main'}</div>
+                      <div className="absolute inset-0 bg-slate-900/40 flex flex-col items-center justify-center">
+                        <div className="bg-[#FACC15] text-white text-[10px] px-2 py-0.5 rounded-full font-bold shadow-sm">{isEs ? 'Principal' : 'Main'}</div>
                       </div>
                     )}
                   </div>
@@ -456,7 +456,7 @@ export default function PropertyFields({ data, onChange }: Props) {
             </label>
             {data.rentalContractUrl ? (
               <div className="flex items-center gap-2 p-2 border border-slate-200 dark:border-slate-700 rounded bg-slate-50 dark:bg-slate-800">
-                 <a href="#" onClick={(e) => handleDownload(e, data.rentalContractUrl!, "Contrato_Alquiler")} className="text-blue-600 dark:text-blue-400 text-[13px] font-semibold hover:underline flex-1 truncate" title={isEs ? 'Descargar' : 'Download'}>
+                 <a href="#" onClick={(e) => handleDownload(e, data.rentalContractUrl!, "Contrato_Alquiler")} className="text-[#eab308] dark:text-[#FACC15] text-[13px] font-semibold hover:underline flex-1 truncate" title={isEs ? 'Descargar' : 'Download'}>
                    {isEs ? 'Documento adjunto (Ver / Descargar)' : 'Attached Document (View / Download)'}
                  </a>
                  <button type="button" onClick={() => handleDelete('rentalContractUrl')} className="text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 p-1.5 rounded transition-colors" title={isEs ? 'Eliminar documento' : 'Delete document'}>
@@ -469,7 +469,7 @@ export default function PropertyFields({ data, onChange }: Props) {
                   type="file" 
                   accept=".pdf,.png,.jpg,.jpeg,.doc,.docx"
                   disabled={isUploading === 'rentalContractUrl'}
-                  className="w-full text-sm file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-[11px] file:font-bold file:uppercase file:bg-blue-50 dark:file:bg-blue-900/30 file:text-blue-700 dark:file:text-blue-300 hover:file:bg-blue-100 cursor-pointer"
+                  className="w-full text-sm file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-[11px] file:font-bold file:uppercase file:bg-slate-100 dark:file:bg-slate-800 file:text-slate-700 dark:file:text-slate-300 hover:file:bg-slate-200 cursor-pointer"
                   onChange={(e) => {
                     const file = e.target.files?.[0];
                     if (file) {
@@ -477,7 +477,7 @@ export default function PropertyFields({ data, onChange }: Props) {
                     }
                   }}
                 />
-                {isUploading === 'rentalContractUrl' && <span className="text-xs text-blue-500">{isEs ? 'Subiendo...' : 'Uploading...'}</span>}
+                {isUploading === 'rentalContractUrl' && <span className="text-xs text-[#FACC15]">{isEs ? 'Subiendo...' : 'Uploading...'}</span>}
               </div>
             )}
           </div>
@@ -487,7 +487,7 @@ export default function PropertyFields({ data, onChange }: Props) {
             </label>
             {data.purchaseDocumentUrl ? (
               <div className="flex items-center gap-2 p-2 border border-slate-200 dark:border-slate-700 rounded bg-slate-50 dark:bg-slate-800">
-                 <a href="#" onClick={(e) => handleDownload(e, data.purchaseDocumentUrl!, "Documento_Compra")} className="text-blue-600 dark:text-blue-400 text-[13px] font-semibold hover:underline flex-1 truncate" title={isEs ? 'Descargar' : 'Download'}>
+                 <a href="#" onClick={(e) => handleDownload(e, data.purchaseDocumentUrl!, "Documento_Compra")} className="text-[#eab308] dark:text-[#FACC15] text-[13px] font-semibold hover:underline flex-1 truncate" title={isEs ? 'Descargar' : 'Download'}>
                    {isEs ? 'Documento adjunto (Ver / Descargar)' : 'Attached Document (View / Download)'}
                  </a>
                  <button type="button" onClick={() => handleDelete('purchaseDocumentUrl')} className="text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 p-1.5 rounded transition-colors" title={isEs ? 'Eliminar documento' : 'Delete document'}>
@@ -500,7 +500,7 @@ export default function PropertyFields({ data, onChange }: Props) {
                   type="file" 
                   accept=".pdf,.png,.jpg,.jpeg,.doc,.docx"
                   disabled={isUploading === 'purchaseDocumentUrl'}
-                  className="w-full text-sm file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-[11px] file:font-bold file:uppercase file:bg-blue-50 dark:file:bg-blue-900/30 file:text-blue-700 dark:file:text-blue-300 hover:file:bg-blue-100 cursor-pointer"
+                  className="w-full text-sm file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-[11px] file:font-bold file:uppercase file:bg-slate-100 dark:file:bg-slate-800 file:text-slate-700 dark:file:text-slate-300 hover:file:bg-slate-200 cursor-pointer"
                   onChange={(e) => {
                     const file = e.target.files?.[0];
                     if (file) {
@@ -508,7 +508,7 @@ export default function PropertyFields({ data, onChange }: Props) {
                     }
                   }}
                 />
-                {isUploading === 'purchaseDocumentUrl' && <span className="text-xs text-blue-500">{isEs ? 'Subiendo...' : 'Uploading...'}</span>}
+                {isUploading === 'purchaseDocumentUrl' && <span className="text-xs text-[#FACC15]">{isEs ? 'Subiendo...' : 'Uploading...'}</span>}
               </div>
             )}
           </div>
@@ -519,7 +519,7 @@ export default function PropertyFields({ data, onChange }: Props) {
             </label>
             {data.mortgageDocumentUrl ? (
               <div className="flex items-center gap-2 p-2 border border-slate-200 dark:border-slate-700 rounded bg-slate-50 dark:bg-slate-800">
-                 <a href="#" onClick={(e) => handleDownload(e, data.mortgageDocumentUrl!, "Documento_Hipoteca")} className="text-blue-600 dark:text-blue-400 text-[13px] font-semibold hover:underline flex-1 truncate" title={isEs ? 'Descargar' : 'Download'}>
+                 <a href="#" onClick={(e) => handleDownload(e, data.mortgageDocumentUrl!, "Documento_Hipoteca")} className="text-[#eab308] dark:text-[#FACC15] text-[13px] font-semibold hover:underline flex-1 truncate" title={isEs ? 'Descargar' : 'Download'}>
                    {isEs ? 'Documento adjunto (Ver / Descargar)' : 'Attached Document (View / Download)'}
                  </a>
                  <button type="button" onClick={() => handleDelete('mortgageDocumentUrl')} className="text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 p-1.5 rounded transition-colors" title={isEs ? 'Eliminar documento' : 'Delete document'}>
@@ -532,7 +532,7 @@ export default function PropertyFields({ data, onChange }: Props) {
                   type="file" 
                   accept=".pdf,.png,.jpg,.jpeg,.doc,.docx"
                   disabled={isUploading === 'mortgageDocumentUrl'}
-                  className="w-full text-sm file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-[11px] file:font-bold file:uppercase file:bg-blue-50 dark:file:bg-blue-900/30 file:text-blue-700 dark:file:text-blue-300 hover:file:bg-blue-100 cursor-pointer"
+                  className="w-full text-sm file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-[11px] file:font-bold file:uppercase file:bg-slate-100 dark:file:bg-slate-800 file:text-slate-700 dark:file:text-slate-300 hover:file:bg-slate-200 cursor-pointer"
                   onChange={(e) => {
                     const file = e.target.files?.[0];
                     if (file) {
@@ -540,7 +540,7 @@ export default function PropertyFields({ data, onChange }: Props) {
                     }
                   }}
                 />
-                {isUploading === 'mortgageDocumentUrl' && <span className="text-xs text-blue-500">{isEs ? 'Subiendo...' : 'Uploading...'}</span>}
+                {isUploading === 'mortgageDocumentUrl' && <span className="text-xs text-[#FACC15]">{isEs ? 'Subiendo...' : 'Uploading...'}</span>}
               </div>
             )}
           </div>

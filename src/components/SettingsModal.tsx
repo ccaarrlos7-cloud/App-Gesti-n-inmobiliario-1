@@ -240,9 +240,9 @@ export function SettingsModalBase({
                 </div>
               ) : (
                 <>
-                  <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/40 rounded-xl text-xs text-blue-800 dark:text-blue-300">
+                  <div className="mb-4 p-3 bg-slate-100 dark:bg-slate-800 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/40 rounded-xl text-xs text-slate-800 dark:text-slate-400">
                     <p className="font-semibold mb-0.5">{isEs ? 'Canal directo de soporte:' : 'Direct Support Channel:'}</p>
-                    <p className="font-bold text-blue-600 dark:text-blue-400">{supportEmail}</p>
+                    <p className="font-bold text-slate-900 dark:text-white dark:text-[#FACC15]">{supportEmail}</p>
                   </div>
                   <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">{isEs ? 'Cuéntanos tu consulta o problema y nuestro equipo te ayudará lo antes posible:' : 'Describe your question or issue and our team will assist you as soon as possible:'}</p>
                   
@@ -256,12 +256,12 @@ export function SettingsModalBase({
                     value={supportMessage}
                     onChange={(e) => setSupportMessage(e.target.value)}
                     placeholder={isEs ? "Escribe tu mensaje aquí..." : "Type your message here..."}
-                    className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-4 text-sm text-slate-900 dark:text-white outline-none focus:border-blue-500 min-h-[150px] resize-none mb-4 shadow-sm"
+                    className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-4 text-sm text-slate-900 dark:text-white outline-none focus:border-slate-500 min-h-[150px] resize-none mb-4 shadow-sm"
                   ></textarea>
                   <button 
                     onClick={handleSendSupport}
                     disabled={!supportMessage.trim() || isSendingSupport}
-                    className="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold flex items-center justify-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+                    className="w-full py-3.5 bg-[#FACC15] hover:bg-[#eab308] text-slate-900 rounded-xl font-semibold flex items-center justify-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
                   >
                     <Send size={18} className={isSendingSupport ? 'animate-pulse' : ''} />
                     {isSendingSupport ? (isEs ? 'Enviando...' : 'Sending...') : (isEs ? 'Enviar Mensaje a Soporte' : 'Send Message to Support')}
@@ -321,7 +321,7 @@ export function SettingsModalBase({
                 )}
               </div>
               {setAvatarUrl && (
-                <button className="absolute bottom-0 right-0 w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white border-2 border-white dark:border-slate-800 shadow-sm hover:bg-blue-700 transition-colors pointer-events-none">
+                <button className="absolute bottom-0 right-0 w-8 h-8 bg-[#FACC15] rounded-full flex items-center justify-center text-white border-2 border-white dark:border-slate-800 shadow-sm hover:bg-[#eab308] transition-colors pointer-events-none">
                   <Camera size={14} />
                 </button>
               )}
@@ -343,10 +343,10 @@ export function SettingsModalBase({
                   value={tempName}
                   onChange={(e) => setTempName(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && saveName()}
-                  className="px-2 py-1 border border-slate-300 dark:border-slate-600 rounded-lg text-lg font-bold text-slate-900 dark:text-white bg-white dark:bg-slate-800 outline-none focus:border-blue-500 text-center w-48"
+                  className="px-2 py-1 border border-slate-300 dark:border-slate-600 rounded-lg text-lg font-bold text-slate-900 dark:text-white bg-white dark:bg-slate-800 outline-none focus:border-slate-500 text-center w-48"
                   autoFocus
                 />
-                <button onClick={saveName} className="p-1.5 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-800/50">
+                <button onClick={saveName} className="p-1.5 bg-slate-200 dark:bg-slate-700 dark:bg-slate-800/50 text-slate-900 dark:text-white dark:text-[#FACC15] rounded-lg hover:bg-slate-300 dark:hover:bg-slate-700/50">
                   <Check size={16} />
                 </button>
               </div>
@@ -356,7 +356,7 @@ export function SettingsModalBase({
                 {setUserName && (
                   <button 
                     onClick={() => setIsEditingName(true)}
-                    className="text-slate-400 hover:text-blue-600 transition-colors p-1"
+                    className="text-slate-400 hover:text-[#FACC15] transition-colors p-1"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
                   </button>
@@ -427,7 +427,7 @@ export function SettingsModalBase({
                 {!isTenant && onExportData && (
                   <button className="w-full p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors text-left" onClick={onExportData}>
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-600 dark:text-blue-400"><Download size={16}/></div>
+                      <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 dark:bg-slate-800/40 flex items-center justify-center text-slate-900 dark:text-white dark:text-[#FACC15]"><Download size={16}/></div>
                       <div className="text-[14px] font-semibold text-slate-900 dark:text-white">{isEs ? 'Extraer datos' : 'Extract data'}</div>
                     </div>
                     <ChevronRight size={16} className="text-slate-400"/>

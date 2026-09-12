@@ -75,7 +75,7 @@ function TenantChatPanel({ tenant, isEs }: { tenant: Tenant, isEs: boolean }) {
       >
         <div className="flex items-center gap-2">
           <div className="relative">
-            <MessageSquare size={16} className={isOpen ? "text-blue-500" : "text-slate-400"} />
+            <MessageSquare size={16} className={isOpen ? "text-[#FACC15]" : "text-slate-400"} />
             {unreadChatCounts?.[tenant.id] > 0 && !isOpen && (
               <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
                 {unreadChatCounts[tenant.id]}
@@ -105,7 +105,7 @@ function TenantChatPanel({ tenant, isEs }: { tenant: Tenant, isEs: boolean }) {
                 <div key={msg.id} className={`flex ${msg.authorRole === 'propietario' ? 'justify-end' : 'justify-start'}`}>
                   <div className={`max-w-[85%] rounded-2xl px-3 py-2 ${
                     msg.authorRole === 'propietario' 
-                      ? 'bg-blue-500 text-white rounded-br-none' 
+                      ? 'bg-[#DBEAFE] dark:bg-[#1E293B] text-[#1E293B] dark:text-[#DBEAFE] rounded-br-none' 
                       : 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-bl-none'
                   }`}>
                     <div className="flex items-center gap-2 mb-1">
@@ -129,13 +129,13 @@ function TenantChatPanel({ tenant, isEs }: { tenant: Tenant, isEs: boolean }) {
               onChange={e => setNewMessage(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && handleSend()}
               placeholder={isEs ? "Escribe un mensaje..." : "Type a message..."}
-              className="flex-1 text-sm bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="flex-1 text-sm bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-slate-400 dark:focus:ring-slate-500"
               disabled={isSubmitting}
             />
             <button
               onClick={handleSend}
               disabled={!newMessage.trim() || isSubmitting}
-              className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white p-2 rounded-lg transition-colors shrink-0"
+              className="bg-[#FACC15] hover:bg-[#eab308] disabled:opacity-50 text-slate-900 p-2 rounded-lg transition-colors shrink-0"
             >
               <MessageSquare size={16} />
             </button>
@@ -289,7 +289,7 @@ export default function CRMView() {
         <div className="flex items-center gap-3">
           <button 
             onClick={() => setShowNewTenantForm(true)}
-            className="bg-blue-600 hover:bg-blue-700 text-white p-2 sm:px-4 sm:py-2 rounded-lg font-medium text-sm transition-colors flex items-center justify-center shadow-sm shrink-0"
+            className="bg-[#FACC15] hover:bg-[#eab308] text-slate-900 p-2 sm:px-4 sm:py-2 rounded-lg font-medium text-sm transition-colors flex items-center justify-center shadow-sm shrink-0"
           >
             <Plus size={20} className="sm:hidden" />
             <span className="hidden sm:inline">{isEs ? '+ Añadir Inquilino' : '+ Add Tenant'}</span>
@@ -319,12 +319,12 @@ export default function CRMView() {
               <div 
                 key={contract.id} 
                 onClick={() => setSelectedContract(contract)}
-                className={`bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4 shadow-sm hover:border-blue-300 dark:hover:border-blue-500 transition-colors cursor-pointer flex items-center gap-4 ${contract.status === 'Finalizado' ? 'opacity-50 bg-slate-50 dark:bg-slate-900' : ''}`}
+                className={`bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4 shadow-sm hover:border-[#FACC15] dark:hover:border-[#FACC15] transition-colors cursor-pointer flex items-center gap-4 ${contract.status === 'Finalizado' ? 'opacity-50 bg-slate-50 dark:bg-slate-900' : ''}`}
               >
                 <div className="w-12 h-12 shrink-0 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center font-bold text-lg relative">
                   {titleTenant?.name.charAt(0) || '?'}
                   {othersCount > 0 && (
-                    <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded-full flex items-center justify-center text-[10px] font-bold border border-white dark:border-slate-800">
+                    <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-slate-200 dark:bg-slate-700 dark:bg-slate-700 text-slate-700 dark:text-slate-400 rounded-full flex items-center justify-center text-[10px] font-bold border border-white dark:border-slate-800">
                       +{othersCount}
                     </div>
                   )}
@@ -386,8 +386,8 @@ export default function CRMView() {
             return (
             <div className="flex flex-col h-full overflow-hidden">
               <div className="p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0 bg-slate-50 dark:bg-slate-800/80">
-                <h2 className="text-[18px] font-bold text-slate-900 dark:text-white flex items-center gap-2"><Users size={20} className="text-blue-600 dark:text-blue-400"/> {isEs ? 'Detalle del Contrato' : 'Contract Details'}</h2>
-                <button onClick={exportContractPDF} className="flex items-center gap-1.5 text-[12px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 hover:text-blue-700 bg-blue-50 dark:bg-blue-950/40 px-3 py-1.5 rounded-lg mr-2 transition-colors">
+                <h2 className="text-[18px] font-bold text-slate-900 dark:text-white flex items-center gap-2"><Users size={20} className="text-slate-900 dark:text-white dark:text-[#FACC15]"/> {isEs ? 'Detalle del Contrato' : 'Contract Details'}</h2>
+                <button onClick={exportContractPDF} className="flex items-center gap-1.5 text-[12px] font-bold uppercase tracking-wider text-slate-900 dark:text-white dark:text-[#FACC15] hover:text-[#eab308] bg-slate-100 dark:bg-slate-800 dark:bg-slate-800 px-3 py-1.5 rounded-lg mr-2 transition-colors">
                   <FileDown size={14} /> {isEs ? 'Exportar' : 'Export'}
                 </button>
                 <button onClick={() => setSelectedContract(null)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 bg-white dark:bg-slate-700 rounded-full p-1 border border-slate-200 dark:border-slate-600 shadow-sm">
@@ -409,7 +409,7 @@ export default function CRMView() {
                           <div className="font-bold text-[15px] text-slate-900 dark:text-white truncate">{t.name}</div>
                           <button 
                             onClick={() => { setTenantToEdit(t); setShowEditTenantForm(true); }} 
-                            className="text-slate-400 hover:text-blue-500 transition-colors" 
+                            className="text-slate-400 hover:text-[#FACC15] transition-colors" 
                             title={isEs ? 'Editar inquilino' : 'Edit tenant'}
                           >
                             <Edit2 size={14} />
@@ -469,7 +469,7 @@ export default function CRMView() {
                           <div className="flex flex-col gap-3">
                             <div className="flex items-center gap-2">
                               {accessStatus === 'Cuenta vinculada' && <CheckCircle2 size={16} className="text-emerald-500" />}
-                              {accessStatus === 'Invitación pendiente' && <Clock size={16} className="text-blue-500" />}
+                              {accessStatus === 'Invitación pendiente' && <Clock size={16} className="text-[#FACC15]" />}
                               {accessStatus === 'Invitación caducada' && <Clock size={16} className="text-amber-500" />}
                               {accessStatus === 'Invitación revocada' && <ShieldAlert size={16} className="text-red-500" />}
                               {accessStatus === 'Sin invitación' && <ShieldAlert size={16} className="text-slate-400" />}
@@ -484,7 +484,7 @@ export default function CRMView() {
                             </div>
 
                             {accessStatus === 'Sin invitación' && (
-                              <button onClick={() => handleGenerateInvitation(t.id)} disabled={isGenerating} className="self-start text-xs font-semibold bg-blue-100 hover:bg-blue-200 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300 py-1.5 px-3 rounded-lg flex items-center gap-1.5 transition-colors">
+                              <button onClick={() => handleGenerateInvitation(t.id)} disabled={isGenerating} className="self-start text-xs font-semibold bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 text-slate-700 dark:bg-slate-700 dark:text-slate-400 py-1.5 px-3 rounded-lg flex items-center gap-1.5 transition-colors">
                                 {isGenerating ? <Loader2 size={14} className="animate-spin"/> : <LinkIcon size={14} />} 
                                 {isEs ? 'Generar enlace de acceso' : 'Generate access link'}
                               </button>
@@ -497,7 +497,7 @@ export default function CRMView() {
                                     <LinkIcon size={14} /> {isEs ? 'Copiar enlace' : 'Copy link'}
                                   </button>
                                 )}
-                                <button onClick={() => handleGenerateInvitation(t.id)} disabled={isGenerating || isRevoking} className="text-xs font-semibold bg-blue-100 hover:bg-blue-200 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300 py-1.5 px-3 rounded-lg flex items-center gap-1.5 transition-colors">
+                                <button onClick={() => handleGenerateInvitation(t.id)} disabled={isGenerating || isRevoking} className="text-xs font-semibold bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 text-slate-700 dark:bg-slate-700 dark:text-slate-400 py-1.5 px-3 rounded-lg flex items-center gap-1.5 transition-colors">
                                   {isGenerating ? <Loader2 size={14} className="animate-spin"/> : <RefreshCw size={14} />} 
                                   {isEs ? 'Generar nuevo enlace' : 'Generate new link'}
                                 </button>
@@ -509,7 +509,7 @@ export default function CRMView() {
                             )}
 
                             {(accessStatus === 'Invitación caducada' || accessStatus === 'Invitación revocada') && (
-                              <button onClick={() => handleGenerateInvitation(t.id)} disabled={isGenerating} className="self-start text-xs font-semibold bg-blue-100 hover:bg-blue-200 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300 py-1.5 px-3 rounded-lg flex items-center gap-1.5 transition-colors">
+                              <button onClick={() => handleGenerateInvitation(t.id)} disabled={isGenerating} className="self-start text-xs font-semibold bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 text-slate-700 dark:bg-slate-700 dark:text-slate-400 py-1.5 px-3 rounded-lg flex items-center gap-1.5 transition-colors">
                                 {isGenerating ? <Loader2 size={14} className="animate-spin"/> : <RefreshCw size={14} />} 
                                 {isEs ? 'Generar nuevo enlace' : 'Generate new link'}
                               </button>
@@ -529,7 +529,7 @@ export default function CRMView() {
                       <div className="flex items-center gap-1.5"><FileText size={14} /> {isEs ? 'Información del Contrato' : 'Contract Information'}</div>
                       <button 
                         onClick={() => { setContractToEdit(currentContract); setShowEditContractForm(true); }} 
-                        className="text-slate-400 hover:text-blue-500 transition-colors" 
+                        className="text-slate-400 hover:text-[#FACC15] transition-colors" 
                         title={isEs ? 'Editar contrato' : 'Edit contract'}
                       >
                         <Edit2 size={16} />
@@ -575,7 +575,7 @@ export default function CRMView() {
                       <select 
                         value={paymentYear} 
                         onChange={e => setPaymentYear(Number(e.target.value))}
-                        className="text-[11px] font-bold text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer"
+                        className="text-[11px] font-bold text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-slate-400 dark:focus:ring-slate-500 cursor-pointer"
                       >
                         <option value={2025}>2025</option>
                         <option value={2026}>2026</option>
@@ -602,7 +602,7 @@ export default function CRMView() {
                               </div>
                             ) : (
                               <select
-                                className={`w-full text-center px-1 py-1.5 rounded text-[10px] font-bold uppercase border-none focus:ring-1 focus:ring-blue-500 cursor-pointer appearance-none
+                                className={`w-full text-center px-1 py-1.5 rounded text-[10px] font-bold uppercase border-none focus:ring-1 focus:ring-slate-400 dark:focus:ring-slate-500 cursor-pointer appearance-none
                                   ${currentStatus === 'Al día' ? 'bg-emerald-100 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300' : 
                                     currentStatus === 'Pendiente' ? 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300' : 'bg-red-100 dark:bg-red-950/40 text-red-800 dark:text-red-300'}`}
                                 value={currentStatus}
@@ -632,7 +632,7 @@ export default function CRMView() {
                       <div className="text-[11px] text-slate-400 uppercase font-bold flex items-center gap-1.5 tracking-wider">
                         <Paperclip size={14} /> {isEs ? 'Gestión Documental' : 'Document Management'}
                       </div>
-                      <label className={`text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 font-semibold flex items-center gap-1 ${isUploadingDoc ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}>
+                      <label className={`text-xs text-slate-900 dark:text-white dark:text-[#FACC15] hover:text-[#eab308] font-semibold flex items-center gap-1 ${isUploadingDoc ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}>
                         {isUploadingDoc ? <Loader2 size={14} className="animate-spin" /> : <Upload size={14} />} 
                         {isUploadingDoc ? (isEs ? 'Subiendo...' : 'Uploading...') : (isEs ? 'Subir Documento' : 'Upload Document')}
                         <input 
@@ -670,7 +670,7 @@ export default function CRMView() {
                             <div key={doc.id} className="flex flex-col p-3 border border-slate-100 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-750 transition-colors">
                               <div className="flex items-center justify-between mb-2">
                                 <div className="flex items-center gap-3 min-w-0">
-                                  <div className="w-8 h-8 rounded bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
+                                  <div className="w-8 h-8 rounded bg-slate-100 dark:bg-slate-800 dark:bg-slate-800 text-slate-900 dark:text-white dark:text-[#FACC15] flex items-center justify-center shrink-0">
                                     <FileText size={16} />
                                   </div>
                                   <div className="min-w-0 flex-1">
@@ -824,7 +824,7 @@ export default function CRMView() {
                     <button 
                       type="button" 
                       onClick={() => setNewTenants([...newTenants, { name: '', email: '', phone: '', dni: '' }])}
-                      className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 font-semibold flex items-center gap-1"
+                      className="text-xs text-slate-900 dark:text-white dark:text-[#FACC15] hover:text-[#eab308] font-semibold flex items-center gap-1"
                     >
                       <Plus size={14} /> {isEs ? 'Añadir otro' : 'Add another'}
                     </button>
@@ -842,7 +842,7 @@ export default function CRMView() {
                       )}
                       <div className="col-span-2">
                         <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">{isEs ? 'Nombre Completo' : 'Full Name'} {index > 0 ? `${index + 1} ` : ''}*</label>
-                        <input type="text" className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white bg-white dark:bg-slate-800 focus:border-blue-500 outline-none" value={nt.name || ''} onChange={e => {
+                        <input type="text" className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white bg-white dark:bg-slate-800 focus:border-slate-500 outline-none" value={nt.name || ''} onChange={e => {
                           const updated = [...newTenants];
                           updated[index] = { ...updated[index], name: e.target.value };
                           setNewTenants(updated);
@@ -850,7 +850,7 @@ export default function CRMView() {
                       </div>
                       <div>
                         <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">Email *</label>
-                        <input type="email" className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white bg-white dark:bg-slate-800 focus:border-blue-500 outline-none" value={nt.email || ''} onChange={e => {
+                        <input type="email" className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white bg-white dark:bg-slate-800 focus:border-slate-500 outline-none" value={nt.email || ''} onChange={e => {
                           const updated = [...newTenants];
                           updated[index] = { ...updated[index], email: e.target.value };
                           setNewTenants(updated);
@@ -858,7 +858,7 @@ export default function CRMView() {
                       </div>
                       <div>
                         <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">{isEs ? 'Teléfono *' : 'Phone *'}</label>
-                        <input type="tel" className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white bg-white dark:bg-slate-800 focus:border-blue-500 outline-none" value={nt.phone || ''} onChange={e => {
+                        <input type="tel" className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white bg-white dark:bg-slate-800 focus:border-slate-500 outline-none" value={nt.phone || ''} onChange={e => {
                           const updated = [...newTenants];
                           updated[index] = { ...updated[index], phone: e.target.value };
                           setNewTenants(updated);
@@ -866,7 +866,7 @@ export default function CRMView() {
                       </div>
                       <div className="col-span-2">
                         <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">{isEs ? 'DNI / Pasaporte' : 'ID / Passport'}</label>
-                        <input type="text" className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white bg-white dark:bg-slate-800 focus:border-blue-500 outline-none" value={nt.dni || ''} onChange={e => {
+                        <input type="text" className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white bg-white dark:bg-slate-800 focus:border-slate-500 outline-none" value={nt.dni || ''} onChange={e => {
                           const updated = [...newTenants];
                           updated[index] = { ...updated[index], dni: e.target.value };
                           setNewTenants(updated);
@@ -882,7 +882,7 @@ export default function CRMView() {
                     <div className="col-span-2">
                       <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">{isEs ? 'Inmueble *' : 'Property *'}</label>
                       <select 
-                        className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:border-blue-500 outline-none" 
+                        className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:border-slate-500 outline-none" 
                         value={newContract.propertyId || ''} 
                         onChange={e => {
                           const propId = e.target.value;
@@ -905,7 +905,7 @@ export default function CRMView() {
                       <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">{isEs ? 'Renta Mensual (€) *' : 'Monthly Rent (€) *'}</label>
                       <FormattedNumberInput 
                         decimals={2}
-                        className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white bg-white dark:bg-slate-800 focus:border-blue-500 outline-none" 
+                        className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white bg-white dark:bg-slate-800 focus:border-slate-500 outline-none" 
                         value={newContract.rentAmount ?? ''} 
                         onChange={val => setNewContract({...newContract, rentAmount: val === '' ? 0 : val})} 
                         required 
@@ -915,7 +915,7 @@ export default function CRMView() {
                       <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">{isEs ? 'Fianza Depositada (€) *' : 'Deposit (€) *'}</label>
                       <FormattedNumberInput 
                         decimals={2}
-                        className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white bg-white dark:bg-slate-800 focus:border-blue-500 outline-none" 
+                        className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white bg-white dark:bg-slate-800 focus:border-slate-500 outline-none" 
                         value={newContract.deposit ?? ''} 
                         onChange={val => setNewContract({...newContract, deposit: val === '' ? 0 : val})} 
                         required 
@@ -923,11 +923,11 @@ export default function CRMView() {
                     </div>
                     <div>
                       <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">{isEs ? 'Fecha de Inicio *' : 'Start Date *'}</label>
-                      <input type="date" className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white bg-white dark:bg-slate-800 focus:border-blue-500 outline-none" value={newContract.startDate || ''} onChange={e => setNewContract({...newContract, startDate: e.target.value})} required />
+                      <input type="date" className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white bg-white dark:bg-slate-800 focus:border-slate-500 outline-none" value={newContract.startDate || ''} onChange={e => setNewContract({...newContract, startDate: e.target.value})} required />
                     </div>
                     <div>
                       <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">{isEs ? 'Fecha de Fin *' : 'End Date *'}</label>
-                      <input type="date" className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white bg-white dark:bg-slate-800 focus:border-blue-500 outline-none" value={newContract.endDate || ''} onChange={e => setNewContract({...newContract, endDate: e.target.value})} required />
+                      <input type="date" className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white bg-white dark:bg-slate-800 focus:border-slate-500 outline-none" value={newContract.endDate || ''} onChange={e => setNewContract({...newContract, endDate: e.target.value})} required />
                     </div>
                   </div>
                 </div>
@@ -935,7 +935,7 @@ export default function CRMView() {
             </div>
             <div className="p-5 border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 flex justify-end gap-3 shrink-0 rounded-b-2xl">
               <button type="button" onClick={() => setShowNewTenantForm(false)} className="px-4 py-2 text-slate-600 dark:text-slate-400 font-semibold text-sm hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg">{isEs ? 'Cancelar' : 'Cancel'}</button>
-              <button type="submit" form="new-tenant-form" className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm rounded-lg shadow-sm flex items-center gap-2">
+              <button type="submit" form="new-tenant-form" className="px-5 py-2 bg-[#FACC15] hover:bg-[#eab308] text-slate-900 font-semibold text-sm rounded-lg shadow-sm flex items-center gap-2">
                 {isEs ? 'Guardar y Activar Contrato' : 'Save and Activate Contract'}
               </button>
             </div>
@@ -998,7 +998,7 @@ export default function CRMView() {
 
             <button 
               onClick={() => handleCopyLink(invitationLinkData.link)}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl flex items-center justify-center gap-2 transition-colors"
+              className="w-full bg-[#FACC15] hover:bg-[#eab308] text-slate-900 font-semibold py-3 rounded-xl flex items-center justify-center gap-2 transition-colors"
             >
               <LinkIcon size={18} /> {isEs ? 'Copiar enlace' : 'Copy link'}
             </button>

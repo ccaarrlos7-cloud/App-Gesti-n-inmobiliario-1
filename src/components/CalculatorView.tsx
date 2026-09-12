@@ -80,13 +80,13 @@ export default function CalculatorView() {
     <div className="flex flex-col h-full relative bg-slate-50 dark:bg-slate-900 transition-colors">
       <header className="min-h-[64px] py-3 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 flex flex-wrap gap-3 items-center justify-between px-4 sm:px-8 shrink-0">
         <h1 className="text-[18px] font-semibold text-slate-900 dark:text-white flex items-center gap-2 hidden sm:flex">
-          <Calculator size={20} className="text-blue-600 dark:text-blue-400" />
+          <Calculator size={20} className="text-slate-900 dark:text-white dark:text-[#FACC15]" />
           {isEs ? 'Calculadora' : 'Calculator'}
         </h1>
         
         <div className="relative flex-1 min-w-[150px] sm:min-w-[200px] sm:mx-4">
           <h1 className="text-[18px] font-semibold text-slate-900 dark:text-white flex items-center gap-2 sm:hidden">
-            <Calculator size={20} className="text-blue-600 dark:text-blue-400" />
+            <Calculator size={20} className="text-slate-900 dark:text-white dark:text-[#FACC15]" />
             {isEs ? 'Calculadora' : 'Calculator'}
           </h1>
         </div>
@@ -111,7 +111,7 @@ export default function CalculatorView() {
           <button
             onClick={() => setActiveTab('investment')}
             className={`flex-1 py-2 text-[13px] font-bold rounded-lg transition-all flex items-center justify-center gap-2 ${
-              activeTab === 'investment' ? 'bg-white dark:bg-slate-700 text-blue-700 dark:text-blue-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
+              activeTab === 'investment' ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white font-bold shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
             }`}
           >
             <TrendingUp size={16} /> {isEs ? 'Inversión' : 'Investment'}
@@ -119,7 +119,7 @@ export default function CalculatorView() {
           <button
             onClick={() => setActiveTab('mortgage')}
             className={`flex-1 py-2 text-[13px] font-bold rounded-lg transition-all flex items-center justify-center gap-2 ${
-              activeTab === 'mortgage' ? 'bg-white dark:bg-slate-700 text-blue-700 dark:text-blue-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
+              activeTab === 'mortgage' ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white font-bold shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
             }`}
           >
             <Home size={16} /> {isEs ? 'Hipoteca' : 'Mortgage'}
@@ -139,7 +139,7 @@ export default function CalculatorView() {
                   <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">{isEs ? 'Capital Solicitado (€)' : 'Capital (€)'}</label>
                   <div className="relative">
                     <Euro size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                    <FormattedInput className="w-full border border-slate-200 dark:border-slate-700 rounded-xl pl-9 pr-3 py-2.5 text-sm font-semibold bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-blue-500 outline-none transition-colors" value={mortgageCapital} onChange={setMortgageCapital} />
+                    <FormattedInput className="w-full border border-slate-200 dark:border-slate-700 rounded-xl pl-9 pr-3 py-2.5 text-sm font-semibold bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-slate-500 outline-none transition-colors" value={mortgageCapital} onChange={setMortgageCapital} />
                   </div>
                 </div>
 
@@ -148,12 +148,12 @@ export default function CalculatorView() {
                     <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">{isEs ? 'Tipo de Interés (%)' : 'Interest Rate (%)'}</label>
                     <div className="relative">
                       <Percent size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                      <FormattedInput step="0.01" className="w-full border border-slate-200 dark:border-slate-700 rounded-xl pl-9 pr-3 py-2.5 text-sm font-semibold bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-blue-500 outline-none transition-colors" value={mortgageInterest} onChange={setMortgageInterest} />
+                      <FormattedInput step="0.01" className="w-full border border-slate-200 dark:border-slate-700 rounded-xl pl-9 pr-3 py-2.5 text-sm font-semibold bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-slate-500 outline-none transition-colors" value={mortgageInterest} onChange={setMortgageInterest} />
                     </div>
                   </div>
                   <div>
                     <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">{isEs ? 'Plazo (Años)' : 'Term (Years)'}</label>
-                    <FormattedInput className="w-full border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2.5 text-sm font-semibold bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-blue-500 outline-none transition-colors" value={mortgageYears} onChange={setMortgageYears} />
+                    <FormattedInput className="w-full border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2.5 text-sm font-semibold bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-slate-500 outline-none transition-colors" value={mortgageYears} onChange={setMortgageYears} />
                   </div>
                 </div>
               </div>
@@ -198,15 +198,15 @@ export default function CalculatorView() {
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div>
                       <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">{isEs ? 'Precio Compra' : 'Purchase Price'}</label>
-                      <FormattedInput className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm font-semibold bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-blue-500" value={invPurchasePrice} onChange={setInvPurchasePrice} />
+                      <FormattedInput className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm font-semibold bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-slate-500" value={invPurchasePrice} onChange={setInvPurchasePrice} />
                     </div>
                     <div>
                       <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">{isEs ? 'Gastos + ITP' : 'Taxes & Fees'}</label>
-                      <FormattedInput className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm font-semibold bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-blue-500" value={invPurchaseExpenses} onChange={setInvPurchaseExpenses} />
+                      <FormattedInput className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm font-semibold bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-slate-500" value={invPurchaseExpenses} onChange={setInvPurchaseExpenses} />
                     </div>
                     <div>
                       <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">{isEs ? 'Reforma' : 'Rehab'}</label>
-                      <FormattedInput className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm font-semibold bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-blue-500" value={invRehabCost} onChange={setInvRehabCost} />
+                      <FormattedInput className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm font-semibold bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-slate-500" value={invRehabCost} onChange={setInvRehabCost} />
                     </div>
                   </div>
                   <div className="flex justify-between items-center bg-slate-50 dark:bg-slate-700/50 p-3 rounded-lg border border-slate-100 dark:border-slate-700">
@@ -223,19 +223,19 @@ export default function CalculatorView() {
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div>
                       <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">{isEs ? 'Capital Hipoteca' : 'Loan Capital'}</label>
-                      <FormattedInput className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm font-semibold bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-blue-500" value={invFinancedCapital} onChange={setInvFinancedCapital} />
+                      <FormattedInput className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm font-semibold bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-slate-500" value={invFinancedCapital} onChange={setInvFinancedCapital} />
                     </div>
                     <div>
                       <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">{isEs ? 'Interés (%)' : 'Interest Rate'}</label>
-                      <FormattedInput step="0.01" className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm font-semibold bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-blue-500" value={invInterest} onChange={setInvInterest} />
+                      <FormattedInput step="0.01" className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm font-semibold bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-slate-500" value={invInterest} onChange={setInvInterest} />
                     </div>
                     <div>
                       <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">{isEs ? 'Plazo (Años)' : 'Term (Years)'}</label>
-                      <FormattedInput className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm font-semibold bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-blue-500" value={invYears} onChange={setInvYears} />
+                      <FormattedInput className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm font-semibold bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-slate-500" value={invYears} onChange={setInvYears} />
                     </div>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="bg-blue-50 dark:bg-blue-950/30 text-blue-900 dark:text-blue-300 p-3 rounded-lg border border-blue-100 dark:border-blue-900/40 flex justify-between items-center">
+                    <div className="bg-slate-100 dark:bg-slate-800 dark:bg-slate-900/50 text-slate-900 dark:text-slate-400 p-3 rounded-lg border border-slate-200 dark:border-slate-700/40 flex justify-between items-center">
                       <span className="text-[10px] font-bold uppercase">{isEs ? 'Aportación Propia' : 'Down Payment'}</span>
                       <span className="text-[15px] font-bold">{formatNumber(investedCapital, 2)} €</span>
                     </div>
@@ -278,7 +278,7 @@ export default function CalculatorView() {
               {/* Investment KPIs Column */}
               <div className="lg:col-span-5 space-y-4">
                 <div className="bg-slate-900 dark:bg-slate-800 border border-transparent dark:border-slate-700 p-6 rounded-2xl shadow-xl text-white">
-                  <h3 className="text-[12px] font-bold text-blue-300 uppercase tracking-wider mb-6 flex items-center gap-2">
+                  <h3 className="text-[12px] font-bold text-slate-400 uppercase tracking-wider mb-6 flex items-center gap-2">
                     <PieChart size={16}/> {isEs ? 'Rentabilidades Estimadas' : 'Estimated Returns'}
                   </h3>
                   
@@ -304,9 +304,9 @@ export default function CalculatorView() {
                     <div>
                       <div className="flex justify-between items-end mb-1">
                         <span className="text-[13px] text-slate-300 font-medium">{isEs ? 'ROI (Cash on Cash)' : 'Cash on Cash Return'}</span>
-                        <span className="text-3xl font-bold text-blue-400">{formatNumber(cashOnCash, 2)}%</span>
+                        <span className="text-3xl font-bold text-[#FACC15]">{formatNumber(cashOnCash, 2)}%</span>
                       </div>
-                      <div className="w-full bg-slate-800 dark:bg-slate-700 rounded-full h-2"><div className="bg-blue-500 h-2 rounded-full" style={{width: `${Math.min(cashOnCash * 4, 100)}%`}}></div></div>
+                      <div className="w-full bg-slate-800 dark:bg-slate-700 rounded-full h-2"><div className="bg-slate-100 dark:bg-slate-8000 h-2 rounded-full" style={{width: `${Math.min(cashOnCash * 4, 100)}%`}}></div></div>
                       <p className="text-[10px] text-slate-400 mt-1">{isEs ? 'Flujo de Caja Anual / Capital Invertido' : 'Annual Cash Flow / Invested Capital'}</p>
                     </div>
 
@@ -342,8 +342,8 @@ export default function CalculatorView() {
                       <span className="font-bold text-slate-900 dark:text-white">{isEs ? 'Flujo Neto (Anual)' : 'Net Cash Flow'}</span>
                       <span className={`font-bold ${annualCashFlow >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>{annualCashFlow > 0 ? '+' : ''}{formatNumber(annualCashFlow, 2)} €</span>
                     </div>
-                    <div className="flex justify-between items-center text-sm bg-blue-50 dark:bg-blue-950/30 p-3 rounded-lg border border-blue-100 dark:border-blue-900/40 mt-2">
-                      <span className="font-bold text-blue-900 dark:text-blue-300">{isEs ? 'Flujo de Caja (Mensual)' : 'Monthly Cash Flow'}</span>
+                    <div className="flex justify-between items-center text-sm bg-slate-100 dark:bg-slate-800 dark:bg-slate-900/50 p-3 rounded-lg border border-slate-200 dark:border-slate-700/40 mt-2">
+                      <span className="font-bold text-slate-900 dark:text-slate-400">{isEs ? 'Flujo de Caja (Mensual)' : 'Monthly Cash Flow'}</span>
                       <span className={`font-bold ${monthlyCashFlow >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>{monthlyCashFlow > 0 ? '+' : ''}{formatNumber(monthlyCashFlow, 2)} €</span>
                     </div>
                   </div>
