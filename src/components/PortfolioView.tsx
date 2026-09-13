@@ -3,7 +3,7 @@ import { PropertyStatus, Property, Transaction } from '../types';
 import { Search, AlertTriangle, CheckCircle, ChevronLeft, FileText, X, Edit, Plus, TrendingUp, TrendingDown, DollarSign, AlertCircle, Trash2, Upload, Download, Paperclip, Eye, MessageSquare } from 'lucide-react';
 import { useAppContext } from '../store';
 import PropertyFields from './PropertyFields';
-import { formatDate, formatNumber } from '../utils';
+import { formatDate, formatDateTime, formatNumber } from '../utils';
 import SettingsModal from './SettingsModal';
 import { User } from 'lucide-react';
 import FormattedNumberInput from './FormattedNumberInput';
@@ -669,7 +669,7 @@ export default function PortfolioView({ initialTab = 'Todos' }: { initialTab?: P
                                  </div>
                                  <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed mb-3">{issue.description}</p>
                                  <div className="flex items-center justify-between text-[11px] font-semibold">
-                                   <span className="text-slate-400">{formatDate(issue.createdAt)}</span>
+                                   <span className="text-slate-400">{formatDateTime(issue.createdAt)}</span>
                                    <span className={`px-2 py-1 rounded-full ${issue.status === 'Resuelta' ? 'bg-emerald-100 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300' : issue.status === 'En Progreso' ? 'bg-amber-100 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300' : 'bg-red-100 dark:bg-red-950/40 text-red-700 dark:text-red-300'}`}>
                                      {issue.status === 'Resuelta' ? (isEs ? 'Resuelta' : 'Resolved') : issue.status === 'En Progreso' ? (isEs ? 'En Progreso' : 'In Progress') : (isEs ? 'Abierta' : 'Open')}
                                    </span>

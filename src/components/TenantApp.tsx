@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useTenantContext } from '../store-tenant';
 import { Building2, FileText, FolderOpen, AlertCircle, MessageSquare, User, CheckCircle2, Clock, Calendar, Euro, Shield, Plus, X } from 'lucide-react';
 import { supabase } from '../lib/supabase';
-import { formatDate, formatNumber, formatChatDate, getContractTruePaymentStatus } from '../utils';
+import { formatDate, formatDateTime, formatNumber, formatChatDate, getContractTruePaymentStatus } from '../utils';
 
 import { resolveDocumentUrl } from '../lib/documentStorage';
 import { DocumentActionButtons } from './DocumentActionButtons';
@@ -343,7 +343,7 @@ export default function TenantApp() {
                         <h4 className="font-bold text-lg mb-1">{issue.title}</h4>
                         <p className="text-slate-600 dark:text-slate-400 text-sm line-clamp-2 transition-colors">{issue.description}</p>
                         <p className="text-xs text-slate-400 dark:text-slate-500 mt-2 font-medium transition-colors">
-                          {formatDate(issue.createdAt)}
+                          {formatDateTime(issue.createdAt)}
                         </p>
                       </div>
                       <div className="shrink-0">
@@ -565,7 +565,7 @@ export default function TenantApp() {
               <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-4 rounded-xl transition-colors">
                 <div className="flex justify-between items-start mb-2">
                   <h4 className="font-semibold text-slate-900 dark:text-white text-sm transition-colors">{isEs ? 'Descripción Original' : 'Original Description'}</h4>
-                  <span className="text-xs text-slate-400 transition-colors">{formatDate(viewingIssue.createdAt)}</span>
+                  <span className="text-xs text-slate-400 transition-colors">{formatDateTime(viewingIssue.createdAt)}</span>
                 </div>
                 <p className="text-sm text-slate-600 dark:text-slate-400 whitespace-pre-wrap transition-colors">{viewingIssue.description}</p>
               </div>
