@@ -33,6 +33,8 @@ interface TenantContextType {
   addTenantChatMessage: (content: string) => Promise<{success: boolean, error?: string}>;
   unreadChatCount: number;
   loadUnreadChatCount: () => Promise<void>;
+  uploadTenantDocument: (file: File, documentType: string) => Promise<{success: boolean, error?: string}>;
+  deleteTenantDocument: (documentId: string, storagePath: string) => Promise<{success: boolean, error?: string}>;
 }
 
 const TenantContext = createContext<TenantContextType | undefined>(undefined);
@@ -184,6 +186,81 @@ export function TenantProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const uploadTenantDocument = async (file: File, documentType: string) => {
+    if (contracts.length === 0) return { success: false, error: 'No active contract' };
+    
+    try {
+      // 1. Upload to Supabase Storage
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user?.id) throw new Error("No authenticated user");
+
+      const sanitizedName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, '_');
+      const path = `${session.user.id}/${Date.now()}_${sanitizedName}`;
+
+      const { error: uploadError } = await supabase.storage.from('documents').upload(path, file);
+      if (uploadError) throw uploadError;
+
+      const storagePath = path; // store WITHOUT storage:// prefix
+
+      // 2. Insert into contract_documents
+      const contractId = contracts[0].id;
+
+      const { error: dbError } = await supabase.from('contract_documents').insert({
+        contract_id: contractId,
+        name: file.name,
+        storage_path: storagePath,
+        size: file.size,
+        document_type: documentType,
+        mime_type: file.type,
+        uploaded_by_tenant: true
+      });
+
+      if (dbError) throw dbError;
+
+      // 3. Refresh documents list
+      const docsRes = await supabase.from('tenant_document_view').select('*');
+      if (docsRes.data) {
+        setDocuments(toCamel(docsRes.data));
+      }
+
+      return { success: true };
+    } catch (e: any) {
+      console.error("Error uploading tenant document:", e);
+      return { success: false, error: e.message };
+    }
+  };
+
+  const deleteTenantDocument = async (documentId: string, storagePath: string) => {
+    try {
+      // 1. Delete from database
+      const { error: dbError } = await supabase.from('contract_documents').delete().eq('id', documentId);
+      if (dbError) throw dbError;
+
+      // 2. Delete from storage
+      let path = storagePath;
+      if (path.startsWith('storage://')) {
+        path = path.replace('storage://', '');
+      }
+      if (path) {
+        const { error: storageError } = await supabase.storage.from('documents').remove([path]);
+        if (storageError) {
+          console.error("Error removing file from storage, but db record deleted:", storageError);
+        }
+      }
+
+      // 3. Refresh documents list
+      const docsRes = await supabase.from('tenant_document_view').select('*');
+      if (docsRes.data) {
+        setDocuments(toCamel(docsRes.data));
+      }
+
+      return { success: true };
+    } catch (e: any) {
+      console.error("Error deleting document:", e);
+      return { success: false, error: e.message };
+    }
+  };
+
   useEffect(() => {
     let active = true;
 
@@ -295,7 +372,9 @@ export function TenantProvider({ children }: { children: ReactNode }) {
       getTenantChatMessages,
       addTenantChatMessage,
       unreadChatCount,
-      loadUnreadChatCount
+      loadUnreadChatCount,
+      uploadTenantDocument,
+      deleteTenantDocument
     }}>
       {children}
     </TenantContext.Provider>

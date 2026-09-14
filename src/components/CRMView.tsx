@@ -692,24 +692,32 @@ export default function CRMView() {
                                   onDownload={() => {}} 
                                 />
                               </div>
-                              <div className="flex items-center justify-end pt-2 border-t border-slate-100 dark:border-slate-700/50 mt-1">
-                                <label className="flex items-center gap-2 cursor-pointer">
-                                  <span className={`text-[11px] font-semibold uppercase tracking-wider ${doc.sharedWithTenants ? 'text-green-600 dark:text-green-400' : 'text-slate-400'}`}>
-                                    {doc.sharedWithTenants 
-                                      ? (isEs ? 'Compartido con inquilinos' : 'Shared with tenants')
-                                      : (isEs ? 'No compartido' : 'Not shared')}
+                              {doc.uploadedByTenant ? (
+                                <div className="flex items-center justify-end pt-2 border-t border-slate-100 dark:border-slate-700/50 mt-1">
+                                  <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                                    {isEs ? 'Subido por inquilino' : 'Uploaded by tenant'}
                                   </span>
-                                  <div className={`relative w-8 h-4 rounded-full transition-colors ${doc.sharedWithTenants ? 'bg-green-500' : 'bg-slate-300 dark:bg-slate-600'}`}>
-                                    <div className={`absolute top-0.5 left-0.5 w-3 h-3 bg-white rounded-full transition-transform ${doc.sharedWithTenants ? 'translate-x-4' : ''}`}></div>
-                                  </div>
-                                  <input 
-                                    type="checkbox" 
-                                    className="hidden" 
-                                    checked={doc.sharedWithTenants} 
-                                    onChange={(e) => toggleDocumentSharing(doc.id, e.target.checked)}
-                                  />
-                                </label>
-                              </div>
+                                </div>
+                              ) : (
+                                <div className="flex items-center justify-end pt-2 border-t border-slate-100 dark:border-slate-700/50 mt-1">
+                                  <label className="flex items-center gap-2 cursor-pointer">
+                                    <span className={`text-[11px] font-semibold uppercase tracking-wider ${doc.sharedWithTenants ? 'text-green-600 dark:text-green-400' : 'text-slate-400'}`}>
+                                      {doc.sharedWithTenants 
+                                        ? (isEs ? 'Compartido con inquilinos' : 'Shared with tenants')
+                                        : (isEs ? 'No compartido' : 'Not shared')}
+                                    </span>
+                                    <div className={`relative w-8 h-4 rounded-full transition-colors ${doc.sharedWithTenants ? 'bg-green-500' : 'bg-slate-300 dark:bg-slate-600'}`}>
+                                      <div className={`absolute top-0.5 left-0.5 w-3 h-3 bg-white rounded-full transition-transform ${doc.sharedWithTenants ? 'translate-x-4' : ''}`}></div>
+                                    </div>
+                                    <input 
+                                      type="checkbox" 
+                                      className="hidden" 
+                                      checked={doc.sharedWithTenants} 
+                                      onChange={(e) => toggleDocumentSharing(doc.id, e.target.checked)}
+                                    />
+                                  </label>
+                                </div>
+                              )}
                             </div>
                           ))}
                           

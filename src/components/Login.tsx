@@ -62,8 +62,8 @@ export default function Login() {
           <div className="animate-fade-in-up">
             {/* Logo */}
             <div className="flex items-center gap-2 xl:gap-3 mb-2 xl:mb-6">
-               <div className="w-10 h-10 xl:w-14 xl:h-14 bg-[#FACC15] rounded-xl xl:rounded-2xl flex items-center justify-center text-slate-900 shadow-lg">
-                 <Building2 className="w-5 h-5 xl:w-8 xl:h-8" />
+               <div className="w-10 h-10 xl:w-14 xl:h-14 flex items-center justify-center shadow-lg rounded-xl xl:rounded-2xl overflow-hidden shrink-0">
+                 <img src="/logo-cropped.png" alt="GestiCasa Logo" className="w-full h-full object-cover" />
                </div>
                <span className="text-xl xl:text-3xl font-bold">Gesti<span className="text-[#FACC15]">Casa</span></span>
             </div>

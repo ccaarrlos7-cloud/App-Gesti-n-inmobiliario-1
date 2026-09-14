@@ -1,6 +1,6 @@
 import { formatNumber } from "../utils";
 import React, { useState, useRef, useEffect } from 'react';
-import { Camera, Moon, Globe, Bell, Download, Book, Mail, Shield, ChevronRight, ChevronLeft, User, X, Check, FileText, Table, Send, Sun, LogOut } from 'lucide-react';
+import { Camera, Moon, Globe, Bell, Download, Book, Mail, Shield, ChevronRight, ChevronLeft, User, X, Check, FileText, Table, Send, Sun, LogOut, Building2, ShieldCheck, AlertTriangle, Umbrella } from 'lucide-react';
 import { useAppContext } from '../store';
 import { supabase } from '../lib/supabase';
 import { exportYearlyDataPDF } from '../utils';
@@ -47,6 +47,110 @@ export function SettingsModalBase({
   const [supportSent, setSupportSent] = useState(false);
   const [isSendingSupport, setIsSendingSupport] = useState(false);
   const [supportError, setSupportError] = useState('');
+
+  // --- Servicios para ti ---
+  type ServiceType = 'hipotecas' | 'impago' | 'morosidad' | 'seguros' | 'seguro-hogar' | null;
+  const [activeService, setActiveService] = useState<ServiceType>(null);
+  const [serviceSent, setServiceSent] = useState(false);
+  const [isSendingService, setIsSendingService] = useState(false);
+  const [serviceError, setServiceError] = useState('');
+  // Shared fields
+  const [svcPhone, setSvcPhone] = useState('');
+  const [svcMessage, setSvcMessage] = useState('');
+  // Hipotecas
+  const [svcOpType, setSvcOpType] = useState('');
+  const [svcAmount, setSvcAmount] = useState('');
+  // Impago
+  const [svcProperty, setSvcProperty] = useState('');
+  const [svcRent, setSvcRent] = useState('');
+  const [svcTenantInfo, setSvcTenantInfo] = useState('');
+  // Morosidad
+  const [svcNeed, setSvcNeed] = useState('');
+  // Seguros
+  const [svcInsuranceType, setSvcInsuranceType] = useState('');
+  // Seguro de hogar (inquilino)
+  const [svcHomeType, setSvcHomeType] = useState('');
+
+  const resetServiceForm = () => {
+    setServiceSent(false);
+    setServiceError('');
+    setSvcPhone('');
+    setSvcMessage('');
+    setSvcOpType('');
+    setSvcAmount('');
+    setSvcProperty('');
+    setSvcRent('');
+    setSvcTenantInfo('');
+    setSvcNeed('');
+    setSvcInsuranceType('');
+    setSvcHomeType('');
+  };
+
+  const closeService = () => { setActiveService(null); resetServiceForm(); };
+
+  const serviceTitle = (s: ServiceType, es: boolean): string => {
+    if (s === 'hipotecas')    return es ? 'Hipotecas' : 'Mortgages';
+    if (s === 'impago')       return es ? 'Seguro de Impago' : 'Non-Payment Insurance';
+    if (s === 'morosidad')    return es ? 'Certificado / Consulta de Morosidad' : 'Default Certificate';
+    if (s === 'seguros')      return es ? 'Seguros' : 'Insurance';
+    if (s === 'seguro-hogar') return es ? 'Seguro de Hogar' : 'Home Insurance';
+    return '';
+  };
+
+  const serviceSubject = (s: ServiceType): string => {
+    if (s === 'hipotecas')    return 'Solicitud de información hipotecaria';
+    if (s === 'impago')       return 'Solicitud de seguro de impago';
+    if (s === 'morosidad')    return 'Solicitud de certificado/consulta de morosidad';
+    if (s === 'seguros')      return 'Solicitud de información sobre seguros';
+    if (s === 'seguro-hogar') return 'Solicitud de seguro de hogar para inquilino';
+    return '';
+  };
+
+  const handleSendService = async () => {
+    setIsSendingService(true);
+    setServiceError('');
+    try {
+      let body = `SERVICIO: ${serviceSubject(activeService)}\n\n`;
+      body += `Nombre: ${userName}\n`;
+      body += `Email: ${userEmail}\n`;
+      if (svcPhone) body += `Teléfono: ${svcPhone}\n`;
+      if (activeService === 'hipotecas') {
+        if (svcOpType)  body += `Tipo de operación: ${svcOpType}\n`;
+        if (svcAmount)  body += `Importe aproximado: ${svcAmount}\n`;
+      }
+      if (activeService === 'impago') {
+        if (svcProperty)    body += `Inmueble: ${svcProperty}\n`;
+        if (svcRent)        body += `Alquiler mensual: ${svcRent}\n`;
+        if (svcTenantInfo)  body += `Información del inquilino: ${svcTenantInfo}\n`;
+      }
+      if (activeService === 'morosidad') {
+        if (svcNeed)        body += `Qué necesita: ${svcNeed}\n`;
+        if (svcProperty)    body += `Inmueble / Inquilino: ${svcProperty}\n`;
+      }
+      if (activeService === 'seguros') {
+        if (svcInsuranceType) body += `Tipo de seguro: ${svcInsuranceType}\n`;
+        if (svcProperty)      body += `Inmueble: ${svcProperty}\n`;
+      }
+      if (activeService === 'seguro-hogar') {
+        if (svcProperty)  body += `Inmueble / Dirección: ${svcProperty}\n`;
+        if (svcHomeType)  body += `Tipo de vivienda: ${svcHomeType}\n`;
+      }
+      if (svcMessage) body += `\nInformación adicional:\n${svcMessage}`;
+
+      const { data, error } = await supabase.functions.invoke('send-support-email', {
+        body: { name: userName, email: userEmail, message: body }
+      });
+      if (error || (data && data.error)) {
+        setServiceError(isEs ? 'Hubo un error al enviar la solicitud.' : 'There was an error sending your request.');
+      } else {
+        setServiceSent(true);
+      }
+    } catch {
+      setServiceError(isEs ? 'Hubo un error de conexión.' : 'Connection error.');
+    } finally {
+      setIsSendingService(false);
+    }
+  };
   const [userEmail, setUserEmail] = useState('');
   const [isEditingName, setIsEditingName] = useState(false);
   const [tempName, setTempName] = useState(userName);
@@ -274,6 +378,176 @@ export function SettingsModalBase({
     );
   }
 
+  // ─── Servicios panel ───────────────────────────────────────────────────────
+  if (activeService && (!isTenant || activeService === 'seguro-hogar')) {
+    const title = serviceTitle(activeService, isEs);
+    return (
+      <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[200] flex justify-end" onClick={closeService}>
+        <div className="w-full max-w-md bg-white dark:bg-slate-900 h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-200" onClick={e => e.stopPropagation()}>
+          <div className="pt-[calc(env(safe-area-inset-top)+0.5rem)] pb-2 border-b border-slate-100 dark:border-slate-800 flex items-center px-4 shrink-0 bg-white dark:bg-slate-900">
+            <button onClick={closeService} className="p-2 -ml-2 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 rounded-full hover:bg-slate-50 dark:hover:bg-slate-800">
+              <ChevronLeft size={24} />
+            </button>
+            <h2 className="font-bold text-[16px] text-slate-900 dark:text-white ml-2 truncate">{title}</h2>
+          </div>
+
+          <div className="p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] overflow-y-auto bg-slate-50 dark:bg-slate-900 flex-1 flex flex-col">
+            {serviceSent ? (
+              <div className="flex flex-col items-center justify-center flex-1 text-center animate-in zoom-in-95">
+                <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center mb-4">
+                  <Check size={32} />
+                </div>
+                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">{isEs ? 'Solicitud Enviada' : 'Request Sent'}</h3>
+                <p className="text-slate-500 dark:text-slate-400">{isEs ? 'Nos pondremos en contacto contigo pronto.' : 'We will get back to you soon.'}</p>
+              </div>
+            ) : (
+              <>
+                {serviceError && (
+                  <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 rounded-xl text-sm text-red-600 dark:text-red-400 font-medium">
+                    {serviceError}
+                  </div>
+                )}
+
+                <div className="space-y-4 mb-6">
+                  {/* Phone – common */}
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">{isEs ? 'Teléfono de contacto (opcional)' : 'Contact phone (optional)'}</label>
+                    <input type="tel" value={svcPhone} onChange={e => setSvcPhone(e.target.value)}
+                      placeholder={isEs ? 'Tu teléfono...' : 'Your phone...'}
+                      className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white outline-none focus:border-[#FACC15] focus:ring-1 focus:ring-[#FACC15] transition-colors shadow-sm" />
+                  </div>
+
+                  {/* Hipotecas-specific */}
+                  {activeService === 'hipotecas' && (<>
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">{isEs ? 'Tipo de operación' : 'Operation type'}</label>
+                      <select value={svcOpType} onChange={e => setSvcOpType(e.target.value)}
+                        className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white outline-none focus:border-[#FACC15] transition-colors shadow-sm">
+                        <option value="">{isEs ? 'Selecciona...' : 'Select...'}</option>
+                        <option value="Compra de vivienda">{isEs ? 'Compra de vivienda' : 'Home purchase'}</option>
+                        <option value="Mejora de condiciones">{isEs ? 'Mejora de condiciones' : 'Better terms'}</option>
+                        <option value="Ampliación">{isEs ? 'Ampliación' : 'Extension'}</option>
+                        <option value="Otro">{isEs ? 'Otro' : 'Other'}</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">{isEs ? 'Importe aproximado' : 'Approximate amount'}</label>
+                      <input type="text" value={svcAmount} onChange={e => setSvcAmount(e.target.value)}
+                        placeholder={isEs ? 'Ej: 180.000 €' : 'E.g. 180,000 €'}
+                        className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white outline-none focus:border-[#FACC15] transition-colors shadow-sm" />
+                    </div>
+                  </>)}
+
+                  {/* Impago-specific */}
+                  {activeService === 'impago' && (<>
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">{isEs ? 'Inmueble' : 'Property'}</label>
+                      <input type="text" value={svcProperty} onChange={e => setSvcProperty(e.target.value)}
+                        placeholder={isEs ? 'Dirección o referencia...' : 'Address or reference...'}
+                        className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white outline-none focus:border-[#FACC15] transition-colors shadow-sm" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">{isEs ? 'Alquiler mensual' : 'Monthly rent'}</label>
+                      <input type="text" value={svcRent} onChange={e => setSvcRent(e.target.value)}
+                        placeholder={isEs ? 'Ej: 900 €/mes' : 'E.g. 900 €/mo'}
+                        className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white outline-none focus:border-[#FACC15] transition-colors shadow-sm" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">{isEs ? 'Información del inquilino (opcional)' : 'Tenant info (optional)'}</label>
+                      <input type="text" value={svcTenantInfo} onChange={e => setSvcTenantInfo(e.target.value)}
+                        placeholder={isEs ? 'Nombre, situación...' : 'Name, situation...'}
+                        className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white outline-none focus:border-[#FACC15] transition-colors shadow-sm" />
+                    </div>
+                  </>)}
+
+                  {/* Morosidad-specific */}
+                  {activeService === 'morosidad' && (<>
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">{isEs ? '¿Qué necesitas exactamente?' : 'What do you need?'}</label>
+                      <select value={svcNeed} onChange={e => setSvcNeed(e.target.value)}
+                        className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white outline-none focus:border-[#FACC15] transition-colors shadow-sm">
+                        <option value="">{isEs ? 'Selecciona...' : 'Select...'}</option>
+                        <option value="Certificado de morosidad">{isEs ? 'Certificado de morosidad' : 'Default certificate'}</option>
+                        <option value="Consulta sobre inquilino">{isEs ? 'Consulta sobre inquilino' : 'Tenant inquiry'}</option>
+                        <option value="Ambos">{isEs ? 'Ambos' : 'Both'}</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">{isEs ? 'Inmueble / Inquilino (opcional)' : 'Property / Tenant (optional)'}</label>
+                      <input type="text" value={svcProperty} onChange={e => setSvcProperty(e.target.value)}
+                        placeholder={isEs ? 'Dirección, nombre...' : 'Address, name...'}
+                        className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white outline-none focus:border-[#FACC15] transition-colors shadow-sm" />
+                    </div>
+                  </>)}
+
+                  {/* Seguros-specific */}
+                  {activeService === 'seguros' && (<>
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">{isEs ? 'Tipo de seguro' : 'Insurance type'}</label>
+                      <select value={svcInsuranceType} onChange={e => setSvcInsuranceType(e.target.value)}
+                        className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white outline-none focus:border-[#FACC15] transition-colors shadow-sm">
+                        <option value="">{isEs ? 'Selecciona...' : 'Select...'}</option>
+                        <option value="Seguro del hogar">{isEs ? 'Seguro del hogar' : 'Home insurance'}</option>
+                        <option value="Seguro de comunidad">{isEs ? 'Seguro de comunidad' : 'Community insurance'}</option>
+                        <option value="Seguro de responsabilidad civil">{isEs ? 'Responsabilidad civil' : 'Liability insurance'}</option>
+                        <option value="Otro">{isEs ? 'Otro' : 'Other'}</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">{isEs ? 'Inmueble (opcional)' : 'Property (optional)'}</label>
+                      <input type="text" value={svcProperty} onChange={e => setSvcProperty(e.target.value)}
+                        placeholder={isEs ? 'Dirección o referencia...' : 'Address or reference...'}
+                        className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white outline-none focus:border-[#FACC15] transition-colors shadow-sm" />
+                    </div>
+                  </>)}
+
+                  {/* Seguro de hogar (inquilino)-specific */}
+                  {activeService === 'seguro-hogar' && (<>
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">{isEs ? 'Inmueble / Dirección' : 'Property / Address'}</label>
+                      <input type="text" value={svcProperty} onChange={e => setSvcProperty(e.target.value)}
+                        placeholder={isEs ? 'Dirección del inmueble...' : 'Property address...'}
+                        className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white outline-none focus:border-[#FACC15] transition-colors shadow-sm" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">{isEs ? 'Tipo de vivienda' : 'Property type'}</label>
+                      <select value={svcHomeType} onChange={e => setSvcHomeType(e.target.value)}
+                        className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white outline-none focus:border-[#FACC15] transition-colors shadow-sm">
+                        <option value="">{isEs ? 'Selecciona...' : 'Select...'}</option>
+                        <option value="Piso">{isEs ? 'Piso' : 'Apartment'}</option>
+                        <option value="Casa / Chalet">{isEs ? 'Casa / Chalet' : 'House'}</option>
+                        <option value="Estudio">{isEs ? 'Estudio' : 'Studio'}</option>
+                        <option value="Otro">{isEs ? 'Otro' : 'Other'}</option>
+                      </select>
+                    </div>
+                  </>)}
+
+                  {/* Additional message – common */}
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">{isEs ? 'Información adicional (opcional)' : 'Additional info (optional)'}</label>
+                    <textarea value={svcMessage} onChange={e => setSvcMessage(e.target.value)}
+                      placeholder={isEs ? 'Cuéntanos más detalles...' : 'Tell us more details...'}
+                      className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-4 text-sm text-slate-900 dark:text-white outline-none focus:border-[#FACC15] focus:ring-1 focus:ring-[#FACC15] min-h-[100px] resize-none transition-colors shadow-sm" />
+                  </div>
+                </div>
+
+                <button
+                  onClick={handleSendService}
+                  disabled={isSendingService}
+                  className="w-full py-3.5 bg-[#FACC15] hover:bg-[#eab308] text-slate-900 rounded-xl font-semibold flex items-center justify-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+                >
+                  <Send size={18} className={isSendingService ? 'animate-pulse' : ''} />
+                  {isSendingService ? (isEs ? 'Enviando...' : 'Sending...') : (isEs ? 'Enviar Solicitud' : 'Send Request')}
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+  // ──────────────────────────────────────────────────────────────────────────
+
   if (showExport) {
     return (
       <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[210] flex items-center justify-center p-4" onClick={() => setShowExport(false)}>
@@ -381,6 +655,90 @@ export function SettingsModalBase({
           </div>
 
           <div className="space-y-6">
+
+            {/* ─── Servicios para ti (inquilino) ─── */}
+            {isTenant && (
+              <div>
+                <h3 className="text-[12px] font-bold text-slate-400 uppercase tracking-wider mb-3 px-1">
+                  {isEs ? 'Servicios para ti' : 'Services for You'}
+                </h3>
+                <div className="grid grid-cols-1 gap-3">
+                  <button
+                    onClick={() => { resetServiceForm(); setActiveService('seguro-hogar'); }}
+                    className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 text-left hover:border-[#FACC15] hover:shadow-md transition-all group shadow-sm"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-xl bg-teal-50 dark:bg-teal-900/20 flex items-center justify-center text-teal-500 shrink-0 group-hover:bg-[#FACC15]/20 transition-colors">
+                        <Umbrella size={20} />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="font-bold text-[14px] text-slate-900 dark:text-white mb-0.5">{isEs ? 'Seguro de Hogar' : 'Home Insurance'}</p>
+                        <p className="text-[12px] text-slate-500 dark:text-slate-400 leading-snug">{isEs ? 'Solicita información sobre un seguro de hogar adaptado a tus necesidades como inquilino.' : 'Request information on home insurance tailored to your needs as a tenant.'}</p>
+                      </div>
+                      <ChevronRight size={16} className="text-slate-400 shrink-0" />
+                    </div>
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* ─── Servicios para ti (propietario) ─── */}
+            {!isTenant && (
+              <div>
+                <h3 className="text-[12px] font-bold text-slate-400 uppercase tracking-wider mb-3 px-1">
+                  {isEs ? 'Servicios para ti' : 'Services for You'}
+                </h3>
+                <div className="grid grid-cols-2 gap-3">
+                  {/* Hipotecas */}
+                  <button
+                    onClick={() => { resetServiceForm(); setActiveService('hipotecas'); }}
+                    className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 text-left hover:border-[#FACC15] hover:shadow-md transition-all group shadow-sm"
+                  >
+                    <div className="w-9 h-9 rounded-xl bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center text-amber-500 mb-3 group-hover:bg-[#FACC15]/20 transition-colors">
+                      <Building2 size={18} />
+                    </div>
+                    <p className="font-bold text-[13px] text-slate-900 dark:text-white mb-1">{isEs ? 'Hipotecas' : 'Mortgages'}</p>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-snug">{isEs ? 'Solicita asesoramiento hipotecario personalizado.' : 'Get personalised mortgage advice.'}</p>
+                  </button>
+
+                  {/* Seguro de impago */}
+                  <button
+                    onClick={() => { resetServiceForm(); setActiveService('impago'); }}
+                    className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 text-left hover:border-[#FACC15] hover:shadow-md transition-all group shadow-sm"
+                  >
+                    <div className="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-500 mb-3 group-hover:bg-[#FACC15]/20 transition-colors">
+                      <ShieldCheck size={18} />
+                    </div>
+                    <p className="font-bold text-[13px] text-slate-900 dark:text-white mb-1">{isEs ? 'Seguro de Impago' : 'Non-Payment Insurance'}</p>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-snug">{isEs ? 'Protege tus rentas ante impagos del inquilino.' : 'Protect your rent from tenant defaults.'}</p>
+                  </button>
+
+                  {/* Morosidad */}
+                  <button
+                    onClick={() => { resetServiceForm(); setActiveService('morosidad'); }}
+                    className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 text-left hover:border-[#FACC15] hover:shadow-md transition-all group shadow-sm"
+                  >
+                    <div className="w-9 h-9 rounded-xl bg-orange-50 dark:bg-orange-900/20 flex items-center justify-center text-orange-500 mb-3 group-hover:bg-[#FACC15]/20 transition-colors">
+                      <AlertTriangle size={18} />
+                    </div>
+                    <p className="font-bold text-[13px] text-slate-900 dark:text-white mb-1">{isEs ? 'Consulta de Morosidad' : 'Default Certificate'}</p>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-snug">{isEs ? 'Verifica la solvencia antes de alquilar.' : 'Check creditworthiness before renting.'}</p>
+                  </button>
+
+                  {/* Seguros */}
+                  <button
+                    onClick={() => { resetServiceForm(); setActiveService('seguros'); }}
+                    className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 text-left hover:border-[#FACC15] hover:shadow-md transition-all group shadow-sm"
+                  >
+                    <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center text-emerald-500 mb-3 group-hover:bg-[#FACC15]/20 transition-colors">
+                      <Umbrella size={18} />
+                    </div>
+                    <p className="font-bold text-[13px] text-slate-900 dark:text-white mb-1">{isEs ? 'Seguros' : 'Insurance'}</p>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-snug">{isEs ? 'Información sobre seguros para tus inmuebles.' : 'Info on insurance for your properties.'}</p>
+                  </button>
+                </div>
+              </div>
+            )}
             <div>
               <h3 className="text-[12px] font-bold text-slate-400 uppercase tracking-wider mb-3 px-1">{isEs ? 'Ajustes del Sistema' : 'System Settings'}</h3>
               <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden divide-y divide-slate-100 dark:divide-slate-700">

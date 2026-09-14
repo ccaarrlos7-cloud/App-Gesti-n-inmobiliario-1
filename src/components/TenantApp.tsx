@@ -12,10 +12,18 @@ import { SettingsModalBase } from './SettingsModal';
 type Tab = 'home' | 'documents' | 'issues' | 'chat';
 
 export default function TenantApp() {
-  const { profile, contracts, issues, documents, addTenantIssue, getTenantIssueMessages, addTenantIssueMessage, getTenantChatMessages, addTenantChatMessage, unreadChatCount, loadUnreadChatCount, theme, setTheme, language, setLanguage } = useTenantContext();
+  const { profile, contracts, issues, documents, addTenantIssue, getTenantIssueMessages, addTenantIssueMessage, getTenantChatMessages, addTenantChatMessage, unreadChatCount, loadUnreadChatCount, theme, setTheme, language, setLanguage, uploadTenantDocument, deleteTenantDocument } = useTenantContext();
   const isEs = language === 'Español';
   const [activeTab, setActiveTab] = useState<Tab>('home');
   const [viewingDoc, setViewingDoc] = useState<{url: string, name: string} | null>(null);
+  
+  const [showDocUpload, setShowDocUpload] = useState(false);
+  const [docFile, setDocFile] = useState<File | null>(null);
+  const [docType, setDocType] = useState('DNI / Documentación');
+  const [isUploadingDoc, setIsUploadingDoc] = useState(false);
+  const [docError, setDocError] = useState('');
+  const docFileInputRef = useRef<HTMLInputElement>(null);
+  const [isDeletingDoc, setIsDeletingDoc] = useState<string | null>(null);
   const [showIssueForm, setShowIssueForm] = useState(false);
   const [issueForm, setIssueForm] = useState({ title: '', description: '' });
   const [isSubmittingIssue, setIsSubmittingIssue] = useState(false);
@@ -127,15 +135,15 @@ export default function TenantApp() {
       {/* Header */}
       <header className="min-h-[64px] py-3 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 flex flex-wrap gap-3 items-center justify-between px-4 sm:px-8 shrink-0 z-10 transition-colors">
         <div className="hidden sm:flex items-center gap-3">
-          <div className="w-9 h-9 bg-[#FACC15] rounded-xl flex items-center justify-center text-slate-900 shadow-md shadow-[#FACC15]/20">
-            <Building2 size={18} />
+          <div className="w-9 h-9 flex items-center justify-center shadow-md shadow-black/10 shrink-0 rounded-xl overflow-hidden">
+            <img src="/logo-cropped.png" alt="GestiCasa Logo" className="w-full h-full object-cover" />
           </div>
           <h1 className="text-[20px] font-bold text-slate-900 dark:text-white">{profile?.name || (isEs ? 'Inquilino' : 'Tenant')}</h1>
         </div>
         
         <div className="relative flex-1 min-w-[150px] sm:hidden flex items-center gap-2">
-          <div className="w-8 h-8 bg-[#FACC15] rounded-xl flex items-center justify-center text-slate-900 shadow-sm">
-            <Building2 size={16} />
+          <div className="w-8 h-8 flex items-center justify-center shadow-sm shrink-0 rounded-xl overflow-hidden">
+            <img src="/logo-cropped.png" alt="GestiCasa Logo" className="w-full h-full object-cover" />
           </div>
           <h1 className="text-[20px] font-bold text-slate-900 dark:text-white truncate">{profile?.name || (isEs ? 'Inquilino' : 'Tenant')}</h1>
         </div>
@@ -259,9 +267,90 @@ export default function TenantApp() {
 
           {activeTab === 'documents' && (
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
-              <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
-                <FolderOpen className="text-[#FACC15] dark:text-[#FACC15]" /> {isEs ? 'Documentos Compartidos' : 'Shared Documents'}
-              </h2>
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-bold flex items-center gap-2 text-slate-900 dark:text-white transition-colors">
+                  <FolderOpen className="text-[#FACC15] dark:text-[#FACC15]" /> {isEs ? 'Documentación' : 'Documents'}
+                </h2>
+                <button
+                  onClick={() => setShowDocUpload(!showDocUpload)}
+                  className="px-4 py-2 bg-[#FACC15] text-slate-900 rounded-xl font-bold hover:bg-[#FACC15]/90 transition-colors flex items-center gap-2 shadow-sm text-sm"
+                >
+                  {showDocUpload ? <X size={18} /> : <Plus size={18} />}
+                  <span className="hidden sm:inline">{showDocUpload ? (isEs ? 'Cancelar' : 'Cancel') : (isEs ? 'Subir' : 'Upload')}</span>
+                </button>
+              </div>
+
+              {showDocUpload && (
+                <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 sm:p-6 mb-6 border border-slate-200 dark:border-slate-700 shadow-sm transition-colors">
+                  <h3 className="font-bold text-lg mb-4 text-slate-900 dark:text-white transition-colors">{isEs ? 'Subir Documento' : 'Upload Document'}</h3>
+                  
+                  {docError && (
+                    <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 rounded-xl text-sm transition-colors">
+                      {docError}
+                    </div>
+                  )}
+
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 transition-colors">
+                        {isEs ? 'Tipo de Documento' : 'Document Type'}
+                      </label>
+                      <select
+                        value={docType}
+                        onChange={(e) => setDocType(e.target.value)}
+                        className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-[#FACC15] focus:border-transparent outline-none transition-all"
+                      >
+                        <option value="Contrato">{isEs ? 'Contrato' : 'Contract'}</option>
+                        <option value="DNI / Documentación">{isEs ? 'DNI / Documentación' : 'ID / Documentation'}</option>
+                        <option value="Seguro">{isEs ? 'Seguro' : 'Insurance'}</option>
+                        <option value="Justificante de pago">{isEs ? 'Justificante de pago' : 'Payment Receipt'}</option>
+                        <option value="Otros">{isEs ? 'Otros' : 'Other'}</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 transition-colors">
+                        {isEs ? 'Archivo (PDF, JPG, PNG)' : 'File (PDF, JPG, PNG)'}
+                      </label>
+                      <input
+                        type="file"
+                        ref={docFileInputRef}
+                        accept=".pdf,.jpg,.jpeg,.png"
+                        onChange={(e) => setDocFile(e.target.files?.[0] || null)}
+                        className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-[#FACC15] focus:border-transparent outline-none transition-all file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-[#FACC15] file:text-slate-900 hover:file:bg-[#FACC15]/90"
+                      />
+                    </div>
+
+                    <button
+                      onClick={async () => {
+                        if (!docFile) {
+                          setDocError(isEs ? 'Selecciona un archivo.' : 'Select a file.');
+                          return;
+                        }
+                        if (docFile.size > 10 * 1024 * 1024) {
+                          setDocError(isEs ? 'El archivo es demasiado grande (máx 10MB).' : 'File is too large (max 10MB).');
+                          return;
+                        }
+                        setIsUploadingDoc(true);
+                        setDocError('');
+                        const res = await uploadTenantDocument(docFile, docType);
+                        setIsUploadingDoc(false);
+                        if (res.success) {
+                          setShowDocUpload(false);
+                          setDocFile(null);
+                          if (docFileInputRef.current) docFileInputRef.current.value = '';
+                        } else {
+                          setDocError(res.error || 'Error uploading document.');
+                        }
+                      }}
+                      disabled={isUploadingDoc || !docFile}
+                      className="w-full mt-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold py-3 px-4 rounded-xl hover:bg-slate-800 dark:hover:bg-slate-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {isUploadingDoc ? (isEs ? 'Subiendo...' : 'Uploading...') : (isEs ? 'Subir Documento' : 'Upload Document')}
+                    </button>
+                  </div>
+                </div>
+              )}
               
               {!allDocuments || allDocuments.length === 0 ? (
                 <div className="bg-white dark:bg-slate-800 rounded-2xl p-12 text-center border border-slate-200 dark:border-slate-700 shadow-sm transition-colors">
@@ -270,7 +359,7 @@ export default function TenantApp() {
                   <p className="text-slate-500 dark:text-slate-400 max-w-sm mx-auto transition-colors">
                     {!currentContract 
                       ? (isEs ? "No tienes ningún contrato vinculado actualmente." : "You do not have any contract linked currently.")
-                      : (isEs ? "No hay documentos compartidos contigo en este momento." : "There are no documents shared with you at this time.")}
+                      : (isEs ? "Aún no hay documentos disponibles." : "No documents available yet.")}
                   </p>
                 </div>
               ) : (
@@ -283,18 +372,44 @@ export default function TenantApp() {
                             <FileText size={20} />
                           </div>
                           <div className="min-w-0">
-                            <p className="font-semibold text-slate-900 dark:text-slate-100 truncate transition-colors">{doc.name}</p>
+                            <div className="flex items-center gap-2">
+                              <p className="font-semibold text-slate-900 dark:text-slate-100 truncate transition-colors">{doc.name}</p>
+                              {doc.documentType && (
+                                <span className="inline-block px-2 py-0.5 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-[10px] rounded-full font-medium whitespace-nowrap">
+                                  {doc.documentType}
+                                </span>
+                              )}
+                            </div>
                             <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 transition-colors">
-                              {new Date(doc.createdAt).toLocaleDateString()} {doc.size ? `• ${(doc.size / 1024 / 1024).toFixed(2)} MB` : ''}
+                              {new Date(doc.createdAt).toLocaleDateString()} {doc.size ? `• ${(doc.size / 1024 / 1024).toFixed(2)} MB` : ''} 
+                              {doc.uploadedByTenant ? (isEs ? ' • Subido por ti' : ' • Uploaded by you') : (isEs ? ' • Compartido' : ' • Shared')}
                             </p>
                           </div>
                         </div>
-                        <DocumentActionButtons
-                          onView={() => setViewingDoc({ url: `storage://${doc.storagePath}`, name: doc.name })}
-                          onDownload={() => {}}
-                          downloadUrl={`storage://${doc.storagePath}`}
-                          downloadName={doc.name}
-                        />
+                        <div className="flex items-center gap-2 ml-4">
+                          <DocumentActionButtons
+                            onView={() => setViewingDoc({ url: `storage://${doc.storagePath}`, name: doc.name })}
+                            onDownload={() => {}}
+                            downloadUrl={`storage://${doc.storagePath}`}
+                            downloadName={doc.name}
+                          />
+                          {doc.uploadedByTenant && (
+                            <button
+                              onClick={async () => {
+                                if (window.confirm(isEs ? '¿Estás seguro de que quieres eliminar este documento?' : 'Are you sure you want to delete this document?')) {
+                                  setIsDeletingDoc(doc.id);
+                                  await deleteTenantDocument(doc.id, doc.storagePath);
+                                  setIsDeletingDoc(null);
+                                }
+                              }}
+                              disabled={isDeletingDoc === doc.id}
+                              className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors disabled:opacity-50"
+                              title={isEs ? 'Eliminar' : 'Delete'}
+                            >
+                              <X size={18} />
+                            </button>
+                          )}
+                        </div>
                       </div>
                     ))}
                   </div>

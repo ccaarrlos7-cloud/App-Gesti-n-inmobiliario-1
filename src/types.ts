@@ -30,6 +30,10 @@ export interface TenantDocumentView {
   storagePath: string;
   size: number;
   createdAt: string;
+  documentType?: string;
+  mimeType?: string;
+  uploadedByTenant?: boolean;
+  sharedWithTenants?: boolean;
 }
 
 export interface TenantIssueView {
@@ -99,6 +103,7 @@ export interface ContractDocument {
   size: number;
   createdAt: string;
   sharedWithTenants: boolean;
+  uploadedByTenant?: boolean;
 }
 
 export interface Contract {
