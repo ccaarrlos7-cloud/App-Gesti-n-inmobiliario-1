@@ -109,14 +109,14 @@ export default function DashboardView({ onNavigate }: { onNavigate?: (view: View
       <header className="min-h-[64px] py-3 bg-white dark:bg-slate-800 border-b border-slate-100 dark:border-slate-700 flex flex-wrap gap-3 items-center justify-between px-4 sm:px-8 shrink-0 shadow-sm">
         <div className="hidden sm:flex items-center gap-3">
           <div className="w-9 h-9 flex items-center justify-center shadow-md shadow-black/10 shrink-0 rounded-xl overflow-hidden">
-            <img src="/logo-cropped.png" alt="GestiCasa Logo" className="w-full h-full object-cover" />
+            <img src="/logo-gesticasa.png" alt="GestiCasa Logo" className="w-full h-full object-cover" />
           </div>
           <h1 className="text-[20px] font-bold text-slate-900 dark:text-white">{userName}</h1>
         </div>
         
         <div className="relative flex-1 min-w-[150px] sm:hidden flex items-center gap-2">
           <div className="w-8 h-8 flex items-center justify-center shadow-sm shrink-0 rounded-xl overflow-hidden">
-            <img src="/logo-cropped.png" alt="GestiCasa Logo" className="w-full h-full object-cover" />
+            <img src="/logo-gesticasa.png" alt="GestiCasa Logo" className="w-full h-full object-cover" />
           </div>
           <h1 className="text-[20px] font-bold text-slate-900 dark:text-white truncate">{userName}</h1>
         </div>

@@ -63,7 +63,7 @@ export default function Login() {
             {/* Logo */}
             <div className="flex items-center gap-2 xl:gap-3 mb-2 xl:mb-6">
                <div className="w-10 h-10 xl:w-14 xl:h-14 flex items-center justify-center shadow-lg rounded-xl xl:rounded-2xl overflow-hidden shrink-0">
-                 <img src="/logo-cropped.png" alt="GestiCasa Logo" className="w-full h-full object-cover" />
+                 <img src="/logo-gesticasa.png" alt="GestiCasa Logo" className="w-full h-full object-cover" />
                </div>
                <span className="text-xl xl:text-3xl font-bold">Gesti<span className="text-[#FACC15]">Casa</span></span>
             </div>

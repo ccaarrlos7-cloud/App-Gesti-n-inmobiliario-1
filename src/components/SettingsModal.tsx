@@ -261,11 +261,92 @@ export function SettingsModalBase({
              <h2 className="font-bold text-[16px] text-slate-900 dark:text-white ml-2">{isEs ? 'Política de Privacidad' : 'Privacy Policy'}</h2>
            </div>
            <div className="p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] overflow-y-auto prose prose-sm text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 flex-1">
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">{isEs ? 'POLÍTICA DE PRIVACIDAD' : 'PRIVACY POLICY'}</h3>
-              <p className="mb-4"><strong>{isEs ? 'Última actualización: Septiembre de 2026' : 'Last updated: September 2026'}</strong></p>
-              <p className="mb-4">{isEs ? 'GestInmo garantiza la seguridad y privacidad de los datos personales. Esta aplicación ha sido desarrollada como herramienta de gestión privada y no comparte información con terceros no autorizados.' : 'GestInmo guarantees the security and privacy of personal data. This application has been developed as a private management tool and does not share information with unauthorized third parties.'}</p>
-              <p className="mb-4">{isEs ? 'Los datos introducidos o recopilados a través de esta plataforma (incluyendo datos de contacto, contratos de alquiler, recibos y documentos adjuntos) son accesibles únicamente por el propietario administrador y los inquilinos vinculados a sus respectivos contratos.' : 'The data entered or collected through this platform (including contact details, rental contracts, receipts and attached documents) are accessible only by the managing owner and the tenants linked to their respective contracts.'}</p>
-              <p className="mb-6">{isEs ? 'Como usuario, usted tiene derecho a consultar, rectificar o eliminar su información de perfil. Cualquier consulta relacionada con sus datos, por favor, póngase en contacto a través de la sección de Ayuda y Soporte.' : 'As a user, you have the right to view, rectify or delete your profile information. For any queries regarding your data, please contact through the Help & Support section.'}</p>
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">{isEs ? 'POLÍTICA DE PRIVACIDAD — GestiCasa' : 'PRIVACY POLICY — GestiCasa'}</h3>
+              <p className="mb-4 text-xs text-slate-400">{isEs ? 'Última actualización: Septiembre de 2026' : 'Last updated: September 2026'}</p>
+
+              <h4 className="font-bold text-slate-800 dark:text-slate-200 mt-5 mb-1">{isEs ? '1. Responsable del tratamiento' : '1. Data Controller'}</h4>
+              <p className="mb-3 text-xs">{isEs ? 'El responsable del tratamiento de sus datos personales es Carlos Gil Apps, gestor de la aplicación GestiCasa. Para cualquier consulta relacionada con la privacidad o el tratamiento de sus datos, puede contactar a través del correo electrónico: appgestioninmuebles@gmail.com' : 'The data controller responsible for processing your personal data is Carlos Gil Apps, manager of the GestiCasa application. For any queries relating to privacy or the processing of your data, you may contact us at: appgestioninmuebles@gmail.com'}</p>
+
+              <h4 className="font-bold text-slate-800 dark:text-slate-200 mt-5 mb-1">{isEs ? '2. ¿Qué datos tratamos?' : '2. What data do we process?'}</h4>
+              <p className="mb-2">{isEs ? 'GestiCasa trata los siguientes datos personales en función de su perfil:' : 'GestiCasa processes the following personal data depending on your profile:'}</p>
+              {!isTenant ? (
+                <ul className="list-disc pl-5 mb-3 space-y-1 text-xs">
+                  <li>{isEs ? 'Datos de registro y autenticación: nombre, correo electrónico y contraseña (gestionados por Supabase Auth).' : 'Registration and authentication data: name, email and password (managed by Supabase Auth).'}</li>
+                  <li>{isEs ? 'Datos de inmuebles: dirección, tipo, estado, precio de compra, renta de mercado, hipoteca, fotografías o documentos vinculados.' : 'Property data: address, type, status, purchase price, market rent, mortgage, linked photos or documents.'}</li>
+                  <li>{isEs ? 'Datos de inquilinos: nombre completo, DNI/NIE, teléfono, correo electrónico y cualquier otra información que el propietario introduzca.' : 'Tenant data: full name, ID number, phone, email and any other information the owner enters.'}</li>
+                  <li>{isEs ? 'Datos de contratos: importe de renta, fianza, fechas de inicio y fin, cláusulas y estado de pago.' : 'Contract data: rent amount, deposit, start and end dates, clauses and payment status.'}</li>
+                  <li>{isEs ? 'Transacciones: ingresos y gastos vinculados a cada inmueble.' : 'Transactions: income and expenses linked to each property.'}</li>
+                  <li>{isEs ? 'Documentos: contratos, recibos, certificados y cualquier archivo subido por el propietario o compartido con el inquilino.' : 'Documents: contracts, receipts, certificates and any file uploaded by the owner or shared with the tenant.'}</li>
+                  <li>{isEs ? 'Incidencias: título, descripción, estado y mensajes de seguimiento.' : 'Issues: title, description, status and follow-up messages.'}</li>
+                  <li>{isEs ? 'Comunicaciones: mensajes de chat entre propietario e inquilino.' : 'Communications: chat messages between owner and tenant.'}</li>
+                  <li>{isEs ? 'Solicitudes de servicio: información proporcionada al solicitar hipotecas, seguros o consultas de morosidad.' : 'Service requests: information provided when requesting mortgages, insurance or default checks.'}</li>
+                </ul>
+              ) : (
+                <ul className="list-disc pl-5 mb-3 space-y-1 text-xs">
+                  <li>{isEs ? 'Datos de registro y autenticación: correo electrónico y contraseña (gestionados por Supabase Auth).' : 'Registration and authentication data: email and password (managed by Supabase Auth).'}</li>
+                  <li>{isEs ? 'Datos del perfil: nombre, teléfono y cualquier información que el propietario haya asociado a su contrato.' : 'Profile data: name, phone and any information the owner has linked to your contract.'}</li>
+                  <li>{isEs ? 'Datos del contrato de alquiler: inmueble, renta, fianza, fechas y estado de pago.' : 'Rental contract data: property, rent, deposit, dates and payment status.'}</li>
+                  <li>{isEs ? 'Documentos: contrato de alquiler y documentos compartidos por el propietario o subidos por el propio inquilino.' : 'Documents: rental contract and documents shared by the owner or uploaded by the tenant.'}</li>
+                  <li>{isEs ? 'Incidencias: descripción de avisos o averías y mensajes de seguimiento.' : 'Issues: description of notices or breakdowns and follow-up messages.'}</li>
+                  <li>{isEs ? 'Comunicaciones: mensajes de chat con el propietario.' : 'Communications: chat messages with the landlord.'}</li>
+                  <li>{isEs ? 'Solicitudes de servicio: información proporcionada al solicitar un seguro de hogar.' : 'Service requests: information provided when requesting home insurance.'}</li>
+                </ul>
+              )}
+
+              <h4 className="font-bold text-slate-800 dark:text-slate-200 mt-5 mb-1">{isEs ? '3. Finalidades del tratamiento' : '3. Purposes of processing'}</h4>
+              <ul className="list-disc pl-5 mb-3 space-y-1 text-xs">
+                <li>{isEs ? 'Gestionar la relación entre propietario e inquilino.' : 'Managing the relationship between landlord and tenant.'}</li>
+                <li>{isEs ? 'Permitir el seguimiento de contratos, pagos y documentación.' : 'Allowing monitoring of contracts, payments and documentation.'}</li>
+                <li>{isEs ? 'Gestionar y resolver incidencias del inmueble.' : 'Managing and resolving property issues.'}</li>
+                <li>{isEs ? 'Facilitar la comunicación directa entre propietario e inquilino.' : 'Facilitating direct communication between owner and tenant.'}</li>
+                <li>{isEs ? 'Tramitar solicitudes de servicios adicionales (seguros, hipotecas, consultas de morosidad).' : 'Processing requests for additional services (insurance, mortgages, default checks).'}</li>
+                <li>{isEs ? 'Garantizar la seguridad y el correcto funcionamiento de la plataforma.' : 'Ensuring the security and proper operation of the platform.'}</li>
+                <li>{isEs ? 'Atender consultas y solicitudes de soporte.' : 'Handling support queries and requests.'}</li>
+              </ul>
+
+              <h4 className="font-bold text-slate-800 dark:text-slate-200 mt-5 mb-1">{isEs ? '4. Base jurídica' : '4. Legal basis'}</h4>
+              <ul className="list-disc pl-5 mb-3 space-y-1 text-xs">
+                <li>{isEs ? 'Ejecución de la relación contractual entre propietario e inquilino (art. 6.1.b RGPD).' : 'Performance of the contractual relationship between landlord and tenant (Art. 6.1.b GDPR).'}</li>
+                <li>{isEs ? 'Interés legítimo del propietario en gestionar su patrimonio inmobiliario (art. 6.1.f RGPD).' : "Legitimate interest of the owner in managing their real estate assets (Art. 6.1.f GDPR)."}</li>
+                <li>{isEs ? 'Consentimiento del usuario para la prestación de servicios adicionales (art. 6.1.a RGPD).' : 'User consent for the provision of additional services (Art. 6.1.a GDPR).'}</li>
+              </ul>
+
+              <h4 className="font-bold text-slate-800 dark:text-slate-200 mt-5 mb-1">{isEs ? '5. Acceso a los datos' : '5. Data access'}</h4>
+              <p className="mb-3 text-xs">{isEs ? 'Los datos introducidos en GestiCasa son accesibles únicamente por el propietario administrador de cada cuenta y por los inquilinos vinculados a sus respectivos contratos. No se comparte información personal con terceros no autorizados.' : 'Data entered in GestiCasa is accessible only by the managing owner of each account and the tenants linked to their respective contracts. Personal information is not shared with unauthorised third parties.'}</p>
+
+              <h4 className="font-bold text-slate-800 dark:text-slate-200 mt-5 mb-1">{isEs ? '6. Proveedores tecnológicos' : '6. Technology providers'}</h4>
+              <p className="mb-3 text-xs">{isEs ? 'GestiCasa utiliza Supabase como plataforma de autenticación, base de datos y almacenamiento de archivos. Supabase actúa como encargado del tratamiento conforme al RGPD. Para más información, consulte la política de privacidad de Supabase en supabase.com.' : 'GestiCasa uses Supabase as its authentication, database and file storage platform. Supabase acts as data processor under the GDPR. For more information, see the Supabase privacy policy at supabase.com.'}</p>
+
+              <h4 className="font-bold text-slate-800 dark:text-slate-200 mt-5 mb-1">{isEs ? '7. Transferencias internacionales' : '7. International transfers'}</h4>
+              <p className="mb-3 text-xs">{isEs ? 'Los datos pueden ser almacenados en servidores ubicados fuera del Espacio Económico Europeo en función de la configuración de Supabase. En tal caso, se aplican las garantías adecuadas conforme al RGPD.' : 'Data may be stored on servers located outside the European Economic Area depending on Supabase configuration. In such cases, appropriate safeguards under the GDPR apply.'}</p>
+
+              <h4 className="font-bold text-slate-800 dark:text-slate-200 mt-5 mb-1">{isEs ? '8. Plazos de conservación' : '8. Retention periods'}</h4>
+              <p className="mb-3 text-xs">{isEs ? 'Los datos se conservan mientras la cuenta esté activa. Una vez eliminada la cuenta o el contrato, los datos se mantendrán durante el plazo legalmente exigible para atender posibles reclamaciones y obligaciones fiscales, y posteriormente serán suprimidos o anonimizados.' : 'Data is retained for as long as the account is active. Once the account or contract is deleted, data will be kept for the legally required period to handle possible claims and tax obligations, and then deleted or anonymised.'}</p>
+
+              <h4 className="font-bold text-slate-800 dark:text-slate-200 mt-5 mb-1">{isEs ? '9. Sus derechos' : '9. Your rights'}</h4>
+              <p className="mb-2 text-xs">{isEs ? 'Conforme al RGPD y la LOPDGDD, usted tiene derecho a:' : 'Under the GDPR and applicable law, you have the right to:'}</p>
+              <ul className="list-disc pl-5 mb-3 space-y-1 text-xs">
+                <li>{isEs ? 'Acceder a sus datos personales.' : 'Access your personal data.'}</li>
+                <li>{isEs ? 'Rectificar datos inexactos o incompletos.' : 'Rectify inaccurate or incomplete data.'}</li>
+                <li>{isEs ? 'Solicitar la supresión de sus datos cuando ya no sean necesarios.' : 'Request erasure of your data when it is no longer necessary.'}</li>
+                <li>{isEs ? 'Oponerse al tratamiento o solicitar su limitación.' : 'Object to processing or request its restriction.'}</li>
+                <li>{isEs ? 'Solicitar la portabilidad de sus datos.' : 'Request data portability.'}</li>
+                <li>{isEs ? 'Retirar el consentimiento en cualquier momento, sin que ello afecte a la licitud del tratamiento previo.' : 'Withdraw consent at any time without affecting the lawfulness of prior processing.'}</li>
+              </ul>
+              <p className="mb-3 text-xs">{isEs ? 'Para ejercer sus derechos, contacte a través de la sección de Ayuda y Soporte.' : 'To exercise your rights, contact us via the Help & Support section.'}</p>
+              <p className="mb-3 text-xs">{isEs ? 'También tiene derecho a presentar una reclamación ante la Agencia Española de Protección de Datos (AEPD) en www.aepd.es.' : 'You also have the right to lodge a complaint with the Spanish Data Protection Agency (AEPD) at www.aepd.es.'}</p>
+
+              <h4 className="font-bold text-slate-800 dark:text-slate-200 mt-5 mb-1">{isEs ? '10. Seguridad' : '10. Security'}</h4>
+              <p className="mb-3 text-xs">{isEs ? 'GestiCasa aplica medidas técnicas y organizativas adecuadas para proteger sus datos frente a accesos no autorizados, pérdida o destrucción. La autenticación y el almacenamiento de datos se realizan a través de Supabase, que implementa cifrado en tránsito y en reposo.' : 'GestiCasa applies appropriate technical and organisational measures to protect your data against unauthorised access, loss or destruction. Authentication and data storage are handled via Supabase, which implements encryption in transit and at rest.'}</p>
+
+              <h4 className="font-bold text-slate-800 dark:text-slate-200 mt-5 mb-1">{isEs ? '11. Documentos subidos por usuarios' : '11. User-uploaded documents'}</h4>
+              <p className="mb-3 text-xs">{isEs ? 'Los archivos subidos a GestiCasa (contratos, DNI, justificantes, etc.) se almacenan en Supabase Storage con acceso restringido. Solo el propietario y el inquilino vinculado pueden acceder a dichos documentos.' : 'Files uploaded to GestiCasa (contracts, ID documents, receipts, etc.) are stored in Supabase Storage with restricted access. Only the linked owner and tenant can access these documents.'}</p>
+
+              <h4 className="font-bold text-slate-800 dark:text-slate-200 mt-5 mb-1">{isEs ? '12. Cookies y tecnologías similares' : '12. Cookies and similar technologies'}</h4>
+              <p className="mb-3 text-xs">{isEs ? 'GestiCasa es una aplicación web progresiva (PWA) que puede utilizar almacenamiento local del navegador (localStorage) para guardar preferencias de usuario como idioma y tema. No utiliza cookies de terceros con fines publicitarios.' : 'GestiCasa is a progressive web application (PWA) that may use browser local storage (localStorage) to save user preferences such as language and theme. It does not use third-party advertising cookies.'}</p>
+
+              <h4 className="font-bold text-slate-800 dark:text-slate-200 mt-5 mb-1">{isEs ? '13. Actualización de esta política' : '13. Policy updates'}</h4>
+              <p className="mb-6 text-xs">{isEs ? 'Esta política puede actualizarse para reflejar cambios en la aplicación o en la normativa vigente. La versión actualizada estará siempre disponible en esta sección.' : 'This policy may be updated to reflect changes in the application or applicable regulations. The updated version will always be available in this section.'}</p>
            </div>
         </div>
       </div>
@@ -283,40 +364,186 @@ export function SettingsModalBase({
              <h2 className="font-bold text-[16px] text-slate-900 dark:text-white ml-2">{isEs ? 'Manual de Uso' : 'User Manual'}</h2>
            </div>
            <div className="p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] overflow-y-auto prose prose-sm text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 flex-1">
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">{isEs ? 'Manual del Inquilino' : 'Tenant Guide'}</h3>
-              
-              <h4 className="font-bold text-slate-800 dark:text-slate-200 mt-6 mb-2">{isEs ? '1. Inicio' : '1. Home'}</h4>
-              <ul className="list-disc pl-5 mb-4 space-y-1">
-                <li>{isEs ? 'En la pantalla principal puedes consultar tu inmueble asignado.' : 'On the main screen you can check your assigned property.'}</li>
-                <li>{isEs ? 'Visualiza la renta mensual, el importe de la fianza, y las fechas de inicio y finalización de tu contrato.' : 'View the monthly rent, deposit amount, and the start and end dates of your contract.'}</li>
-                <li>{isEs ? 'Comprueba rápidamente tu "Estado del pago" (Al día, Pendiente o En deuda).' : 'Quickly check your "Payment status" (Up to date, Pending or Debt).'}</li>
-              </ul>
+              {isTenant ? (
+                <>
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">{isEs ? 'Manual del Inquilino — GestiCasa' : 'Tenant Guide — GestiCasa'}</h3>
+                  <p className="text-xs text-slate-400 mb-4">{isEs ? 'Guía completa para el portal del inquilino.' : 'Complete guide to the tenant portal.'}</p>
 
-              <h4 className="font-bold text-slate-800 dark:text-slate-200 mt-6 mb-2">{isEs ? '2. Documentos' : '2. Documents'}</h4>
-              <ul className="list-disc pl-5 mb-4 space-y-1">
-                <li>{isEs ? 'Accede a la pestaña "Documentos" para ver tu contrato de alquiler y cualquier otro documento compartido por el propietario.' : 'Go to the "Documents" tab to view your rental contract and any other document shared by the landlord.'}</li>
-                <li>{isEs ? 'Usa los botones junto a cada archivo para visualizarlo o descargarlo a tu dispositivo.' : 'Use the buttons next to each file to view or download it to your device.'}</li>
-              </ul>
+                  <h4 className="font-bold text-slate-800 dark:text-slate-200 mt-5 mb-1">{isEs ? '1. Registro e inicio de sesión' : '1. Registration & Sign In'}</h4>
+                  <ul className="list-disc pl-5 mb-3 space-y-1 text-xs">
+                    <li>{isEs ? 'Tu cuenta de inquilino es creada e invitada por tu propietario. Recibirás un correo de activación.' : 'Your tenant account is created and invited by your landlord. You will receive an activation email.'}</li>
+                    <li>{isEs ? 'Accede con tu correo electrónico y la contraseña que hayas establecido.' : 'Sign in with your email and the password you have set.'}</li>
+                    <li>{isEs ? 'Si tienes problemas de acceso, contacta con tu propietario o usa la sección de Ayuda y Soporte.' : 'If you have access issues, contact your landlord or use the Help & Support section.'}</li>
+                  </ul>
 
-              <h4 className="font-bold text-slate-800 dark:text-slate-200 mt-6 mb-2">{isEs ? '3. Incidencias' : '3. Issues'}</h4>
-              <ul className="list-disc pl-5 mb-4 space-y-1">
-                <li>{isEs ? 'Para crear una nueva incidencia (por ejemplo, una avería), ve a la pestaña "Incidencias" y pulsa en "Nueva".' : 'To create a new issue (e.g. a breakdown), go to the "Issues" tab and click "New".'}</li>
-                <li>{isEs ? 'Podrás consultar todas tus incidencias pasadas y su estado.' : 'You can check all your past issues and their status.'}</li>
-                <li>{isEs ? 'Pulsa sobre cualquier incidencia para ver el historial y comunicarte con el propietario al respecto.' : 'Click on any issue to see the history and communicate with the landlord about it.'}</li>
-              </ul>
+                  <h4 className="font-bold text-slate-800 dark:text-slate-200 mt-5 mb-1">{isEs ? '2. Pantalla de inicio — Mi alquiler' : '2. Home Screen — My Rental'}</h4>
+                  <ul className="list-disc pl-5 mb-3 space-y-1 text-xs">
+                    <li>{isEs ? 'Al entrar verás los datos de tu inmueble: dirección y nombre de la propiedad vinculada a tu contrato.' : 'On entry you will see your property details: address and name of the property linked to your contract.'}</li>
+                    <li>{isEs ? 'Consulta la renta mensual, el importe de la fianza y las fechas de inicio y fin de contrato.' : 'Check the monthly rent, deposit amount and contract start and end dates.'}</li>
+                    <li>{isEs ? 'El indicador de "Estado del pago" te informa si estás al día, tienes un pago pendiente o acumulas deuda según los registros del propietario.' : 'The "Payment status" indicator tells you whether you are up to date, have a pending payment or accumulated debt according to the owner\'s records.'}</li>
+                    <li>{isEs ? 'Si no ves ningún contrato, contacta con tu propietario para que lo vincule a tu cuenta.' : 'If you see no contract, contact your landlord to link it to your account.'}</li>
+                  </ul>
 
-              <h4 className="font-bold text-slate-800 dark:text-slate-200 mt-6 mb-2">{isEs ? '4. Chat' : '4. Chat'}</h4>
-              <ul className="list-disc pl-5 mb-4 space-y-1">
-                <li>{isEs ? 'La pestaña "Chat" te permite comunicarte de forma directa con tu propietario para asuntos generales.' : 'The "Chat" tab allows you to communicate directly with your landlord for general matters.'}</li>
-                <li>{isEs ? 'El indicador rojo sobre el icono del chat te avisará cuando tengas mensajes no leídos.' : 'The red indicator over the chat icon will alert you when you have unread messages.'}</li>
-              </ul>
+                  <h4 className="font-bold text-slate-800 dark:text-slate-200 mt-5 mb-1">{isEs ? '3. Documentos' : '3. Documents'}</h4>
+                  <ul className="list-disc pl-5 mb-3 space-y-1 text-xs">
+                    <li>{isEs ? 'Accede a la pestaña "Documentos" para consultar todos los archivos disponibles: contrato de alquiler y cualquier otro documento compartido por el propietario.' : 'Go to the "Documents" tab to view all available files: your rental contract and any other document shared by the landlord.'}</li>
+                    <li>{isEs ? 'Puedes visualizar los documentos directamente desde la app o descargarlos a tu dispositivo.' : 'You can view documents directly in the app or download them to your device.'}</li>
+                    <li>{isEs ? 'También puedes subir tus propios documentos pulsando el botón "Subir": DNI, nóminas, seguros u otros justificantes.' : 'You can also upload your own documents using the "Upload" button: ID, payslips, insurance or other supporting documents.'}</li>
+                    <li>{isEs ? 'Selecciona el tipo de documento antes de subirlo para que quede correctamente clasificado.' : 'Select the document type before uploading so it is correctly categorised.'}</li>
+                    <li>{isEs ? 'Los documentos que hayas subido tú mismo pueden eliminarse pulsando el icono de papelera.' : 'Documents you have uploaded yourself can be deleted by pressing the trash icon.'}</li>
+                    <li>{isEs ? 'Los documentos compartidos por el propietario son de solo lectura para el inquilino.' : 'Documents shared by the landlord are read-only for the tenant.'}</li>
+                  </ul>
 
-              <h4 className="font-bold text-slate-800 dark:text-slate-200 mt-6 mb-2">{isEs ? '5. Perfil y configuración' : '5. Profile & Settings'}</h4>
-              <ul className="list-disc pl-5 mb-4 space-y-1">
-                <li>{isEs ? 'Toca tu foto o icono de usuario en la esquina superior derecha para abrir tu Perfil.' : 'Tap your photo or user icon in the top right corner to open your Profile.'}</li>
-                <li>{isEs ? 'Puedes cambiar el idioma de la plataforma y el tema (claro u oscuro).' : 'You can change the platform language and theme (light or dark).'}</li>
-                <li>{isEs ? 'Utiliza el botón "Cerrar sesión" en la parte inferior de la configuración para salir de la aplicación de forma segura.' : 'Use the "Sign Out" button at the bottom of the settings to safely exit the application.'}</li>
-              </ul>
+                  <h4 className="font-bold text-slate-800 dark:text-slate-200 mt-5 mb-1">{isEs ? '4. Incidencias' : '4. Issues'}</h4>
+                  <ul className="list-disc pl-5 mb-3 space-y-1 text-xs">
+                    <li>{isEs ? 'Usa la pestaña "Incidencias" para comunicar cualquier avería, problema o necesidad relacionada con el inmueble.' : 'Use the "Issues" tab to report any breakdown, problem or need related to the property.'}</li>
+                    <li>{isEs ? 'Pulsa "Nueva" e introduce un asunto y una descripción detallada del problema.' : 'Tap "New" and enter a subject and detailed description of the problem.'}</li>
+                    <li>{isEs ? 'Una vez creada, la incidencia queda registrada con estado "Abierta".' : 'Once created, the issue is recorded with status "Open".'}</li>
+                    <li>{isEs ? 'El propietario puede cambiar el estado a "En progreso" o "Resuelta".' : 'The landlord can change the status to "In progress" or "Resolved".'}</li>
+                    <li>{isEs ? 'Pulsa sobre cualquier incidencia para ver su historial completo y añadir mensajes de seguimiento.' : 'Tap any issue to see its full history and add follow-up messages.'}</li>
+                  </ul>
+
+                  <h4 className="font-bold text-slate-800 dark:text-slate-200 mt-5 mb-1">{isEs ? '5. Chat con el propietario' : '5. Chat with Landlord'}</h4>
+                  <ul className="list-disc pl-5 mb-3 space-y-1 text-xs">
+                    <li>{isEs ? 'La pestaña "Chat" te permite comunicarte directamente con tu propietario para cualquier asunto general.' : 'The "Chat" tab lets you communicate directly with your landlord for any general matter.'}</li>
+                    <li>{isEs ? 'Los mensajes son privados y solo visibles entre tú y tu propietario.' : 'Messages are private and only visible between you and your landlord.'}</li>
+                    <li>{isEs ? 'El indicador rojo sobre el icono del chat te avisa cuando tienes mensajes nuevos no leídos.' : 'The red indicator on the chat icon alerts you when you have new unread messages.'}</li>
+                  </ul>
+
+                  <h4 className="font-bold text-slate-800 dark:text-slate-200 mt-5 mb-1">{isEs ? '6. Seguro de Hogar' : '6. Home Insurance'}</h4>
+                  <ul className="list-disc pl-5 mb-3 space-y-1 text-xs">
+                    <li>{isEs ? 'Desde Configuración → "Servicios para ti" puedes solicitar información sobre un seguro de hogar adaptado a tu situación como inquilino.' : 'From Settings → "Services for You" you can request information on home insurance tailored to your situation as a tenant.'}</li>
+                    <li>{isEs ? 'Rellena los datos del formulario (dirección, tipo de vivienda, información adicional) y envía la solicitud.' : 'Fill in the form fields (address, property type, additional information) and submit the request.'}</li>
+                    <li>{isEs ? 'El equipo de GestiCasa se pondrá en contacto contigo a través del correo registrado.' : 'The GestiCasa team will contact you via your registered email.'}</li>
+                  </ul>
+
+                  <h4 className="font-bold text-slate-800 dark:text-slate-200 mt-5 mb-1">{isEs ? '7. Perfil y configuración' : '7. Profile & Settings'}</h4>
+                  <ul className="list-disc pl-5 mb-3 space-y-1 text-xs">
+                    <li>{isEs ? 'Pulsa el icono de usuario en la esquina superior derecha para abrir la Configuración.' : 'Tap the user icon in the top right corner to open Settings.'}</li>
+                    <li>{isEs ? 'Puedes cambiar el idioma (Español / English) y el tema (Claro / Oscuro).' : 'You can change the language (Spanish / English) and theme (Light / Dark).'}</li>
+                    <li>{isEs ? 'Desde esta sección también puedes acceder al Manual, la Ayuda y Soporte, y la Política de Privacidad.' : 'From this section you can also access the Manual, Help & Support, and Privacy Policy.'}</li>
+                  </ul>
+
+                  <h4 className="font-bold text-slate-800 dark:text-slate-200 mt-5 mb-1">{isEs ? '8. Ayuda y Soporte' : '8. Help & Support'}</h4>
+                  <ul className="list-disc pl-5 mb-3 space-y-1 text-xs">
+                    <li>{isEs ? 'Si tienes algún problema técnico o duda sobre el funcionamiento de la app, ve a Configuración → "Ayuda y Soporte".' : 'If you have a technical issue or question about how the app works, go to Settings → "Help & Support".'}</li>
+                    <li>{isEs ? 'Escribe tu consulta y envíala. El equipo de GestiCasa te responderá por correo electrónico.' : 'Write your query and send it. The GestiCasa team will reply by email.'}</li>
+                  </ul>
+
+                  <h4 className="font-bold text-slate-800 dark:text-slate-200 mt-5 mb-1">{isEs ? '9. Cierre de sesión' : '9. Sign Out'}</h4>
+                  <ul className="list-disc pl-5 mb-6 space-y-1 text-xs">
+                    <li>{isEs ? 'Ve a Configuración y pulsa "Cerrar Sesión" en la parte inferior para salir de la aplicación de forma segura.' : 'Go to Settings and tap "Sign Out" at the bottom to exit the application safely.'}</li>
+                  </ul>
+                </>
+              ) : (
+                <>
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">{isEs ? 'Manual del Propietario — GestiCasa' : 'Owner Manual — GestiCasa'}</h3>
+                  <p className="text-xs text-slate-400 mb-4">{isEs ? 'Guía completa para la gestión de tu patrimonio inmobiliario.' : 'Complete guide to managing your real estate portfolio.'}</p>
+
+                  <h4 className="font-bold text-slate-800 dark:text-slate-200 mt-5 mb-1">{isEs ? '1. Registro e inicio de sesión' : '1. Registration & Sign In'}</h4>
+                  <ul className="list-disc pl-5 mb-3 space-y-1 text-xs">
+                    <li>{isEs ? 'Regístrate con tu correo electrónico y contraseña. Recibirás un correo de confirmación.' : 'Register with your email and password. You will receive a confirmation email.'}</li>
+                    <li>{isEs ? 'Una vez confirmada la cuenta, inicia sesión. La aplicación detectará automáticamente tu perfil de propietario.' : 'Once your account is confirmed, sign in. The app will automatically detect your owner profile.'}</li>
+                    <li>{isEs ? 'Si olvidaste tu contraseña, usa la opción de recuperación en la pantalla de acceso.' : 'If you forgot your password, use the recovery option on the login screen.'}</li>
+                  </ul>
+
+                  <h4 className="font-bold text-slate-800 dark:text-slate-200 mt-5 mb-1">{isEs ? '2. Dashboard — Panel de control' : '2. Dashboard'}</h4>
+                  <ul className="list-disc pl-5 mb-3 space-y-1 text-xs">
+                    <li>{isEs ? 'El Dashboard es tu pantalla principal. Muestra un resumen del estado de tu patrimonio: ingresos y gastos del mes actual, ocupación, alertas y gráfico anual.' : 'The Dashboard is your main screen. It shows a summary of your portfolio status: current month income and expenses, occupancy, alerts and annual chart.'}</li>
+                    <li>{isEs ? 'Las tarjetas superiores muestran los ingresos del mes, gastos del mes y beneficio neto.' : 'The top cards show monthly income, monthly expenses and net profit.'}</li>
+                    <li>{isEs ? 'Las alertas te avisan de pagos en deuda, contratos próximos a vencer e incidencias abiertas.' : 'Alerts notify you of payments in debt, contracts near expiry and open issues.'}</li>
+                    <li>{isEs ? 'El gráfico de barras muestra ingresos y gastos mensuales del año seleccionado.' : 'The bar chart shows monthly income and expenses for the selected year.'}</li>
+                    <li>{isEs ? 'Pulsa sobre una alerta para ir directamente a la sección correspondiente.' : 'Tap an alert to go directly to the relevant section.'}</li>
+                  </ul>
+
+                  <h4 className="font-bold text-slate-800 dark:text-slate-200 mt-5 mb-1">{isEs ? '3. Portfolio — Gestión de inmuebles' : '3. Portfolio — Property Management'}</h4>
+                  <ul className="list-disc pl-5 mb-3 space-y-1 text-xs">
+                    <li>{isEs ? 'Accede a la sección "Portfolio" desde la barra de navegación inferior.' : 'Access the "Portfolio" section from the bottom navigation bar.'}</li>
+                    <li>{isEs ? 'Aquí puedes ver todos tus inmuebles filtrados por estado: Todos, Ocupado, Vacío, En reforma.' : 'Here you can see all your properties filtered by status: All, Occupied, Vacant, Under renovation.'}</li>
+                    <li>{isEs ? 'Pulsa "+ Añadir inmueble" para crear uno nuevo. Introduce: nombre, dirección, tipo, estado, precio de compra, renta de mercado e hipoteca mensual.' : 'Tap "+ Add property" to create a new one. Enter: name, address, type, status, purchase price, market rent and monthly mortgage.'}</li>
+                    <li>{isEs ? 'Pulsa sobre cualquier inmueble para ver su ficha completa y editarla.' : 'Tap any property to view its full profile and edit it.'}</li>
+                    <li>{isEs ? 'Desde la ficha del inmueble puedes ver los contratos, transacciones e incidencias vinculadas.' : 'From the property profile you can see linked contracts, transactions and issues.'}</li>
+                    <li>{isEs ? 'Los inmuebles pueden eliminarse si no tienen contratos activos vinculados.' : 'Properties can be deleted if they have no active linked contracts.'}</li>
+                  </ul>
+
+                  <h4 className="font-bold text-slate-800 dark:text-slate-200 mt-5 mb-1">{isEs ? '4. Inquilinos — Gestión de inquilinos' : '4. Tenants — Tenant Management'}</h4>
+                  <ul className="list-disc pl-5 mb-3 space-y-1 text-xs">
+                    <li>{isEs ? 'Accede a "Inquilinos" desde la barra de navegación.' : 'Access "Tenants" from the navigation bar.'}</li>
+                    <li>{isEs ? 'Aquí puedes crear fichas de inquilinos con: nombre completo, DNI/NIE, teléfono, correo electrónico y notas.' : 'Here you can create tenant profiles with: full name, ID number, phone, email and notes.'}</li>
+                    <li>{isEs ? 'Desde la ficha del inquilino puedes ver sus contratos activos, el estado de pago y los documentos.' : 'From the tenant profile you can see their active contracts, payment status and documents.'}</li>
+                    <li>{isEs ? 'Para invitar a un inquilino al portal de inquilinos, genera un enlace de invitación desde su ficha y compártelo.' : 'To invite a tenant to the tenant portal, generate an invitation link from their profile and share it.'}</li>
+                    <li>{isEs ? 'Una vez vinculado, el inquilino podrá acceder a su portal con sus propias credenciales.' : 'Once linked, the tenant can access their portal with their own credentials.'}</li>
+                  </ul>
+
+                  <h4 className="font-bold text-slate-800 dark:text-slate-200 mt-5 mb-1">{isEs ? '5. Contratos' : '5. Contracts'}</h4>
+                  <ul className="list-disc pl-5 mb-3 space-y-1 text-xs">
+                    <li>{isEs ? 'Los contratos se crean desde la ficha del inmueble o del inquilino.' : 'Contracts are created from the property or tenant profile.'}</li>
+                    <li>{isEs ? 'Introduce: inmueble, inquilino(s), fecha de inicio, fecha de fin, importe de renta mensual, fianza y cláusulas adicionales.' : 'Enter: property, tenant(s), start date, end date, monthly rent amount, deposit and additional clauses.'}</li>
+                    <li>{isEs ? 'El estado del contrato puede ser: Activo, Finalizado o Cancelado.' : 'Contract status can be: Active, Completed or Cancelled.'}</li>
+                    <li>{isEs ? 'Puedes adjuntar el documento PDF del contrato para que el inquilino pueda descargarlo desde su portal.' : 'You can attach the contract PDF so the tenant can download it from their portal.'}</li>
+                    <li>{isEs ? 'El seguimiento del pago de rentas se realiza desde la ficha del contrato.' : 'Rent payment tracking is done from the contract profile.'}</li>
+                  </ul>
+
+                  <h4 className="font-bold text-slate-800 dark:text-slate-200 mt-5 mb-1">{isEs ? '6. Pagos y transacciones' : '6. Payments & Transactions'}</h4>
+                  <ul className="list-disc pl-5 mb-3 space-y-1 text-xs">
+                    <li>{isEs ? 'Registra ingresos (rentas cobradas) y gastos (reparaciones, seguros, IBI, etc.) vinculados a cada inmueble.' : 'Record income (collected rents) and expenses (repairs, insurance, IBI, etc.) linked to each property.'}</li>
+                    <li>{isEs ? 'Cada transacción incluye: fecha, importe, tipo (ingreso o gasto), categoría y descripción.' : 'Each transaction includes: date, amount, type (income or expense), category and description.'}</li>
+                    <li>{isEs ? 'El estado de pago del contrato (Al día / Pendiente / Deuda) se calcula automáticamente en función de las transacciones registradas.' : 'The contract payment status (Up to date / Pending / Debt) is calculated automatically based on registered transactions.'}</li>
+                    <li>{isEs ? 'El Dashboard y el gráfico anual reflejan automáticamente todos los ingresos y gastos registrados.' : 'The Dashboard and annual chart automatically reflect all recorded income and expenses.'}</li>
+                  </ul>
+
+                  <h4 className="font-bold text-slate-800 dark:text-slate-200 mt-5 mb-1">{isEs ? '7. Documentos' : '7. Documents'}</h4>
+                  <ul className="list-disc pl-5 mb-3 space-y-1 text-xs">
+                    <li>{isEs ? 'Puedes subir y gestionar documentos vinculados a cada contrato: contratos firmados, recibos, certificados energéticos, etc.' : 'You can upload and manage documents linked to each contract: signed contracts, receipts, energy certificates, etc.'}</li>
+                    <li>{isEs ? 'Marca un documento como "Compartido" para que el inquilino pueda verlo desde su portal.' : 'Mark a document as "Shared" so the tenant can view it from their portal.'}</li>
+                    <li>{isEs ? 'El inquilino también puede subir sus propios documentos (DNI, nóminas, etc.), que verás reflejados en la ficha del contrato.' : 'The tenant can also upload their own documents (ID, payslips, etc.), which you will see in the contract profile.'}</li>
+                    <li>{isEs ? 'Los documentos se almacenan de forma segura y solo son accesibles por las partes autorizadas.' : 'Documents are stored securely and only accessible by authorised parties.'}</li>
+                  </ul>
+
+                  <h4 className="font-bold text-slate-800 dark:text-slate-200 mt-5 mb-1">{isEs ? '8. Incidencias' : '8. Issues'}</h4>
+                  <ul className="list-disc pl-5 mb-3 space-y-1 text-xs">
+                    <li>{isEs ? 'Las incidencias son comunicadas por el inquilino desde su portal o por el propietario directamente.' : 'Issues are reported by the tenant from their portal or by the owner directly.'}</li>
+                    <li>{isEs ? 'Cada incidencia tiene un título, descripción, fecha y estado (Abierta, En progreso, Resuelta).' : 'Each issue has a title, description, date and status (Open, In progress, Resolved).'}</li>
+                    <li>{isEs ? 'Puedes actualizar el estado de las incidencias y añadir mensajes de seguimiento para comunicarte con el inquilino.' : 'You can update issue status and add follow-up messages to communicate with the tenant.'}</li>
+                    <li>{isEs ? 'Las incidencias abiertas aparecen como alertas en el Dashboard.' : 'Open issues appear as alerts on the Dashboard.'}</li>
+                  </ul>
+
+                  <h4 className="font-bold text-slate-800 dark:text-slate-200 mt-5 mb-1">{isEs ? '9. Calculadora' : '9. Calculator'}</h4>
+                  <ul className="list-disc pl-5 mb-3 space-y-1 text-xs">
+                    <li>{isEs ? 'La sección "Calculadora" te permite realizar cálculos de rentabilidad: rendimiento bruto, neto y ROI de cada inmueble.' : 'The "Calculator" section lets you perform profitability calculations: gross yield, net yield and ROI for each property.'}</li>
+                    <li>{isEs ? 'Introduce el precio de compra, renta mensual y gastos para obtener los indicadores de rentabilidad.' : 'Enter the purchase price, monthly rent and expenses to get profitability indicators.'}</li>
+                  </ul>
+
+                  <h4 className="font-bold text-slate-800 dark:text-slate-200 mt-5 mb-1">{isEs ? '10. Servicios para propietarios' : '10. Services for Owners'}</h4>
+                  <ul className="list-disc pl-5 mb-3 space-y-1 text-xs">
+                    <li>{isEs ? 'Desde Configuración → "Servicios para ti" puedes solicitar: Hipotecas, Seguro de Impago, Consulta de Morosidad y Seguros.' : 'From Settings → "Services for You" you can request: Mortgages, Non-Payment Insurance, Default Check and Insurance.'}</li>
+                    <li>{isEs ? 'Hipotecas: solicita asesoramiento para compra de vivienda, mejora de condiciones o ampliación.' : 'Mortgages: request advice for home purchase, better terms or extension.'}</li>
+                    <li>{isEs ? 'Seguro de Impago: protege tus rentas ante posibles impagos del inquilino.' : 'Non-Payment Insurance: protect your rents against possible tenant defaults.'}</li>
+                    <li>{isEs ? 'Consulta de Morosidad: verifica la solvencia de un inquilino antes de firmar un contrato.' : 'Default Check: verify a tenant\'s creditworthiness before signing a contract.'}</li>
+                    <li>{isEs ? 'Seguros: información sobre seguros del hogar, de comunidad o de responsabilidad civil.' : 'Insurance: information on home, community or liability insurance.'}</li>
+                    <li>{isEs ? 'Rellena el formulario de cada servicio y el equipo de GestiCasa te contactará por correo.' : 'Fill in each service form and the GestiCasa team will contact you by email.'}</li>
+                  </ul>
+
+                  <h4 className="font-bold text-slate-800 dark:text-slate-200 mt-5 mb-1">{isEs ? '11. Exportar datos' : '11. Export Data'}</h4>
+                  <ul className="list-disc pl-5 mb-3 space-y-1 text-xs">
+                    <li>{isEs ? 'Desde Configuración → "Extraer datos" puedes exportar un informe anual de ingresos y gastos en formato PDF.' : 'From Settings → "Extract data" you can export an annual income and expense report in PDF format.'}</li>
+                    <li>{isEs ? 'El informe incluye el resumen anual de todas las transacciones de tu portfolio.' : 'The report includes the annual summary of all transactions in your portfolio.'}</li>
+                  </ul>
+
+                  <h4 className="font-bold text-slate-800 dark:text-slate-200 mt-5 mb-1">{isEs ? '12. Configuración' : '12. Settings'}</h4>
+                  <ul className="list-disc pl-5 mb-3 space-y-1 text-xs">
+                    <li>{isEs ? 'Pulsa el icono de usuario en el Dashboard para abrir la Configuración.' : 'Tap the user icon on the Dashboard to open Settings.'}</li>
+                    <li>{isEs ? 'Puedes editar tu nombre, cambiar el idioma (Español / English) y activar el modo oscuro.' : 'You can edit your name, change the language (Spanish / English) and enable dark mode.'}</li>
+                    <li>{isEs ? 'En la parte inferior encontrarás el botón "Cerrar Sesión" para salir de forma segura.' : 'At the bottom you will find the "Sign Out" button to exit safely.'}</li>
+                  </ul>
+
+                  <h4 className="font-bold text-slate-800 dark:text-slate-200 mt-5 mb-1">{isEs ? '13. Ayuda y Soporte' : '13. Help & Support'}</h4>
+                  <ul className="list-disc pl-5 mb-6 space-y-1 text-xs">
+                    <li>{isEs ? 'Si tienes dudas o problemas técnicos, ve a Configuración → "Ayuda y Soporte" y envía un mensaje.' : 'If you have questions or technical issues, go to Settings → "Help & Support" and send a message.'}</li>
+                    <li>{isEs ? 'El equipo de GestiCasa te responderá por correo electrónico en la dirección registrada.' : 'The GestiCasa team will reply by email to your registered address.'}</li>
+                  </ul>
+                </>
+              )}
            </div>
         </div>
       </div>

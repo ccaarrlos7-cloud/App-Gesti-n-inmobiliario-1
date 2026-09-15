@@ -1,7 +1,7 @@
 import React, { createContext, useState, useEffect, useContext, ReactNode, useRef } from 'react';
 import { TenantSelfView, TenantContractView, TenantIssueView, TenantDocumentView } from './types';
 import { supabase } from './lib/supabase';
-import { Building2, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 
 // Helper to convert snake_case to camelCase
 const toCamel = (obj: any): any => {
@@ -352,8 +352,8 @@ export function TenantProvider({ children }: { children: ReactNode }) {
         {/* Loading Content */}
         <div className="relative z-10 flex flex-col items-center animate-pulse">
           <div className="flex items-center gap-3 mb-8">
-            <div className="w-14 h-14 bg-[#FACC15] rounded-2xl flex items-center justify-center text-slate-900 shadow-xl shadow-[#FACC15]/10">
-              <Building2 className="w-8 h-8" />
+            <div className="w-14 h-14 flex items-center justify-center shadow-xl shadow-black/10 rounded-2xl overflow-hidden">
+              <img src="/logo-gesticasa.png" alt="GestiCasa Logo" className="w-full h-full object-cover" />
             </div>
             <span className="text-3xl font-bold">Gesti<span className="text-[#FACC15]">Casa</span></span>
           </div>

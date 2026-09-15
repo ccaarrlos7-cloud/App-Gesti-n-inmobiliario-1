@@ -123,7 +123,7 @@ export default function Root() {
         <div className="relative z-10 flex flex-col items-center animate-pulse">
           <div className="flex items-center gap-3 mb-8">
             <div className="w-14 h-14 flex items-center justify-center shadow-xl shadow-black/10 rounded-2xl overflow-hidden">
-              <img src="/logo-cropped.png" alt="GestiCasa Logo" className="w-full h-full object-cover" />
+              <img src="/logo-gesticasa.png" alt="GestiCasa Logo" className="w-full h-full object-cover" />
             </div>
             <span className="text-3xl font-bold">Gesti<span className="text-[#FACC15]">Casa</span></span>
           </div>
