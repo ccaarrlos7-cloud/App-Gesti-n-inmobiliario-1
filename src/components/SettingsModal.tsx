@@ -459,7 +459,7 @@ export function SettingsModalBase({
                   <h4 className="font-bold text-slate-800 dark:text-slate-200 mt-5 mb-1">{isEs ? '3. Portfolio — Gestión de inmuebles' : '3. Portfolio — Property Management'}</h4>
                   <ul className="list-disc pl-5 mb-3 space-y-1 text-xs">
                     <li>{isEs ? 'Accede a la sección "Portfolio" desde la barra de navegación inferior.' : 'Access the "Portfolio" section from the bottom navigation bar.'}</li>
-                    <li>{isEs ? 'Aquí puedes ver todos tus inmuebles filtrados por estado: Todos, Ocupado, Vacío, En reforma.' : 'Here you can see all your properties filtered by status: All, Occupied, Vacant, Under renovation.'}</li>
+                    <li>{isEs ? 'Aquí puedes ver todos tus inmuebles filtrados por estado: Todos, Alquilado, Vacío, En reforma.' : 'Here you can see all your properties filtered by status: All, Rented, Vacant, Under renovation.'}</li>
                     <li>{isEs ? 'Pulsa "+ Añadir inmueble" para crear uno nuevo. Introduce: nombre, dirección, tipo, estado, precio de compra, renta de mercado e hipoteca mensual.' : 'Tap "+ Add property" to create a new one. Enter: name, address, type, status, purchase price, market rent and monthly mortgage.'}</li>
                     <li>{isEs ? 'Pulsa sobre cualquier inmueble para ver su ficha completa y editarla.' : 'Tap any property to view its full profile and edit it.'}</li>
                     <li>{isEs ? 'Desde la ficha del inmueble puedes ver los contratos, transacciones e incidencias vinculadas.' : 'From the property profile you can see linked contracts, transactions and issues.'}</li>

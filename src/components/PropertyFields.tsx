@@ -171,7 +171,7 @@ export default function PropertyFields({ data, onChange }: Props) {
               value={data.status || 'Vacío'} 
               onChange={e => update('status', e.target.value)}
             >
-              <option value="Ocupado">{isEs ? 'Ocupado' : 'Occupied'}</option>
+              <option value="Ocupado">{isEs ? 'Alquilado' : 'Rented'}</option>
               <option value="Vacío">{isEs ? 'Vacío' : 'Vacant'}</option>
               <option value="En Reforma">{isEs ? 'En Reforma' : 'Under Renovation'}</option>
               <option value="En Venta">{isEs ? 'En Venta' : 'For Sale'}</option>

@@ -45,7 +45,7 @@ export default function PortfolioView({ initialTab = 'Todos' }: { initialTab?: P
 
   const getTabLabel = (tab: PropertyStatus | 'Todos') => {
     if (tab === 'Todos') return isEs ? 'Todos' : 'All';
-    if (tab === 'Ocupado') return isEs ? 'Ocupado' : 'Occupied';
+    if (tab === 'Ocupado') return isEs ? 'Alquilado' : 'Rented';
     if (tab === 'Vacío') return isEs ? 'Vacío' : 'Vacant';
     if (tab === 'En Reforma') return isEs ? 'En Reforma' : 'Under Renovation';
     if (tab === 'En Venta') return isEs ? 'En Venta' : 'For Sale';
@@ -53,7 +53,7 @@ export default function PortfolioView({ initialTab = 'Todos' }: { initialTab?: P
   };
 
   const getStatusLabel = (status: string) => {
-    if (status === 'Ocupado') return isEs ? 'Ocupado' : 'Occupied';
+    if (status === 'Ocupado') return isEs ? 'Alquilado' : 'Rented';
     if (status === 'Vacío') return isEs ? 'Vacío' : 'Vacant';
     if (status === 'En Reforma') return isEs ? 'En Reforma' : 'Under Renovation';
     if (status === 'En Venta') return isEs ? 'En Venta' : 'For Sale';

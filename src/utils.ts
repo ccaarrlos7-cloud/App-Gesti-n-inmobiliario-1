@@ -166,7 +166,7 @@ export const exportYearlyDataPDF = (
   doc.setFontSize(11);
   doc.setTextColor(100);
   doc.text(`${isEs ? 'Ocupación actual' : 'Current occupancy'}: ${ocupacion}%`, 14, 32);
-  doc.text(`${isEs ? 'Inmuebles totales' : 'Total properties'}: ${totalProps} (${occupiedProperties.length} ${isEs ? 'ocupados' : 'occupied'}, ${vaciosCount} ${isEs ? 'vacíos' : 'vacant'})`, 14, 38);
+  doc.text(`${isEs ? 'Inmuebles totales' : 'Total properties'}: ${totalProps} (${occupiedProperties.length} ${isEs ? 'alquilados' : 'rented'}, ${vaciosCount} ${isEs ? 'vacíos' : 'vacant'})`, 14, 38);
   
   doc.text(`${isEs ? 'Ingresos totales del año' : 'Total annual income'}: ${formatNumber(totalIngresosAnual)} €`, 14, 46);
   doc.text(`${isEs ? 'Gastos totales del año' : 'Total annual expenses'}: ${formatNumber(totalGastosAnual)} €`, 14, 52);
