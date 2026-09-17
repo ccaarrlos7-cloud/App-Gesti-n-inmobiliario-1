@@ -1,8 +1,8 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.gestinmo.app',
-  appName: 'GestInmo',
+  appId: 'com.carlosgil.gesticasa',
+  appName: 'GestiCasa',
   webDir: 'dist'
 };
 
