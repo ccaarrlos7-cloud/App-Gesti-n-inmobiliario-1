@@ -189,10 +189,8 @@ export default function Root() {
           if (launchUrl.url.includes('reset-password')) {
             console.log("DEEP LINK RECOVERY ACTIVATED (COLD START)");
             isRecoveryRef.current = true;
-            if (mounted) {
-              setIsPasswordRecovery(true);
-              setLoading(false);
-            }
+            setIsPasswordRecovery(true);
+            setLoading(false);
           }
         }
 
@@ -203,10 +201,8 @@ export default function Root() {
             if (event?.url && event.url.includes('reset-password')) {
               console.log("DEEP LINK RECOVERY ACTIVATED (APP OPEN)");
               isRecoveryRef.current = true;
-              if (mounted) {
-                setIsPasswordRecovery(true);
-                setLoading(false);
-              }
+              setIsPasswordRecovery(true);
+              setLoading(false);
             }
           } catch (e) {
             console.error("Error in appUrlOpen listener:", e);
