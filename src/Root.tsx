@@ -278,9 +278,27 @@ export default function Root() {
     // Handle deep links from Capacitor safely
     const setupDeepLinkListener = async () => {
       try {
+        console.log("DEEP LINK LISTENER REGISTERED");
+        
+        // 1. Check if app was opened via deep link (Cold Start)
+        const launchUrl = await CapacitorApp.getLaunchUrl();
+        if (launchUrl && launchUrl.url) {
+          console.log("DEEP LINK LAUNCH URL RECEIVED:", launchUrl.url);
+          if (launchUrl.url.includes('reset-password')) {
+            console.log("DEEP LINK RECOVERY ACTIVATED (COLD START)");
+            if (mounted) {
+              setIsPasswordRecovery(true);
+              setLoading(false);
+            }
+          }
+        }
+
+        // 2. Listen for deep links while app is running
         return await CapacitorApp.addListener('appUrlOpen', (event) => {
           try {
+            console.log("DEEP LINK RECEIVED:", event?.url);
             if (event?.url && event.url.includes('reset-password')) {
+              console.log("DEEP LINK RECOVERY ACTIVATED (APP OPEN)");
               if (mounted) {
                 setIsPasswordRecovery(true);
                 setLoading(false);
