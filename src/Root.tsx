@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { App as CapacitorApp } from '@capacitor/app';
 import { supabase } from './lib/supabase';
 import Login from './components/Login';
@@ -172,7 +172,7 @@ export default function Root() {
   const [error, setError] = useState<string | null>(null);
   const [linking, setLinking] = useState(false);
   const [isPasswordRecovery, setIsPasswordRecovery] = useState(false);
-  const isRecoveryRef = React.useRef(false);
+  const isRecoveryRef = useRef(false);
 
   // ─── DEEP LINK NATIVE LISTENER ─────────────────────────────────────────────
   useEffect(() => {
