@@ -44,7 +44,13 @@ function ResetPasswordScreen() {
   };
 
   const handleGoToLogin = async () => {
-    await supabase.auth.signOut();
+    // Clear the recovery hash from the URL
+    if (window.history && window.history.replaceState) {
+      window.history.replaceState(null, '', window.location.pathname + window.location.search);
+    } else {
+      window.location.hash = '';
+    }
+    // Reload to enter the app normally (session is already active)
     window.location.reload();
   };
 
@@ -78,13 +84,13 @@ function ResetPasswordScreen() {
                 {isEs ? 'Contraseña actualizada' : 'Password updated'}
               </h2>
               <p className="text-slate-500 dark:text-slate-400 text-sm mb-6">
-                {isEs ? 'Tu contraseña ha sido cambiada correctamente. Ya puedes iniciar sesión.' : 'Your password has been changed. You can now sign in.'}
+                {isEs ? 'Tu contraseña ha sido cambiada correctamente. Ya puedes acceder a la aplicación.' : 'Your password has been changed successfully. You can now enter the app.'}
               </p>
               <button
                 onClick={handleGoToLogin}
                 className="w-full py-2.5 bg-[#FACC15] hover:bg-[#EAB308] text-slate-900 font-bold rounded-xl transition-colors"
               >
-                {isEs ? 'Ir al inicio de sesión' : 'Go to sign in'}
+                {isEs ? 'Entrar a la aplicación' : 'Enter application'}
               </button>
             </div>
           ) : (
@@ -172,6 +178,14 @@ export default function Root() {
     async function initialize() {
       try {
         const { data: { session } } = await supabase.auth.getSession();
+
+        if (window.location.hash.includes('type=recovery')) {
+          if (mounted) {
+            setIsPasswordRecovery(true);
+            setLoading(false);
+          }
+          return;
+        }
 
         if (!session) {
           if (mounted) {

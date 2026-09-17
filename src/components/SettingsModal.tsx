@@ -1,6 +1,6 @@
 import { formatNumber } from "../utils";
 import React, { useState, useRef, useEffect } from 'react';
-import { Camera, Moon, Globe, Bell, Download, Book, Mail, Shield, ChevronRight, ChevronLeft, User, X, Check, FileText, Table, Send, Sun, LogOut, Building2, ShieldCheck, AlertTriangle, Umbrella } from 'lucide-react';
+import { Camera, Moon, Globe, Bell, Download, Book, Mail, Shield, ChevronRight, ChevronLeft, User, X, Check, FileText, Table, Send, Sun, LogOut, Building2, ShieldCheck, AlertTriangle, Umbrella, KeyRound, Eye, EyeOff } from 'lucide-react';
 import { useAppContext } from '../store';
 import { supabase } from '../lib/supabase';
 import { exportYearlyDataPDF } from '../utils';
@@ -47,6 +47,46 @@ export function SettingsModalBase({
   const [supportSent, setSupportSent] = useState(false);
   const [isSendingSupport, setIsSendingSupport] = useState(false);
   const [supportError, setSupportError] = useState('');
+
+  // ─── Change password ───────────────────────────────────────────────────────
+  const [showChangePassword, setShowChangePassword] = useState(false);
+  const [cpCurrent, setCpCurrent] = useState('');
+  const [cpNew, setCpNew] = useState('');
+  const [cpConfirm, setCpConfirm] = useState('');
+  const [cpShowCurrent, setCpShowCurrent] = useState(false);
+  const [cpShowNew, setCpShowNew] = useState(false);
+  const [cpShowConfirm, setCpShowConfirm] = useState(false);
+  const [cpLoading, setCpLoading] = useState(false);
+  const [cpError, setCpError] = useState('');
+  const [cpSuccess, setCpSuccess] = useState(false);
+
+  const resetCpForm = () => {
+    setCpCurrent(''); setCpNew(''); setCpConfirm('');
+    setCpError(''); setCpSuccess(false); setCpLoading(false);
+    setCpShowCurrent(false); setCpShowNew(false); setCpShowConfirm(false);
+  };
+
+  const handleChangePassword = async () => {
+    setCpError('');
+    if (!cpCurrent) { setCpError(isEs ? 'Introduce tu contraseña actual.' : 'Enter your current password.'); return; }
+    if (cpNew.length < 6) { setCpError(isEs ? 'La nueva contraseña debe tener al menos 6 caracteres.' : 'New password must be at least 6 characters.'); return; }
+    if (cpNew !== cpConfirm) { setCpError(isEs ? 'Las contraseñas nuevas no coinciden.' : 'New passwords do not match.'); return; }
+    setCpLoading(true);
+    try {
+      // 1. Verify current password
+      const { error: signInError } = await supabase.auth.signInWithPassword({ email: userEmail, password: cpCurrent });
+      if (signInError) { setCpError(isEs ? 'La contraseña actual no es correcta.' : 'Current password is incorrect.'); setCpLoading(false); return; }
+      // 2. Update password
+      const { error: updateError } = await supabase.auth.updateUser({ password: cpNew });
+      if (updateError) throw updateError;
+      setCpSuccess(true);
+    } catch (err: any) {
+      setCpError(err.message || (isEs ? 'Ha ocurrido un error.' : 'An error occurred.'));
+    } finally {
+      setCpLoading(false);
+    }
+  };
+  // ──────────────────────────────────────────────────────────────────────────
 
   // --- Servicios para ti ---
   type ServiceType = 'hipotecas' | 'impago' | 'morosidad' | 'seguros' | 'seguro-hogar' | null;
@@ -775,6 +815,120 @@ export function SettingsModalBase({
   }
   // ──────────────────────────────────────────────────────────────────────────
 
+  // ─── Change password panel ─────────────────────────────────────────────────
+  if (showChangePassword) {
+    return (
+      <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[200] flex justify-end" onClick={() => { setShowChangePassword(false); resetCpForm(); }}>
+        <div className="w-full max-w-md bg-white dark:bg-slate-900 h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-200" onClick={e => e.stopPropagation()}>
+          <div className="pt-[calc(env(safe-area-inset-top)+0.5rem)] pb-2 border-b border-slate-100 dark:border-slate-800 flex items-center px-4 shrink-0 bg-white dark:bg-slate-900">
+            <button onClick={() => { setShowChangePassword(false); resetCpForm(); }} className="p-2 -ml-2 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 rounded-full hover:bg-slate-50 dark:hover:bg-slate-800">
+              <ChevronLeft size={24} />
+            </button>
+            <h2 className="font-bold text-[16px] text-slate-900 dark:text-white ml-2">{isEs ? 'Cambiar contraseña' : 'Change password'}</h2>
+          </div>
+
+          <div className="p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] overflow-y-auto bg-slate-50 dark:bg-slate-900 flex-1 flex flex-col">
+            {cpSuccess ? (
+              <div className="flex flex-col items-center justify-center flex-1 text-center animate-in zoom-in-95">
+                <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center mb-4">
+                  <Check size={32} />
+                </div>
+                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">{isEs ? 'Contraseña actualizada' : 'Password updated'}</h3>
+                <p className="text-slate-500 dark:text-slate-400 mb-6">{isEs ? 'Tu contraseña ha sido cambiada correctamente.' : 'Your password has been changed successfully.'}</p>
+                <button
+                  onClick={() => { setShowChangePassword(false); resetCpForm(); }}
+                  className="px-6 py-2.5 bg-[#FACC15] hover:bg-[#eab308] text-slate-900 rounded-xl font-bold transition-colors"
+                >
+                  {isEs ? 'Cerrar' : 'Close'}
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <p className="text-sm text-slate-500 dark:text-slate-400 mb-2">
+                  {isEs ? 'Introduce tu contraseña actual y elige una nueva para continuar.' : 'Enter your current password and choose a new one to continue.'}
+                </p>
+
+                {cpError && (
+                  <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 rounded-xl text-sm text-red-600 dark:text-red-400 font-medium">
+                    {cpError}
+                  </div>
+                )}
+
+                {/* Current password */}
+                <div>
+                  <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">
+                    {isEs ? 'Contraseña actual' : 'Current password'}
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={cpShowCurrent ? 'text' : 'password'}
+                      value={cpCurrent}
+                      onChange={e => setCpCurrent(e.target.value)}
+                      className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 pr-11 text-sm text-slate-900 dark:text-white outline-none focus:border-[#FACC15] focus:ring-1 focus:ring-[#FACC15] transition-colors shadow-sm"
+                      placeholder={isEs ? 'Tu contraseña actual...' : 'Your current password...'}
+                    />
+                    <button type="button" onClick={() => setCpShowCurrent(v => !v)} className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-300">
+                      {cpShowCurrent ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  </div>
+                </div>
+
+                {/* New password */}
+                <div>
+                  <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">
+                    {isEs ? 'Nueva contraseña' : 'New password'}
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={cpShowNew ? 'text' : 'password'}
+                      value={cpNew}
+                      onChange={e => setCpNew(e.target.value)}
+                      className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 pr-11 text-sm text-slate-900 dark:text-white outline-none focus:border-[#FACC15] focus:ring-1 focus:ring-[#FACC15] transition-colors shadow-sm"
+                      placeholder={isEs ? 'Mínimo 6 caracteres...' : 'At least 6 characters...'}
+                    />
+                    <button type="button" onClick={() => setCpShowNew(v => !v)} className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-300">
+                      {cpShowNew ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Confirm new password */}
+                <div>
+                  <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">
+                    {isEs ? 'Confirmar nueva contraseña' : 'Confirm new password'}
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={cpShowConfirm ? 'text' : 'password'}
+                      value={cpConfirm}
+                      onChange={e => setCpConfirm(e.target.value)}
+                      onKeyDown={e => e.key === 'Enter' && !cpLoading && handleChangePassword()}
+                      className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 pr-11 text-sm text-slate-900 dark:text-white outline-none focus:border-[#FACC15] focus:ring-1 focus:ring-[#FACC15] transition-colors shadow-sm"
+                      placeholder={isEs ? 'Repite la nueva contraseña...' : 'Repeat the new password...'}
+                    />
+                    <button type="button" onClick={() => setCpShowConfirm(v => !v)} className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-300">
+                      {cpShowConfirm ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  </div>
+                </div>
+
+                <button
+                  onClick={handleChangePassword}
+                  disabled={cpLoading || !cpCurrent || !cpNew || !cpConfirm}
+                  className="w-full mt-2 py-3.5 bg-[#FACC15] hover:bg-[#eab308] text-slate-900 rounded-xl font-semibold flex items-center justify-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+                >
+                  <KeyRound size={18} className={cpLoading ? 'animate-pulse' : ''} />
+                  {cpLoading ? (isEs ? 'Verificando...' : 'Verifying...') : (isEs ? 'Cambiar contraseña' : 'Change password')}
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+  // ──────────────────────────────────────────────────────────────────────────
+
   if (showExport) {
     return (
       <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[210] flex items-center justify-center p-4" onClick={() => setShowExport(false)}>
@@ -1030,6 +1184,14 @@ export function SettingsModalBase({
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center text-amber-600 dark:text-amber-400"><Mail size={16}/></div>
                     <div className="text-[14px] font-semibold text-slate-900 dark:text-white">{isEs ? 'Ayuda y Soporte' : 'Help & Support'}</div>
+                  </div>
+                  <ChevronRight size={16} className="text-slate-400"/>
+                </button>
+
+                <button className="w-full p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors text-left" onClick={() => { resetCpForm(); setShowChangePassword(true); }}>
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-700 dark:text-slate-300"><KeyRound size={16}/></div>
+                    <div className="text-[14px] font-semibold text-slate-900 dark:text-white">{isEs ? 'Cambiar contraseña' : 'Change password'}</div>
                   </div>
                   <ChevronRight size={16} className="text-slate-400"/>
                 </button>
