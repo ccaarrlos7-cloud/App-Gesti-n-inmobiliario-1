@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { App as CapacitorApp } from '@capacitor/app';
 import { supabase } from './lib/supabase';
 import Login from './components/Login';
 import { AppProvider } from './store';
@@ -274,9 +275,20 @@ export default function Root() {
       }
     });
 
+    // Handle deep links from Capacitor
+    const urlListener = CapacitorApp.addListener('appUrlOpen', (event) => {
+      if (event.url && event.url.includes('reset-password')) {
+        if (mounted) {
+          setIsPasswordRecovery(true);
+          setLoading(false);
+        }
+      }
+    });
+
     return () => {
       mounted = false;
       subscription.unsubscribe();
+      urlListener.then(listener => listener.remove());
     };
   }, []);
 
