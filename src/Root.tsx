@@ -275,20 +275,37 @@ export default function Root() {
       }
     });
 
-    // Handle deep links from Capacitor
-    const urlListener = CapacitorApp.addListener('appUrlOpen', (event) => {
-      if (event.url && event.url.includes('reset-password')) {
-        if (mounted) {
-          setIsPasswordRecovery(true);
-          setLoading(false);
-        }
+    // Handle deep links from Capacitor safely
+    const setupDeepLinkListener = async () => {
+      try {
+        return await CapacitorApp.addListener('appUrlOpen', (event) => {
+          try {
+            if (event?.url && event.url.includes('reset-password')) {
+              if (mounted) {
+                setIsPasswordRecovery(true);
+                setLoading(false);
+              }
+            }
+          } catch (e) {
+            console.error("Error in appUrlOpen listener:", e);
+          }
+        });
+      } catch (err) {
+        console.error("Failed to add appUrlOpen listener:", err);
+        return null;
       }
-    });
+    };
+
+    const listenerPromise = setupDeepLinkListener();
 
     return () => {
       mounted = false;
       subscription.unsubscribe();
-      urlListener.then(listener => listener.remove());
+      listenerPromise.then(handle => {
+        if (handle && handle.remove) {
+          handle.remove();
+        }
+      }).catch(err => console.error("Error removing listener:", err));
     };
   }, []);
 
