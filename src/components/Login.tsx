@@ -68,7 +68,7 @@ export default function Login() {
   };
 
   return (
-    <div className="h-screen min-h-[100dvh] max-h-[100dvh] overflow-hidden relative flex w-full font-sans bg-slate-900">
+    <div className="min-h-[100dvh] overflow-hidden relative flex w-full font-sans bg-slate-900 pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
       <div className="absolute inset-0 z-0 h-full w-full">
         <img
           src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=2075&q=80"
@@ -78,9 +78,9 @@ export default function Login() {
         <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-black/30 dark:from-black/90 dark:via-black/70 dark:to-black/60 backdrop-blur-[2px]"></div>
       </div>
 
-      <div className="relative z-10 flex w-full h-full flex-col xl:flex-row overflow-hidden">
+      <div className="relative z-10 flex w-full min-h-full flex-col xl:flex-row">
         {/* Left Column - Branding */}
-        <div className="flex-1 flex flex-col justify-center xl:justify-between p-4 sm:p-6 lg:p-8 xl:p-16 text-white shrink-0 min-h-0">
+        <div className="hidden xl:flex flex-1 flex-col justify-between p-16 text-white">
           <div className="animate-fade-in-up">
             <div className="flex items-center gap-2 xl:gap-3 mb-2 xl:mb-6">
               <div className="w-10 h-10 xl:w-14 xl:h-14 flex items-center justify-center shadow-lg rounded-xl xl:rounded-2xl overflow-hidden shrink-0">
@@ -117,9 +117,16 @@ export default function Login() {
           </div>
         </div>
 
-        {/* Right Column - Form */}
-        <div className="w-full xl:w-[550px] h-full flex items-center justify-center p-3 sm:p-4 lg:p-8 shrink-0 min-h-0">
-          <div className="w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl shadow-2xl p-5 sm:p-6 lg:p-8 border border-white/20 dark:border-slate-800/50 flex flex-col justify-center shrink-0 min-h-0">
+        {/* Right Column - Form (full-screen on mobile, fixed width on xl) */}
+        <div className="flex-1 xl:flex-none xl:w-[550px] flex items-center justify-center p-4 sm:p-6 lg:p-8 overflow-y-auto">
+          <div className="w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl shadow-2xl p-5 sm:p-6 lg:p-8 border border-white/20 dark:border-slate-800/50 my-auto">
+            {/* Mobile-only logo — hidden on xl where the left column shows it */}
+            <div className="flex xl:hidden items-center gap-2 mb-5">
+              <div className="w-9 h-9 flex items-center justify-center shadow-md rounded-xl overflow-hidden shrink-0">
+                <img src="/logo-gesticasa.png" alt="GestiCasa Logo" className="w-full h-full object-cover" />
+              </div>
+              <span className="text-lg font-bold text-slate-900 dark:text-white">Gesti<span className="text-[#FACC15]">Casa</span></span>
+            </div>
             <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mb-1 tracking-tight shrink-0">
               {isForgotPassword
                 ? (isEs ? 'Restablecer contraseña' : 'Reset password')
@@ -258,7 +265,7 @@ export default function Login() {
               </form>
             )}
 
-            <div className="mt-4 pt-3 sm:pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-center gap-2 text-slate-500 dark:text-slate-400 shrink-0">
+            <div className="mt-4 pt-3 sm:pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-center gap-2 text-slate-500 dark:text-slate-400">
               <ShieldCheck className="w-6 h-6 sm:w-8 sm:h-8 text-[#FACC15]" strokeWidth={1.5} />
               <div className="text-[10px] sm:text-xs">
                 <p className="font-semibold text-slate-700 dark:text-slate-300">
