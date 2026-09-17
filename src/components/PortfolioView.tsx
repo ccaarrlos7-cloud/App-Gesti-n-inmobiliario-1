@@ -343,12 +343,12 @@ export default function PortfolioView({ initialTab = 'Todos' }: { initialTab?: P
       </header>
 
       <div className="p-4 sm:p-6 flex-1 overflow-auto">
-        <div className="flex gap-1 sm:gap-2 mb-5 w-full bg-slate-100/50 dark:bg-slate-800/60 p-1 rounded-xl">
+        <div className="flex gap-1 sm:gap-2 mb-5 w-full bg-slate-100/50 dark:bg-slate-800/60 p-1 rounded-xl overflow-x-auto scrollbar-none">
           {tabKeys.map(tab => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`flex-1 text-center py-1.5 sm:py-2 rounded-lg text-[10px] sm:text-xs font-semibold whitespace-nowrap transition-all
+              className={`shrink-0 flex-1 min-w-fit text-center py-1.5 sm:py-2 rounded-lg text-[10px] sm:text-xs font-semibold whitespace-nowrap transition-all px-2
                 ${activeTab === tab 
                   ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm border border-slate-200/50 dark:border-slate-600' 
                   : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-slate-700/50'}`}
