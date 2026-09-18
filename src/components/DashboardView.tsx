@@ -4,7 +4,7 @@ import { yearlyAnalytics } from '../data';
 import { ViewType } from '../App';
 import { PropertyStatus } from '../types';
 import { useAppContext } from '../store';
-import { formatDate, formatNumber, getContractTruePaymentStatus } from '../utils';
+import { formatDate, formatNumber, getContractTruePaymentStatus, computeDynamicYears } from '../utils';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import SettingsModal from './SettingsModal';
 
@@ -14,7 +14,7 @@ export default function DashboardView({ onNavigate }: { onNavigate?: (view: View
   const [showIncomeModal, setShowIncomeModal] = useState(false);
   const [showExpenseModal, setShowExpenseModal] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
-  const [year, setYear] = useState<2025 | 2026>(2026);
+  const [year, setYear] = useState<number>(new Date().getFullYear());
 
   const isEs = language === 'Español';
 
@@ -230,10 +230,11 @@ export default function DashboardView({ onNavigate }: { onNavigate?: (view: View
               <select 
                 className="border border-slate-200 dark:border-slate-700 rounded text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#FACC15] cursor-pointer"
                 value={year}
-                onChange={(e) => setYear(Number(e.target.value) as 2025 | 2026)}
+                onChange={(e) => setYear(Number(e.target.value))}
               >
-                <option value={2026}>{isEs ? 'Año 2026' : 'Year 2026'}</option>
-                <option value={2025}>{isEs ? 'Año 2025' : 'Year 2025'}</option>
+                {computeDynamicYears(contracts, properties).reverse().map(y => (
+                  <option key={y} value={y}>{isEs ? `Año ${y}` : `Year ${y}`}</option>
+                ))}
               </select>
             </div>
             

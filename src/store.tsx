@@ -2,6 +2,7 @@ import React, { createContext, useState, useEffect, useContext, ReactNode, useRe
 import { Property, Tenant, Contract, Transaction, Issue, PendingInvitation } from './types';
 import { supabase } from './lib/supabase';
 import { uploadDocument, deleteDocument } from './lib/documentStorage';
+import { computeDynamicYears } from './utils';
 import { Loader2 } from 'lucide-react';
 
 interface AppContextType {
@@ -369,7 +370,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const updateContract = async (updatedContract: Contract): Promise<void> => {
     const sanitized = sanitizeContract(updatedContract);
-    
+
+    // Save previous state for rollback
+    let previousContracts: Contract[] = [];
+    setContracts(prev => { previousContracts = prev; return prev; });
+
     // Optimistic UI update: update local state immediately so Dashboard reflects changes instantly
     setContracts(prev => prev.map(c => c.id === sanitized.id ? sanitized : c));
 
@@ -379,6 +384,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const { error } = await supabase.from('contracts').update(data).eq('id', data.id);
     if (error) {
       console.error("Error al actualizar contrato:", error);
+      // Rollback: restore previous state
+      setContracts(previousContracts);
+      alert('Error al guardar el contrato. Los cambios no se han guardado. Inténtalo de nuevo.');
       return;
     }
 
@@ -394,9 +402,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const { error: ctError } = await supabase.from('contract_tenants').insert(ctData);
       if (ctError) {
         console.error("Error al actualizar inquilinos del contrato, restaurando antiguos:", ctError);
+        // Rollback: restore previous state for tenant associations
+        setContracts(previousContracts);
         if (oldCtData && oldCtData.length > 0) {
            await supabase.from('contract_tenants').insert(oldCtData);
         }
+        alert('Error al actualizar los inquilinos del contrato. Los cambios no se han guardado.');
         return;
       }
     }
@@ -488,7 +499,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   const getDynamicTransactions = () => {
-    const years = [2025, 2026];
+    const years = computeDynamicYears(contracts, properties);
     
     // Filtramos las transacciones manuales de 'Alquiler' en los años calculados
     // para que la ÚNICA fuente de ingresos por alquiler sea el CRM.
@@ -500,7 +511,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
       return true;
     });
 
-    const currentYear = new Date().getFullYear();
     const currentMonth = new Date().getMonth() + 1;
 
     years.forEach(year => {

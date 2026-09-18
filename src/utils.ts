@@ -1,5 +1,6 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { Contract, Property } from './types';
 
 export function formatDate(dateStr: string): string {
   if (!dateStr) return '';
@@ -9,6 +10,44 @@ export function formatDate(dateStr: string): string {
     return `${day}/${month}/${year}`;
   }
   return dateStr;
+}
+
+export function computeDynamicYears(contracts: Contract[], properties: Property[] = []): number[] {
+  const currentYear = new Date().getFullYear();
+  const yearsSet = new Set<number>();
+  
+  yearsSet.add(currentYear - 1);
+  yearsSet.add(currentYear);
+  yearsSet.add(currentYear + 1);
+
+  contracts?.forEach(c => {
+    let startY = null;
+    let endY = null;
+    
+    if (c.startDate) {
+      startY = parseInt(c.startDate.slice(0, 4), 10);
+      if (!isNaN(startY)) yearsSet.add(startY);
+    }
+    if (c.endDate) {
+      endY = parseInt(c.endDate.slice(0, 4), 10);
+      if (!isNaN(endY)) yearsSet.add(endY);
+    }
+
+    if (startY !== null && endY !== null && !isNaN(startY) && !isNaN(endY) && startY < endY) {
+      for (let y = startY + 1; y < endY; y++) {
+        yearsSet.add(y);
+      }
+    }
+  });
+
+  properties?.forEach(p => {
+    if (p.purchaseDate) {
+      const y = parseInt(p.purchaseDate.slice(0, 4), 10);
+      if (!isNaN(y)) yearsSet.add(y);
+    }
+  });
+
+  return Array.from(yearsSet).sort((a, b) => a - b);
 }
 
 export function formatDateTime(dateStr: string): string {
