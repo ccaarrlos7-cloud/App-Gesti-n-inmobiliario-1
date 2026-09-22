@@ -111,9 +111,9 @@ export function SettingsModalBase({
         setIsDeletingAccount(false);
         return;
       }
-      // Success: sign out — auth state change in Root.tsx will redirect to Login
-      await supabase.auth.signOut();
-      onClose();
+      // Success
+      await supabase.auth.signOut({ scope: 'local' });
+      return;
     } catch (err) {
       console.error('delete-account unexpected error:', err);
       setDeleteAccountError(
