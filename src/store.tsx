@@ -512,6 +512,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     });
 
     const currentMonth = new Date().getMonth() + 1;
+    const currentYear = new Date().getFullYear();
 
     years.forEach(year => {
       // Determinar hasta qué mes computar los gastos automáticos para el año actual

@@ -1,6 +1,6 @@
 import { formatNumber } from "../utils";
 import React, { useState, useRef, useEffect } from 'react';
-import { Camera, Moon, Globe, Bell, Download, Book, Mail, Shield, ChevronRight, ChevronLeft, User, X, Check, FileText, Table, Send, Sun, LogOut, Building2, ShieldCheck, AlertTriangle, Umbrella, KeyRound, Eye, EyeOff } from 'lucide-react';
+import { Camera, Moon, Globe, Bell, Download, Book, Mail, Shield, ChevronRight, ChevronLeft, User, X, Check, FileText, Table, Send, Sun, LogOut, Building2, ShieldCheck, AlertTriangle, Umbrella, KeyRound, Eye, EyeOff, Trash2 } from 'lucide-react';
 import { useAppContext } from '../store';
 import { supabase } from '../lib/supabase';
 import { exportYearlyDataPDF } from '../utils';
@@ -65,6 +65,66 @@ export function SettingsModalBase({
     setCpError(''); setCpSuccess(false); setCpLoading(false);
     setCpShowCurrent(false); setCpShowNew(false); setCpShowConfirm(false);
   };
+
+  // ─── Delete account ────────────────────────────────────────────────────────
+  const [showDeleteAccount, setShowDeleteAccount] = useState(false);
+  const [deleteStep, setDeleteStep] = useState<'warning' | 'confirm'>('warning');
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+  const [deleteAccountError, setDeleteAccountError] = useState('');
+
+  const openDeleteAccount = () => {
+    setDeleteStep('warning');
+    setDeleteAccountError('');
+    setShowDeleteAccount(true);
+  };
+
+  const closeDeleteAccount = () => {
+    if (isDeletingAccount) return; // Prevent closing mid-deletion
+    setShowDeleteAccount(false);
+    setDeleteStep('warning');
+    setDeleteAccountError('');
+  };
+
+  const handleDeleteAccount = async () => {
+    setIsDeletingAccount(true);
+    setDeleteAccountError('');
+    try {
+      const { data, error } = await supabase.functions.invoke('delete-account', {
+        body: {} // user_id is extracted server-side from the JWT — never sent from client
+      });
+      if (error) {
+        console.error('delete-account invocation error:', error);
+        setDeleteAccountError(
+          isEs
+            ? 'Error de conexión. Por favor, inténtalo de nuevo.'
+            : 'Connection error. Please try again.'
+        );
+        setIsDeletingAccount(false);
+        return;
+      }
+      if (data?.error) {
+        setDeleteAccountError(
+          isEs
+            ? 'No se pudo eliminar la cuenta. Inténtalo de nuevo o contacta con soporte.'
+            : 'Could not delete account. Please try again or contact support.'
+        );
+        setIsDeletingAccount(false);
+        return;
+      }
+      // Success: sign out — auth state change in Root.tsx will redirect to Login
+      await supabase.auth.signOut();
+      onClose();
+    } catch (err) {
+      console.error('delete-account unexpected error:', err);
+      setDeleteAccountError(
+        isEs
+          ? 'Ha ocurrido un error inesperado. Inténtalo de nuevo.'
+          : 'An unexpected error occurred. Please try again.'
+      );
+      setIsDeletingAccount(false);
+    }
+  };
+  // ──────────────────────────────────────────────────────────────────────────
 
   const handleChangePassword = async () => {
     setCpError('');
@@ -289,6 +349,182 @@ export function SettingsModalBase({
       await supabase.auth.signOut();
     }
   };
+
+  // ─── Delete account panel ──────────────────────────────────────────────────
+  if (showDeleteAccount) {
+    return (
+      <div
+        className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[200] flex justify-end"
+        onClick={closeDeleteAccount}
+      >
+        <div
+          className="w-full max-w-md bg-white dark:bg-slate-900 h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-200"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Header */}
+          <div className="pt-[calc(env(safe-area-inset-top)+0.5rem)] pb-2 border-b border-slate-100 dark:border-slate-800 flex items-center px-4 shrink-0 bg-white dark:bg-slate-900">
+            <button
+              onClick={closeDeleteAccount}
+              disabled={isDeletingAccount}
+              className="p-2 -ml-2 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 rounded-full hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40"
+            >
+              <ChevronLeft size={24} />
+            </button>
+            <h2 className="font-bold text-[16px] text-red-600 dark:text-red-400 ml-2">
+              {isEs ? 'Eliminar cuenta' : 'Delete account'}
+            </h2>
+          </div>
+
+          {/* Body */}
+          <div className="flex-1 overflow-y-auto p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] bg-slate-50 dark:bg-slate-900">
+            {deleteStep === 'warning' ? (
+              <div className="space-y-5">
+                {/* Icon */}
+                <div className="flex justify-center pt-2">
+                  <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center">
+                    <Trash2 size={30} className="text-red-600 dark:text-red-400" />
+                  </div>
+                </div>
+
+                {/* Title */}
+                <div className="text-center">
+                  <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">
+                    {isEs ? '¿Eliminar tu cuenta?' : 'Delete your account?'}
+                  </h3>
+                  <p className="text-sm text-slate-500 dark:text-slate-400">
+                    {isEs
+                      ? 'Esta acción es permanente y no se puede deshacer.'
+                      : 'This action is permanent and cannot be undone.'}
+                  </p>
+                </div>
+
+                {/* What will be deleted */}
+                <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50 rounded-2xl p-4">
+                  <p className="text-xs font-bold text-red-700 dark:text-red-400 uppercase tracking-wider mb-3">
+                    {isEs ? 'Se eliminarán permanentemente:' : 'Will be permanently deleted:'}
+                  </p>
+                  {!isTenant ? (
+                    <ul className="space-y-1.5">
+                      {[
+                        isEs ? 'Tu perfil y datos de cuenta' : 'Your profile and account data',
+                        isEs ? 'Todos tus inmuebles y su información' : 'All your properties and their information',
+                        isEs ? 'Todos los contratos y datos de inquilinos' : 'All contracts and tenant records',
+                        isEs ? 'Todas las transacciones e incidencias' : 'All transactions and issues',
+                        isEs ? 'Todos los documentos subidos' : 'All uploaded documents',
+                        isEs ? 'Todos los mensajes de chat' : 'All chat messages',
+                      ].map((item, i) => (
+                        <li key={i} className="flex items-start gap-2 text-xs text-red-700 dark:text-red-300">
+                          <span className="mt-0.5 text-red-400">•</span>
+                          {item}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <ul className="space-y-1.5">
+                      {[
+                        isEs ? 'Tu perfil y datos de cuenta' : 'Your profile and account data',
+                        isEs ? 'Los documentos que hayas subido' : 'Documents you have uploaded',
+                        isEs ? 'Tus mensajes en incidencias y chat' : 'Your messages in issues and chat',
+                      ].map((item, i) => (
+                        <li key={i} className="flex items-start gap-2 text-xs text-red-700 dark:text-red-300">
+                          <span className="mt-0.5 text-red-400">•</span>
+                          {item}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+
+                {/* Note for tenant */}
+                {isTenant && (
+                  <div className="bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4">
+                    <p className="text-xs text-slate-600 dark:text-slate-400">
+                      {isEs
+                        ? 'Los datos contractuales gestionados por tu propietario se conservarán según lo exija la normativa aplicable.'
+                        : 'Contractual data managed by your landlord will be retained as required by applicable regulations.'}
+                    </p>
+                  </div>
+                )}
+
+                {/* Actions */}
+                <div className="flex flex-col gap-3 pt-2">
+                  <button
+                    onClick={() => setDeleteStep('confirm')}
+                    className="w-full py-3.5 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold text-[14px] transition-colors"
+                  >
+                    {isEs ? 'Continuar con la eliminación' : 'Continue with deletion'}
+                  </button>
+                  <button
+                    onClick={closeDeleteAccount}
+                    className="w-full py-3.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 rounded-xl font-bold text-[14px] hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                  >
+                    {isEs ? 'Cancelar' : 'Cancel'}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              /* ─── Confirm step ─── */
+              <div className="space-y-5">
+                <div className="flex justify-center pt-2">
+                  <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center">
+                    <AlertTriangle size={30} className="text-red-600 dark:text-red-400" />
+                  </div>
+                </div>
+
+                <div className="text-center">
+                  <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">
+                    {isEs ? 'Confirmación final' : 'Final confirmation'}
+                  </h3>
+                  <p className="text-sm text-slate-500 dark:text-slate-400">
+                    {isEs
+                      ? '¿Estás completamente seguro? Esta operación eliminará tu cuenta de forma definitiva e irreversible.'
+                      : 'Are you absolutely sure? This will permanently and irreversibly delete your account.'}
+                  </p>
+                </div>
+
+                {deleteAccountError && (
+                  <div className="p-3.5 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 rounded-xl text-sm text-red-600 dark:text-red-400 font-medium">
+                    {deleteAccountError}
+                  </div>
+                )}
+
+                <div className="flex flex-col gap-3 pt-2">
+                  <button
+                    onClick={handleDeleteAccount}
+                    disabled={isDeletingAccount}
+                    className="w-full py-3.5 bg-red-600 hover:bg-red-700 disabled:opacity-60 disabled:cursor-not-allowed text-white rounded-xl font-bold text-[14px] transition-colors flex items-center justify-center gap-2"
+                  >
+                    {isDeletingAccount ? (
+                      <>
+                        <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                        </svg>
+                        {isEs ? 'Eliminando...' : 'Deleting...'}
+                      </>
+                    ) : (
+                      <>
+                        <Trash2 size={16} />
+                        {isEs ? 'Sí, eliminar mi cuenta definitivamente' : 'Yes, permanently delete my account'}
+                      </>
+                    )}
+                  </button>
+                  <button
+                    onClick={() => { setDeleteStep('warning'); setDeleteAccountError(''); }}
+                    disabled={isDeletingAccount}
+                    className="w-full py-3.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 rounded-xl font-bold text-[14px] hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 transition-colors"
+                  >
+                    {isEs ? 'Volver' : 'Go back'}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+  // ──────────────────────────────────────────────────────────────────────────
 
   if (showPrivacy) {
     return (
@@ -1218,7 +1454,18 @@ export function SettingsModalBase({
               </button>
             </div>
 
-            <div className="pb-8 pt-6 text-center">
+            {/* Eliminar cuenta */}
+            <div className="mt-4 mb-2">
+              <button
+                onClick={openDeleteAccount}
+                className="w-full bg-white dark:bg-slate-900 border border-red-100 dark:border-red-900/30 text-red-500 dark:text-red-500/80 p-4 rounded-2xl font-semibold text-[13px] flex items-center justify-center gap-2 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors"
+              >
+                <Trash2 size={15} />
+                {isEs ? 'Eliminar cuenta' : 'Delete account'}
+              </button>
+            </div>
+
+            <div className="pb-8 pt-4 text-center">
                <p className="text-[11px] text-slate-400 font-medium">{isEs ? 'Versión' : 'Version'} 1.1.0 (Build 2026)</p>
             </div>
 
