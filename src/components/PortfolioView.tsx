@@ -10,6 +10,7 @@ import FormattedNumberInput from './FormattedNumberInput';
 
 import { DocumentViewerModal } from './DocumentViewerModal';
 import { DocumentActionButtons } from './DocumentActionButtons';
+import { MAX_FILE_SIZE_BYTES } from '../lib/documentStorage';
 
 export default function PortfolioView({ initialTab = 'Todos' }: { initialTab?: PropertyStatus | 'Todos' }) {
   const { properties, setProperties, addProperty, updateProperty, deleteProperty, contracts, tenants, getDynamicTransactions, addTransaction, issues, addIssue, updateIssue, deleteIssue, getIssueMessages, addIssueMessage, language, userName, avatarUrl } = useAppContext();
@@ -34,6 +35,7 @@ export default function PortfolioView({ initialTab = 'Todos' }: { initialTab?: P
   const [newTx, setNewTx] = useState<Partial<Transaction>>({
     type: 'gasto', category: '', amount: 0, date: new Date().toISOString().split('T')[0], description: ''
   });
+  const [txFileError, setTxFileError] = useState<string>('');
   
   const [formError, setFormError] = useState<string>('');
   
@@ -220,6 +222,7 @@ export default function PortfolioView({ initialTab = 'Todos' }: { initialTab?: P
     };
     addTransaction(tx);
     setNewTx({ type: 'gasto', category: '', amount: 0, date: new Date().toISOString().split('T')[0], description: '', document: undefined });
+    setTxFileError('');
   };
 
   const contract = selectedProperty ? contracts.find(c => c.propertyId === selectedProperty.id) : null;
@@ -738,18 +741,29 @@ export default function PortfolioView({ initialTab = 'Todos' }: { initialTab?: P
                                 type="file" 
                                 className="w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-slate-100 dark:bg-slate-800 dark:file:bg-slate-800/50 file:text-slate-700 dark:file:text-slate-400 hover:file:bg-slate-200 dark:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded p-2 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white"
                                 onChange={(e) => {
+                                  setTxFileError('');
                                   const file = e.target.files?.[0];
-                                  if (file) {
-                                    const reader = new FileReader();
-                                    reader.onload = (event) => {
-                                      if (event.target?.result) {
-                                        setNewTx({...newTx, document: event.target.result as string});
-                                      }
-                                    };
-                                    reader.readAsDataURL(file);
+                                  if (!file) return;
+                                  if (file.size > MAX_FILE_SIZE_BYTES) {
+                                    setTxFileError(isEs ? 'El archivo es demasiado grande. El tamaño máximo permitido es de 10 MB.' : 'The file is too large. The maximum allowed size is 10 MB.');
+                                    e.target.value = '';
+                                    return;
                                   }
+                                  const reader = new FileReader();
+                                  reader.onload = (event) => {
+                                    if (event.target?.result) {
+                                      setNewTx({...newTx, document: event.target.result as string});
+                                    }
+                                  };
+                                  reader.onerror = () => {
+                                    setTxFileError(isEs ? 'Error al leer el archivo. Inténtalo de nuevo.' : 'Error reading file. Please try again.');
+                                  };
+                                  reader.readAsDataURL(file);
                                 }}
                               />
+                              {txFileError && (
+                                <p className="mt-1.5 text-[12px] font-semibold text-red-500 dark:text-red-400">{txFileError}</p>
+                              )}
                             </div>
                             <button type="submit" className="w-full bg-[#FACC15] hover:bg-[#eab308] text-slate-900 font-semibold text-sm p-2.5 rounded-lg transition-colors flex items-center justify-center gap-2">
                               {isEs ? 'Guardar Registro' : 'Save Entry'}
@@ -844,7 +858,11 @@ export default function PortfolioView({ initialTab = 'Todos' }: { initialTab?: P
                             </div>
                           ) : (
                             propertyTxs.map(tx => (
-                              <div key={tx.id} className="bg-white dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-between">
+                              <div 
+                                key={tx.id} 
+                                onClick={() => tx.document && setViewingDoc({ url: tx.document, name: tx.category || (isEs ? 'Documento' : 'Document') })}
+                                className={`bg-white dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-between ${tx.document ? 'cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/80 transition-colors' : ''}`}
+                              >
                                 <div className="flex items-center gap-3">
                                   <div className={`w-8 h-8 rounded-full flex items-center justify-center ${tx.type === 'ingreso' ? 'bg-emerald-100 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400' : 'bg-red-100 dark:bg-red-950/40 text-red-600 dark:text-red-400'}`}>
                                     {tx.type === 'ingreso' ? <TrendingUp size={16}/> : <TrendingDown size={16}/>}
@@ -853,9 +871,9 @@ export default function PortfolioView({ initialTab = 'Todos' }: { initialTab?: P
                                     <div className="font-semibold text-slate-900 dark:text-white text-[14px] leading-tight flex items-center gap-1.5">
                                       {tx.category}
                                       {tx.document && (
-                                        <a href={tx.document} target="_blank" rel="noopener noreferrer" className="text-[#FACC15] hover:text-[#FACC15]" title={isEs ? "Ver documento" : "View document"}>
+                                        <div className="text-[#FACC15] ml-1" title={isEs ? 'Documento adjunto' : 'Attached document'}>
                                           <Paperclip size={12} />
-                                        </a>
+                                        </div>
                                       )}
                                     </div>
                                     <div className="text-slate-500 dark:text-slate-400 text-[12px]">{formatDate(tx.date)}</div>

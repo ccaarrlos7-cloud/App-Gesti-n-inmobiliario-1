@@ -9,6 +9,7 @@ export default function Login() {
   const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
@@ -23,6 +24,11 @@ export default function Login() {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
       } else {
+        if (password !== confirmPassword) {
+          setError(isEs ? 'Las contraseñas no coinciden.' : 'Passwords do not match.');
+          setLoading(false);
+          return;
+        }
         const { error } = await supabase.auth.signUp({
           email,
           password,
@@ -31,6 +37,7 @@ export default function Login() {
         if (error) throw error;
         setSuccessMsg(isEs ? 'Registro exitoso. Ya puedes iniciar sesión.' : 'Registration successful. You can now log in.');
         setIsLogin(true);
+        setConfirmPassword('');
       }
     } catch (err: any) {
       setError(err.message || (isEs ? 'Ha ocurrido un error' : 'An error occurred'));
@@ -153,7 +160,7 @@ export default function Login() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => { setIsLogin(false); setError(null); setSuccessMsg(null); }}
+                  onClick={() => { setIsLogin(false); setError(null); setSuccessMsg(null); setConfirmPassword(''); }}
                   className={`flex-1 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold rounded-lg transition-all duration-300 ${!isLogin ? 'bg-[#FACC15] text-slate-900 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'}`}
                 >
                   {isEs ? 'Registrarse' : 'Sign Up'}
@@ -232,6 +239,21 @@ export default function Login() {
                     placeholder={isEs ? 'Contraseña' : 'Password'}
                   />
                 </div>
+                {!isLogin && (
+                  <div className="relative group shrink-0">
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-[#FACC15] transition-colors">
+                      <Lock className="h-4 w-4 sm:h-5 sm:w-5" />
+                    </div>
+                    <input
+                      type="password"
+                      required
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      className="block w-full pl-10 sm:pl-11 pr-3 py-2 sm:py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm sm:text-base text-slate-900 dark:text-white placeholder-slate-400 focus:ring-2 focus:ring-[#FACC15]/30 focus:border-[#FACC15] outline-none transition-all duration-200"
+                      placeholder={isEs ? 'Confirmar contraseña' : 'Confirm password'}
+                    />
+                  </div>
+                )}
                 {isLogin && (
                   <div className="flex justify-end shrink-0">
                     <button

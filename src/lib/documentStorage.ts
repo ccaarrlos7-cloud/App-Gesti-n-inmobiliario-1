@@ -2,6 +2,7 @@ import { supabase } from './supabase';
 
 export const DOCUMENT_PREFIX = 'storage://';
 export const BUCKET_NAME = 'documents';
+export const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
 
 /**
  * Uploads a file to Supabase Storage and returns the identifier string (storage://...)

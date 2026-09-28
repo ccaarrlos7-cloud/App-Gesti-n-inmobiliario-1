@@ -43,6 +43,7 @@ export function SettingsModalBase({
   const [showManual, setShowManual] = useState(false);
   const [showExport, setShowExport] = useState(false);
   const [showSupport, setShowSupport] = useState(false);
+  const [showAjustes, setShowAjustes] = useState(false);
   const [supportMessage, setSupportMessage] = useState('');
   const [supportSent, setSupportSent] = useState(false);
   const [isSendingSupport, setIsSendingSupport] = useState(false);
@@ -1165,6 +1166,67 @@ export function SettingsModalBase({
   }
   // ──────────────────────────────────────────────────────────────────────────
 
+  // ─── Ajustes panel ─────────────────────────────────────────────────────────
+  if (showAjustes && !showChangePassword && !showDeleteAccount && !showPrivacy) {
+    return (
+      <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[200] flex justify-end" onClick={() => setShowAjustes(false)}>
+        <div className="w-full max-w-md bg-slate-50 dark:bg-slate-900 h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-200" onClick={e => e.stopPropagation()}>
+          {/* Header */}
+          <div className="pt-[calc(env(safe-area-inset-top)+0.5rem)] pb-2 border-b border-slate-200 dark:border-slate-800 flex items-center px-4 shrink-0 bg-white dark:bg-slate-900">
+            <button onClick={() => setShowAjustes(false)} className="p-2 -ml-2 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 rounded-full hover:bg-slate-50 dark:hover:bg-slate-800">
+              <ChevronLeft size={24} />
+            </button>
+            <h2 className="font-bold text-[18px] text-slate-900 dark:text-white ml-2">{isEs ? 'Ajustes' : 'Settings'}</h2>
+          </div>
+
+          <div className="p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] flex-1 overflow-y-auto">
+            <h3 className="text-[12px] font-bold text-slate-400 uppercase tracking-wider mb-3 px-1">{isEs ? 'Configuración de cuenta' : 'Account Settings'}</h3>
+            <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden divide-y divide-slate-100 dark:divide-slate-700">
+                
+                {/* Cambiar contraseña */}
+                <button className="w-full p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors text-left" onClick={() => { resetCpForm(); setShowChangePassword(true); }}>
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-700 dark:text-slate-300"><KeyRound size={16}/></div>
+                    <div className="text-[14px] font-semibold text-slate-900 dark:text-white">{isEs ? 'Cambiar contraseña' : 'Change password'}</div>
+                  </div>
+                  <ChevronRight size={16} className="text-slate-400"/>
+                </button>
+
+                {/* Notificaciones */}
+                <button className="w-full p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors text-left" onClick={() => alert(isEs ? 'Configuración de notificaciones (Próximamente)' : 'Notification settings (Coming soon)')}>
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-600 dark:text-blue-400"><Bell size={16}/></div>
+                    <div className="text-[14px] font-semibold text-slate-900 dark:text-white">{isEs ? 'Notificaciones' : 'Notifications'}</div>
+                  </div>
+                  <ChevronRight size={16} className="text-slate-400"/>
+                </button>
+
+                {/* Información de la aplicación (Política) */}
+                <button className="w-full p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors text-left" onClick={() => setShowPrivacy(true)}>
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-purple-50 dark:bg-purple-900/20 flex items-center justify-center text-purple-600 dark:text-purple-400"><Shield size={16}/></div>
+                    <div className="text-[14px] font-semibold text-slate-900 dark:text-white">{isEs ? 'Información de la aplicación' : 'App Information'}</div>
+                  </div>
+                  <ChevronRight size={16} className="text-slate-400"/>
+                </button>
+                
+                {/* Eliminar cuenta */}
+                <button className="w-full p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors text-left" onClick={openDeleteAccount}>
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-red-50 dark:bg-red-900/20 flex items-center justify-center text-red-600 dark:text-red-400"><Trash2 size={16}/></div>
+                    <div className="text-[14px] font-semibold text-slate-900 dark:text-white">{isEs ? 'Eliminar cuenta' : 'Delete account'}</div>
+                  </div>
+                  <ChevronRight size={16} className="text-slate-400"/>
+                </button>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  // ──────────────────────────────────────────────────────────────────────────
+
   if (showExport) {
     return (
       <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[210] flex items-center justify-center p-4" onClick={() => setShowExport(false)}>
@@ -1397,12 +1459,12 @@ export function SettingsModalBase({
             </div>
 
             <div>
-              <h3 className="text-[12px] font-bold text-slate-400 uppercase tracking-wider mb-3 px-1">{isEs ? 'Datos y Soporte' : 'Data & Support'}</h3>
+              <h3 className="text-[12px] font-bold text-slate-400 uppercase tracking-wider mb-3 px-1">{isEs ? 'Recursos' : 'Resources'}</h3>
               <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden divide-y divide-slate-100 dark:divide-slate-700">
                 {!isTenant && onExportData && (
                   <button className="w-full p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors text-left" onClick={onExportData}>
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 dark:bg-slate-800/40 flex items-center justify-center text-slate-900 dark:text-white dark:text-[#FACC15]"><Download size={16}/></div>
+                      <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800/40 flex items-center justify-center text-[#FACC15]"><Download size={16}/></div>
                       <div className="text-[14px] font-semibold text-slate-900 dark:text-white">{isEs ? 'Extraer datos' : 'Extract data'}</div>
                     </div>
                     <ChevronRight size={16} className="text-slate-400"/>
@@ -1415,7 +1477,6 @@ export function SettingsModalBase({
                   </div>
                   <ChevronRight size={16} className="text-slate-400"/>
                 </button>
-
                 <button className="w-full p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors text-left" onClick={() => setShowSupport(true)}>
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center text-amber-600 dark:text-amber-400"><Mail size={16}/></div>
@@ -1423,29 +1484,28 @@ export function SettingsModalBase({
                   </div>
                   <ChevronRight size={16} className="text-slate-400"/>
                 </button>
-
-                <button className="w-full p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors text-left" onClick={() => { resetCpForm(); setShowChangePassword(true); }}>
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-700 dark:text-slate-300"><KeyRound size={16}/></div>
-                    <div className="text-[14px] font-semibold text-slate-900 dark:text-white">{isEs ? 'Cambiar contraseña' : 'Change password'}</div>
-                  </div>
-                  <ChevronRight size={16} className="text-slate-400"/>
-                </button>
-
-                <button className="w-full p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors text-left" onClick={() => setShowPrivacy(true)}>
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-purple-50 dark:bg-purple-900/20 flex items-center justify-center text-purple-600 dark:text-purple-400"><Shield size={16}/></div>
-                    <div className="text-[14px] font-semibold text-slate-900 dark:text-white">{isEs ? 'Política de Privacidad' : 'Privacy Policy'}</div>
-                  </div>
-                  <ChevronRight size={16} className="text-slate-400"/>
-                </button>
-
               </div>
             </div>
             
+            {/* Ajustes */}
+            <div>
+              <h3 className="text-[12px] font-bold text-slate-400 uppercase tracking-wider mb-3 px-1">{isEs ? 'Ajustes' : 'Settings'}</h3>
+              <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+                <button className="w-full p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors text-left" onClick={() => setShowAjustes(true)}>
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-[#FACC15]/20 flex items-center justify-center text-[#eab308]">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+                    </div>
+                    <div className="text-[14px] font-semibold text-slate-900 dark:text-white">{isEs ? 'Ajustes' : 'Settings'}</div>
+                  </div>
+                  <ChevronRight size={16} className="text-slate-400"/>
+                </button>
+              </div>
+            </div>
+
             {/* Cerrar sesión integrado */}
-            <div className="mt-8">
-              <button 
+            <div className="mt-2">
+              <button
                 onClick={handleLogout}
                 className="w-full bg-white dark:bg-slate-800 border border-red-200 dark:border-red-900/50 text-red-600 dark:text-red-400 p-4 rounded-2xl font-bold text-[14px] flex items-center justify-center gap-2 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors shadow-sm"
               >
@@ -1454,18 +1514,7 @@ export function SettingsModalBase({
               </button>
             </div>
 
-            {/* Eliminar cuenta */}
-            <div className="mt-4 mb-2">
-              <button
-                onClick={openDeleteAccount}
-                className="w-full bg-white dark:bg-slate-900 border border-red-100 dark:border-red-900/30 text-red-500 dark:text-red-500/80 p-4 rounded-2xl font-semibold text-[13px] flex items-center justify-center gap-2 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors"
-              >
-                <Trash2 size={15} />
-                {isEs ? 'Eliminar cuenta' : 'Delete account'}
-              </button>
-            </div>
-
-            <div className="pb-8 pt-4 text-center">
+            <div className="pb-4 pt-2 text-center">
                <p className="text-[11px] text-slate-400 font-medium">{isEs ? 'Versión' : 'Version'} 1.1.0 (Build 2026)</p>
             </div>
 
