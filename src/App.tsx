@@ -75,9 +75,9 @@ export default function App() {
   }
 
   return (
-    <div className="h-screen w-full bg-slate-50 dark:bg-slate-900 flex flex-col text-slate-900 dark:text-white font-sans overflow-hidden transition-colors pt-[env(safe-area-inset-top)]">
+    <div className="h-screen w-full bg-slate-50 dark:bg-slate-900 flex flex-col text-slate-900 dark:text-white font-sans overflow-hidden transition-colors" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
       {/* Main Content */}
-      <main className="flex-1 w-full relative overflow-hidden flex flex-col mt-2">
+      <main className="flex-1 w-full relative overflow-hidden flex flex-col">
         <div className="animate-in fade-in duration-300 h-full flex flex-col w-full">
           {currentView === 'dashboard' && <div key={`dashboard-${resetKey}`} className="h-full"><DashboardView onNavigate={navigateTo} /></div>}
           {currentView === 'portfolio' && <div key={`portfolio-${resetKey}`} className="h-full"><PortfolioView initialTab={portfolioFilter} /></div>}
@@ -87,7 +87,7 @@ export default function App() {
       </main>
 
       {/* Bottom Navigation */}
-      <nav className="shrink-0 w-full bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 flex items-center justify-around px-1 pt-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] z-50 transition-colors">
+      <nav className="shrink-0 w-full bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 flex items-center justify-around px-2 pt-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] z-50 transition-colors">
         {navigation.map((item) => (
           <button
             key={item.id}
@@ -96,21 +96,21 @@ export default function App() {
               setResetKey(prev => prev + 1);
             }}
             className={`
-              flex flex-col items-center justify-center gap-1 p-1 sm:p-2 min-w-[3.5rem] flex-1
+              flex flex-col items-center justify-center gap-1.5 py-1 px-2 flex-1 min-w-0
               ${currentView === item.id 
                 ? 'text-slate-900 dark:text-white' 
                 : 'text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300'}
             `}
           >
             <div className="relative">
-              <item.icon size={22} className={currentView === item.id ? 'text-[#eab308] dark:text-[#FACC15]' : ''} />
+              <item.icon size={24} strokeWidth={currentView === item.id ? 2.5 : 1.75} className={currentView === item.id ? 'text-[#eab308] dark:text-[#FACC15]' : ''} />
               {item.id === 'crm' && Number(totalUnread) > 0 && (
                 <span className="absolute -top-1.5 -right-2 bg-red-500 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
                   {Number(totalUnread) > 9 ? '9+' : totalUnread}
                 </span>
               )}
             </div>
-            <span className="text-[10px] sm:text-xs font-medium text-center leading-none tracking-tight">{item.name}</span>
+            <span className={`text-[11px] font-medium text-center leading-none ${ currentView === item.id ? 'font-semibold' : ''}`}>{item.name}</span>
           </button>
         ))}
       </nav>

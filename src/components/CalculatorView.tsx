@@ -104,13 +104,13 @@ export default function CalculatorView() {
         </div>
       </header>
 
-      <div className="p-4 sm:p-6 flex-1 overflow-auto bg-slate-50/50 dark:bg-slate-900/50">
+      <div className="p-3 sm:p-6 flex-1 overflow-auto bg-slate-50/50 dark:bg-slate-900/50">
         
         {/* Tabs */}
-        <div className="flex p-1 bg-slate-200/50 dark:bg-slate-800 rounded-xl mb-6 max-w-sm mx-auto">
+        <div className="flex p-1 bg-slate-200/50 dark:bg-slate-800 rounded-xl mb-3 max-w-sm mx-auto">
           <button
             onClick={() => setActiveTab('investment')}
-            className={`flex-1 py-2 text-[13px] font-bold rounded-lg transition-all flex items-center justify-center gap-2 ${
+            className={`flex-1 py-1.5 text-[13px] font-bold rounded-lg transition-all flex items-center justify-center gap-2 ${
               activeTab === 'investment' ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white font-bold shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
             }`}
           >
@@ -118,7 +118,7 @@ export default function CalculatorView() {
           </button>
           <button
             onClick={() => setActiveTab('mortgage')}
-            className={`flex-1 py-2 text-[13px] font-bold rounded-lg transition-all flex items-center justify-center gap-2 ${
+            className={`flex-1 py-1.5 text-[13px] font-bold rounded-lg transition-all flex items-center justify-center gap-2 ${
               activeTab === 'mortgage' ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white font-bold shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
             }`}
           >
@@ -128,56 +128,56 @@ export default function CalculatorView() {
 
         <div className="max-w-5xl mx-auto">
           {activeTab === 'mortgage' && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {/* Inputs */}
-              <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
-                <h2 className="text-[14px] font-bold text-slate-900 dark:text-white uppercase tracking-wider mb-4 border-b border-slate-100 dark:border-slate-700 pb-2">
+              <div className="bg-white dark:bg-slate-800 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                <h2 className="text-[12px] font-bold text-slate-900 dark:text-white uppercase tracking-wider mb-3 border-b border-slate-100 dark:border-slate-700 pb-2">
                   {isEs ? 'Datos del Préstamo' : 'Loan Details'}
                 </h2>
                 
-                <div>
-                  <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">{isEs ? 'Capital Solicitado (€)' : 'Capital (€)'}</label>
-                  <div className="relative">
-                    <Euro size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                    <FormattedInput className="w-full border border-slate-200 dark:border-slate-700 rounded-xl pl-9 pr-3 py-2.5 text-sm font-semibold bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-slate-500 outline-none transition-colors" value={mortgageCapital} onChange={setMortgageCapital} />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">{isEs ? 'Tipo de Interés (%)' : 'Interest Rate (%)'}</label>
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="col-span-3 sm:col-span-1">
+                    <label className="block text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">{isEs ? 'Capital (€)' : 'Capital (€)'}</label>
                     <div className="relative">
-                      <Percent size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                      <FormattedInput step="0.01" className="w-full border border-slate-200 dark:border-slate-700 rounded-xl pl-9 pr-3 py-2.5 text-sm font-semibold bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-slate-500 outline-none transition-colors" value={mortgageInterest} onChange={setMortgageInterest} />
+                      <Euro size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                      <FormattedInput className="w-full border border-slate-200 dark:border-slate-700 rounded-xl pl-7 pr-2 py-2 text-sm font-semibold bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-slate-500 outline-none transition-colors" value={mortgageCapital} onChange={setMortgageCapital} />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">{isEs ? 'Interés (%)' : 'Rate (%)'}</label>
+                    <div className="relative">
+                      <Percent size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                      <FormattedInput step="0.01" className="w-full border border-slate-200 dark:border-slate-700 rounded-xl pl-7 pr-2 py-2 text-sm font-semibold bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-slate-500 outline-none transition-colors" value={mortgageInterest} onChange={setMortgageInterest} />
                     </div>
                   </div>
                   <div>
-                    <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">{isEs ? 'Plazo (Años)' : 'Term (Years)'}</label>
-                    <FormattedInput className="w-full border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2.5 text-sm font-semibold bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-slate-500 outline-none transition-colors" value={mortgageYears} onChange={setMortgageYears} />
+                    <label className="block text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">{isEs ? 'Plazo (Años)' : 'Term (Yrs)'}</label>
+                    <FormattedInput className="w-full border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm font-semibold bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-slate-500 outline-none transition-colors" value={mortgageYears} onChange={setMortgageYears} />
                   </div>
                 </div>
               </div>
 
               {/* Results */}
-              <div className="space-y-4">
-                <div className="bg-slate-900 dark:bg-slate-800 border border-transparent dark:border-slate-700 p-6 rounded-2xl shadow-sm text-white flex flex-col justify-center relative overflow-hidden">
-                  <div className="absolute top-0 right-0 p-4 opacity-10"><Calculator size={100}/></div>
-                  <h3 className="text-[12px] font-bold text-slate-400 uppercase tracking-wider mb-2 relative z-10">
+              <div className="space-y-3">
+                <div className="bg-slate-900 dark:bg-slate-800 border border-transparent dark:border-slate-700 p-4 rounded-2xl shadow-sm text-white flex flex-col justify-center relative overflow-hidden">
+                  <div className="absolute top-0 right-0 p-3 opacity-10"><Calculator size={80}/></div>
+                  <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 relative z-10">
                     {isEs ? 'Cuota Mensual Estimada' : 'Estimated Monthly Payment'}
                   </h3>
-                  <div className="text-4xl sm:text-5xl font-bold mb-1 relative z-10">
+                  <div className="text-3xl sm:text-4xl font-bold mb-0 relative z-10">
                     {formatNumber(mPayment, 2)} €
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-center">
-                    <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">{isEs ? 'Total Intereses' : 'Total Interest'}</span>
-                    <span className="text-xl font-bold text-slate-900 dark:text-white">{formatNumber(mTotalInterest, 2)} €</span>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="bg-white dark:bg-slate-800 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-center">
+                    <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">{isEs ? 'Total Intereses' : 'Total Interest'}</span>
+                    <span className="text-[18px] font-bold text-slate-900 dark:text-white">{formatNumber(mTotalInterest, 2)} €</span>
                   </div>
-                  <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-center">
-                    <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">{isEs ? 'Coste Total' : 'Total Cost'}</span>
-                    <span className="text-xl font-bold text-slate-900 dark:text-white">{formatNumber(mTotalCost, 2)} €</span>
+                  <div className="bg-white dark:bg-slate-800 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-center">
+                    <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">{isEs ? 'Coste Total' : 'Total Cost'}</span>
+                    <span className="text-[18px] font-bold text-slate-900 dark:text-white">{formatNumber(mTotalCost, 2)} €</span>
                   </div>
                 </div>
               </div>

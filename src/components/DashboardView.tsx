@@ -149,7 +149,7 @@ export default function DashboardView({ onNavigate }: { onNavigate?: (view: View
                   <ArrowUpRight size={14} strokeWidth={2.5} />
                 </div>
               </div>
-              <div className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">{formatNumber(ingresosMes)} €</div>
+              <div className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">{formatNumber(ingresosMes)} €</div>
               <div className="text-[11px] text-slate-400 font-medium mt-1 group-hover:text-emerald-500 transition-colors">
                 {isEs ? 'Ver desglose' : 'View breakdown'}
               </div>
@@ -165,7 +165,7 @@ export default function DashboardView({ onNavigate }: { onNavigate?: (view: View
                   <ArrowDownRight size={14} strokeWidth={2.5} />
                 </div>
               </div>
-              <div className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">{formatNumber(gastosMes)} €</div>
+              <div className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">{formatNumber(gastosMes)} €</div>
               <div className="text-[11px] text-slate-400 font-medium mt-1 group-hover:text-rose-500 transition-colors">
                 {isEs ? 'Ver desglose' : 'View breakdown'}
               </div>
@@ -174,7 +174,7 @@ export default function DashboardView({ onNavigate }: { onNavigate?: (view: View
             <div className="bg-white dark:bg-slate-800 p-4 sm:p-5 rounded-2xl shadow-lg shadow-slate-200/40 dark:shadow-none ring-1 ring-slate-100 dark:ring-slate-700 flex flex-col">
               <div className="text-slate-500 dark:text-slate-400 text-[11px] font-bold uppercase tracking-wider mb-2">{isEs ? 'Ocupación' : 'Occupancy'}</div>
               <div className="flex items-baseline gap-1.5 mb-2 mt-auto">
-                <span className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">{ocupacion}%</span>
+                <span className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">{ocupacion}%</span>
                 <span className="text-[11px] text-slate-400 font-medium">({occupiedProperties.length}/{totalProps})</span>
               </div>
               <div className="w-full bg-slate-100 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden">
@@ -187,7 +187,7 @@ export default function DashboardView({ onNavigate }: { onNavigate?: (view: View
               className="bg-white dark:bg-slate-800 p-4 sm:p-5 rounded-2xl shadow-lg shadow-slate-200/40 dark:shadow-none ring-1 ring-slate-100 dark:ring-slate-700 flex flex-col cursor-pointer hover:ring-[#FACC15] dark:hover:ring-[#FACC15] transition-all duration-300 group"
             >
               <div className="text-slate-500 dark:text-slate-400 text-[11px] font-bold uppercase tracking-wider mb-2">{isEs ? 'Incidencias' : 'Issues'}</div>
-              <div className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight mb-2 mt-auto">{openIssuesCount}</div>
+              <div className="text-2xl font-black text-slate-900 dark:text-white tracking-tight mb-2 mt-auto">{openIssuesCount}</div>
               {openIssuesCount > 0 ? (
                 <div className="text-[11px] font-bold text-rose-500 flex items-center gap-1">
                   <AlertCircle size={12} strokeWidth={2.5} /> {isEs ? 'Requiere atención' : 'Requires attention'}
@@ -208,16 +208,16 @@ export default function DashboardView({ onNavigate }: { onNavigate?: (view: View
             <div className="absolute -right-10 -top-10 w-32 h-32 bg-[#FACC15] rounded-full blur-[60px] opacity-20 pointer-events-none"></div>
             
             <div className="text-slate-400 text-[12px] font-bold uppercase tracking-wider mb-2">{isEs ? 'Beneficio Neto' : 'Net Profit'}</div>
-            <div className="text-3xl sm:text-4xl font-black text-[#FACC15] tracking-tight">{formatNumber(beneficioAnual)} €</div>
+            <div className="text-[28px] sm:text-4xl font-black text-[#FACC15] tracking-tight">{formatNumber(beneficioAnual)} €</div>
             
             <div className="flex justify-between items-center mt-6 pt-4 border-t border-slate-700/50">
               <div>
                 <div className="text-[11px] text-slate-500 uppercase font-bold mb-1">{isEs ? 'Ingresos Totales' : 'Total Income'}</div>
-                <div className="font-bold text-[14px] text-emerald-400">{formatNumber(totalIngresosAnual)} €</div>
+                <div className="font-bold text-[15px] text-emerald-400">{formatNumber(totalIngresosAnual)} €</div>
               </div>
               <div className="text-right">
                 <div className="text-[11px] text-slate-500 uppercase font-bold mb-1">{isEs ? 'Gastos Totales' : 'Total Expenses'}</div>
-                <div className="font-bold text-[14px] text-slate-300">{formatNumber(totalGastosAnual)} €</div>
+                <div className="font-bold text-[15px] text-slate-300">{formatNumber(totalGastosAnual)} €</div>
               </div>
             </div>
           </div>
