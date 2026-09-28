@@ -8,6 +8,7 @@ import { resolveDocumentUrl } from '../lib/documentStorage';
 import { DocumentActionButtons } from './DocumentActionButtons';
 import { DocumentViewerModal } from './DocumentViewerModal';
 import { SettingsModalBase } from './SettingsModal';
+import { unregisterPush } from '../hooks/usePushNotifications';
 
 type Tab = 'home' | 'documents' | 'issues' | 'chat';
 
@@ -114,7 +115,12 @@ export default function TenantApp() {
   };
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
+    try {
+      await unregisterPush();
+      await supabase.auth.signOut();
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   const currentContract = contracts && contracts.length > 0 ? contracts[0] : null;

@@ -163,7 +163,7 @@ function ResetPasswordScreen() {
     </div>
   );
 }
-// ─────────────────────────────────────────────────────────────────────────────
+import { usePushNotifications } from './hooks/usePushNotifications';
 
 export default function Root() {
   const [session, setSession] = useState<any>(null);
@@ -173,6 +173,8 @@ export default function Root() {
   const [linking, setLinking] = useState(false);
   const [isPasswordRecovery, setIsPasswordRecovery] = useState(false);
   const isRecoveryRef = useRef(false);
+
+  usePushNotifications(session);
 
   // ─── DEEP LINK NATIVE LISTENER ─────────────────────────────────────────────
   useEffect(() => {

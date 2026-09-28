@@ -4,6 +4,7 @@ import { Camera, Moon, Globe, Bell, Download, Book, Mail, Shield, ChevronRight, 
 import { useAppContext } from '../store';
 import { supabase } from '../lib/supabase';
 import { exportYearlyDataPDF } from '../utils';
+import { unregisterPush } from '../hooks/usePushNotifications';
 
 export interface SettingsModalBaseProps {
   isOpen: boolean;
@@ -113,6 +114,7 @@ export function SettingsModalBase({
         return;
       }
       // Success
+      await unregisterPush();
       await supabase.auth.signOut({ scope: 'local' });
       return;
     } catch (err) {
