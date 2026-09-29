@@ -12,7 +12,8 @@ export const unregisterPush = async () => {
       const { error } = await supabase.from('user_push_tokens').delete().eq('device_token', token);
       if (error) console.error('[PUSH_DIAG] Error borrando token en DB:', error);
       else console.log('[PUSH_DIAG] Token borrado en DB correctamente');
-      localStorage.removeItem('push_token');
+      // No eliminamos el token de localStorage para poder reutilizarlo si el evento de
+      // registro de APNs no se dispara en el siguiente login.
     } catch (err) {
       console.error('[PUSH_DIAG] Error removing push token on logout', err);
     }
@@ -56,33 +57,29 @@ export function usePushNotifications(session: any) {
 
         console.log('[PUSH_DIAG] Permisos concedidos, registrando listeners...');
 
+        const doUpsert = async (deviceToken: string, source: string) => {
+          console.log(`[PUSH_DIAG] Intentando upsert desde ${source}. Token (parcial):`, deviceToken.substring(0, 8) + '...');
+
+          const { error } = await supabase.rpc('register_device_token', {
+            p_token: deviceToken,
+            p_platform: Capacitor.getPlatform(),
+            p_env: import.meta.env.VITE_APNS_ENVIRONMENT || 'development'
+          });
+
+          if (error) {
+            console.error('[PUSH_DIAG] Error de Supabase al registrar token:', error);
+          } else {
+            console.log(`[PUSH_DIAG] Upsert realizado con éxito en Supabase desde ${source}.`);
+          }
+        };
+
         regHandle = await PushNotifications.addListener('registration', async (token) => {
           if (!isSubscribed) {
             console.log('[PUSH_DIAG] Evento registration ignorado (unmounted)');
             return;
           }
-          console.log('[PUSH_DIAG] Evento registration recibido. Token (parcial):', token.value.substring(0, 8) + '...');
-          
           localStorage.setItem('push_token', token.value);
-
-          const payload = {
-            user_id: session.user.id,
-            device_token: token.value,
-            platform: Capacitor.getPlatform(),
-            environment: import.meta.env.VITE_APNS_ENVIRONMENT || 'development',
-            updated_at: new Date().toISOString()
-          };
-          console.log('[PUSH_DIAG] Intentando upsert en Supabase con payload:', { ...payload, device_token: payload.device_token.substring(0, 8) + '...' });
-
-          const { error } = await supabase
-            .from('user_push_tokens')
-            .upsert(payload, { onConflict: 'device_token' });
-            
-          if (error) {
-            console.error('[PUSH_DIAG] Error de Supabase (posible fallo RLS o unique):', error);
-          } else {
-            console.log('[PUSH_DIAG] Upsert realizado con éxito en Supabase.');
-          }
+          await doUpsert(token.value, 'listener');
         });
 
         errHandle = await PushNotifications.addListener('registrationError', (error: any) => {
@@ -96,6 +93,12 @@ export function usePushNotifications(session: any) {
         actHandle = await PushNotifications.addListener('pushNotificationActionPerformed', (notification) => {
           console.log('[PUSH_DIAG] Push action performed:', notification.actionId);
         });
+
+        const cachedToken = localStorage.getItem('push_token');
+        if (cachedToken) {
+          console.log('[PUSH_DIAG] Token cacheado encontrado. Realizando upsert preventivo.');
+          await doUpsert(cachedToken, 'cache');
+        }
 
         console.log('[PUSH_DIAG] Llamando a PushNotifications.register()...');
         await PushNotifications.register();

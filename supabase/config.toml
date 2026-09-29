@@ -428,3 +428,18 @@ enabled = true
 verify_jwt = true
 import_map = "./functions/delete-account/deno.json"
 entrypoint = "./functions/delete-account/index.ts"
+
+# Motor único de notificaciones push de negocio.
+# Invocado internamente por los triggers SQL via pg_net.
+# verify_jwt = false porque la autenticación es via service_role key en la cabecera.
+[functions.process-push-event]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/process-push-event/index.ts"
+
+# Detector diario de deuda del día 5.
+# Invocado por pg_cron configurado en el panel de Supabase.
+[functions.check-debt-notifications]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/check-debt-notifications/index.ts"
