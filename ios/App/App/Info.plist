@@ -35,6 +35,10 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>GestiCasa usa la cámara para que puedas hacer una foto de perfil y adjuntar fotos a incidencias o documentos.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>GestiCasa accede a tu fototeca para que puedas elegir una foto de perfil o adjuntar imágenes.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

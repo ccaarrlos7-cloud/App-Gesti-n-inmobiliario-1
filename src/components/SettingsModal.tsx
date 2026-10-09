@@ -298,14 +298,21 @@ export function SettingsModalBase({
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!setAvatarUrl) return;
-    const file = e.target.files?.[0];
+    const input = e.target;
+    const file = input.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setAvatarUrl(reader.result as string);
+        if (typeof reader.result === 'string') setAvatarUrl(reader.result);
       };
-      reader.readAsDataURL(file);
+      reader.onerror = () => console.error('No se pudo leer la imagen seleccionada');
+      try {
+        reader.readAsDataURL(file);
+      } catch (err) {
+        console.error('Error leyendo la imagen', err);
+      }
     }
+    input.value = '';
   };
 
   const saveName = () => {
