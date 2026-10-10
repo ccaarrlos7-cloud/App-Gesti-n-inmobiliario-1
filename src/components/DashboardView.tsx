@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { ArrowUpRight, ArrowDownRight, X, AlertCircle, User, Bell, CalendarClock, AlertTriangle, Building2 } from 'lucide-react';
-import { yearlyAnalytics } from '../data';
 import { ViewType } from '../App';
 import { PropertyStatus } from '../types';
 import { useAppContext } from '../store';
